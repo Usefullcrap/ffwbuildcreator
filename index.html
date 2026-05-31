@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFW Loadout Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN SYSTEM — Dusty frontier telegraph-office aesthetic
+     Dark sepia background, aged-paper panels, copper/amber accents
+  ============================================================ */
+  :root {
+    --bg:          #0f0d0a;
+    --surface:     #1a1710;
+    --panel:       #211e16;
+    --panel-hi:    #2c2820;
+    --border:      #3d3628;
+    --border-hi:   #5a4f38;
+    --copper:      #c8833a;
+    --copper-dim:  #8a5a24;
+    --amber:       #e8b84b;
+    --amber-dim:   #a07c28;
+    --sand:        #d4c49a;
+    --sand-dim:    #8c7f62;
+    --red:         #c04040;
+    --red-dim:     #7a2c2c;
+    --green:       #4a9460;
+    --green-dim:   #2e5c3c;
+    --text:        #e0d8c8;
+    --text-dim:    #8c806a;
+    --text-muted:  #5a5040;
+
+    --rarity-normal:    #888878;
+    --rarity-fine:      #5a9060;
+    --rarity-prime:     #4878c0;
+    --rarity-mythic:    #9040c0;
+    --rarity-legendary: #c89020;
+    --rarity-unique:    #c04050;
+
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
+    --font-body:    'IBM Plex Sans', sans-serif;
+
+    --radius: 3px;
+    --gap: 12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 14px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 24px, rgba(255,255,255,0.012) 24px, rgba(255,255,255,0.012) 25px),
+      repeating-linear-gradient(90deg, transparent, transparent 24px, rgba(255,255,255,0.008) 24px, rgba(255,255,255,0.008) 25px);
+  }
+
+  /* ── Header ── */
+  #app-header {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    color: var(--copper);
+    text-transform: uppercase;
+  }
+  .header-title span { color: var(--amber); }
+  .header-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* ── Layout ── */
+  #app-main {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding: 20px 18px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 340px;
+    grid-template-rows: auto;
+    gap: 14px;
+  }
+
+  /* ── Panels ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .panel-header {
+    background: var(--panel-hi);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .panel-title {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--copper);
+  }
+  .panel-tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .panel-body { padding: 14px; }
+
+  /* ── Identity panel ── */
+  #panel-identity { grid-column: 1 / -1; }
+  .identity-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--gap);
+    align-items: start;
+  }
+
+  /* ── Inputs ── */
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .field-group { margin-bottom: 10px; }
+  .field-group:last-child { margin-bottom: 0; }
+
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--copper);
+  }
+  textarea { resize: vertical; min-height: 68px; }
+  select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238c806a'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+  /* ── Buttons ── */
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid;
+    border-radius: var(--radius);
+    cursor: pointer;
+    padding: 6px 14px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-copper {
+    background: transparent;
+    border-color: var(--copper);
+    color: var(--copper);
+  }
+  .btn-copper:hover { background: var(--copper); color: var(--bg); }
+
+  .btn-amber {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .btn-amber:hover { background: var(--amber-dim); border-color: var(--amber-dim); }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text-dim);
+  }
+  .btn-ghost:hover { border-color: var(--border-hi); color: var(--text); }
+
+  .btn-red {
+    background: transparent;
+    border-color: var(--red-dim);
+    color: var(--red);
+  }
+  .btn-red:hover { background: var(--red-dim); color: var(--text); }
+
+  .btn-sm { padding: 3px 9px; font-size: 0.66rem; }
+  .btn-icon { padding: 4px 9px; font-size: 0.8rem; line-height: 1; }
+
+  /* ── Upgrade allocation row ── */
+  .upgrade-row {
+    display: grid;
+    grid-template-columns: 130px 1fr auto auto 50px;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .upgrade-row:last-child { border-bottom: none; }
+  .upgrade-name {
+    font-size: 0.82rem;
+    color: var(--sand);
+  }
+  .upgrade-bar { position: relative; height: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; cursor: pointer; }
+  .upgrade-bar-fill {
+    height: 100%;
+    background: var(--copper);
+    transition: width 0.1s;
+  }
+  .upgrade-bar-fill.maxed { background: var(--amber); }
+  .upgrade-ctrl { display: flex; gap: 3px; }
+  .upgrade-value {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--amber);
+    text-align: right;
+    min-width: 44px;
+  }
+
+  /* ── Stepper buttons ── */
+  .stepper { display: flex; gap: 2px; }
+  .step-btn {
+    width: 22px; height: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s;
+    font-family: var(--font-mono);
+  }
+  .step-btn:hover { border-color: var(--copper); color: var(--copper); }
+  .step-btn:active { background: var(--copper); color: var(--bg); }
+  .step-btn:disabled { opacity: 0.3; cursor: default; }
+  .step-btn:disabled:hover { border-color: var(--border); color: var(--text-dim); }
+
+  /* ── Slot budget bar ── */
+  .slot-budget {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .slot-budget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .slot-budget-label-val { color: var(--amber); }
+  .slot-budget-bar { height: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+  .slot-budget-fill {
+    height: 100%;
+    background: var(--copper);
+    transition: width 0.15s;
+  }
+  .slot-budget-fill.over { background: var(--red); }
+  .slot-budget-fill.full { background: var(--amber); }
+
+  /* ── Joker selector area ── */
+  .joker-slots-area { margin-top: 10px; }
+  .joker-slot-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .joker-cost-badge {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    padding: 2px 5px;
+    border-radius: 2px;
+    border: 1px solid;
+    min-width: 26px;
+    text-align: center;
+  }
+  .badge-normal    { border-color: var(--rarity-normal);    color: var(--rarity-normal); }
+  .badge-fine      { border-color: var(--rarity-fine);      color: var(--rarity-fine); }
+  .badge-prime     { border-color: var(--rarity-prime);     color: var(--rarity-prime); }
+  .badge-mythic    { border-color: var(--rarity-mythic);    color: var(--rarity-mythic); }
+  .badge-legendary { border-color: var(--rarity-legendary); color: var(--rarity-legendary); }
+  .badge-unique    { border-color: var(--rarity-unique);    color: var(--rarity-unique); }
+
+  /* ── Calculator dashboard ── */
+  .calc-metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .calc-metric-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .calc-metric-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .calc-metric-unit {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-left: 4px;
+  }
+  .calc-metric-sub {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 3px;
+    font-family: var(--font-mono);
+  }
+  .calc-metric.heal .calc-metric-value { color: var(--green); }
+  .calc-metric.dmg  .calc-metric-value { color: var(--amber); }
+
+  .calc-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin: 14px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Spell slots ── */
+  .spell-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .spell-slot-inner { text-align: center; }
+  .spell-slot-num {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+  .spell-school-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+  .spell-school-pyro   { color: #e85030; }
+  .spell-school-elec   { color: #70b0e0; }
+  .spell-school-acid   { color: #70c040; }
+  .spell-school-voodoo { color: #c060d0; }
+  .spell-school-cactus { color: #80b040; }
+
+  /* ── Import/Export ── */
+  .share-code-area {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    color: var(--sand-dim);
+    word-break: break-all;
+    min-height: 60px;
+    width: 100%;
+    resize: none;
+  }
+  .share-code-area:focus { outline: none; border-color: var(--copper); }
+
+  /* ── Hero upgrades ── */
+  .hero-upgrade-row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto auto 60px;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .hero-upgrade-row:last-child { border-bottom: none; }
+
+  /* ── Utility slot ── */
+  .utility-icon { font-size: 1.4rem; }
+
+  /* ── Weapon selector header ── */
+  .weapon-select-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .weapon-element-row {
+    margin-top: -8px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Misc utils ── */
+  .flex-row { display: flex; gap: 8px; align-items: center; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .mt8 { margin-top: 8px; }
+  .mt4 { margin-top: 4px; }
+  .dimtext { color: var(--text-dim); font-size: 0.8rem; }
+  .warn { color: var(--red); font-family: var(--font-mono); font-size: 0.68rem; }
+
+  .section-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+  }
+
+  /* Grid layout spans */
+  #panel-primary    { grid-column: 1; }
+  #panel-secondary  { grid-column: 2; }
+  #panel-right      { grid-column: 3; grid-row: 2 / 6; }
+  #panel-hero       { grid-column: 1; }
+  #panel-utility    { grid-column: 2; }
+  #panel-spells     { grid-column: 1 / 3; }
+  #panel-share      { grid-column: 1 / -1; }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    #app-main { grid-template-columns: 1fr 1fr; }
+    #panel-right  { grid-column: 1 / -1; grid-row: auto; }
+    #panel-spells { grid-column: 1 / -1; }
+    #panel-share  { grid-column: 1 / -1; }
+  }
+  @media (max-width: 680px) {
+    #app-main { grid-template-columns: 1fr; }
+    #panel-primary, #panel-secondary, #panel-hero, #panel-utility { grid-column: 1; }
+    .identity-grid { grid-template-columns: 1fr; }
+    .spell-slots-grid { grid-template-columns: 1fr; }
+    .upgrade-row { grid-template-columns: 100px 1fr auto 44px; }
+    .hero-upgrade-row { grid-template-columns: 100px 1fr auto 54px; }
+  }
+
+  /* Tooltip */
+  [data-tip] { position: relative; cursor: help; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    padding: 4px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 200;
+  }
+  [data-tip]:hover::after { opacity: 1; }
+
+  /* notify flash */
+  .notify {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--copper);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    padding: 8px 18px;
+    border-radius: var(--radius);
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+  }
+  .notify.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="app-header">
+  <div>
+    <div class="header-title">FFW <span>Loadout</span> Planner</div>
+    <div class="header-subtitle">Far Far West · Build Theory-Crafter · v1.0</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
+    <button class="btn btn-copper" onclick="doExport()">⬆ Export</button>
+    <button class="btn btn-amber" onclick="doImport()">⬇ Import</button>
+  </div>
+</header>
+
+<!-- MAIN GRID -->
+<main id="app-main">
+
+  <!-- IDENTITY PANEL -->
+  <section class="panel" id="panel-identity">
+    <div class="panel-header">
+      <div class="panel-title">⬡ Build Identity</div>
+      <div class="panel-tag">Name & Notes</div>
+    </div>
+    <div class="panel-body">
+      <div class="identity-grid">
+        <div>
+          <div class="field-group">
+            <div class="field-label">Build Name</div>
+            <input type="text" id="build-name" placeholder="Untitled Build" maxlength="64" oninput="markDirty()">
+          </div>
+        </div>
+        <div>
+          <div class="field-group">
+            <div class="field-label">Notes / Strategy</div>
+            <textarea id="build-notes" placeholder="Describe your strategy, combos, and key synergies..." rows="2" oninput="markDirty()"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIMARY WEAPON PANEL -->
+  <section class="panel" id="panel-primary">
+    <div class="panel-header">
+      <div class="panel-title">⚙ Primary Weapon</div>
+      <div class="panel-tag">Main Gun</div>
+    </div>
+    <div class="panel-body">
+      <div class="weapon-select-row">
+        <div class="field-group" style="margin:0">
+          <div class="field-label">Weapon</div>
+          <select id="primary-weapon" onchange="onPrimaryWeaponChange()">
+            <option value="">— Select Primary —</option>
+            <optgroup label="Primary Weapons">
+              <option value="leveredge">Leveredge (30 dmg · 60 DPS · ×0.50s · 10 mag)</option>
+              <option value="long-ranger">Long Ranger (50 dmg · 38 DPS · ×1.30s · 7 mag)</option>
+              <option value="minigun">Minigun (7 dmg · 7 DPS · ×1.00s · 300 mag)</option>
+              <option value="quad-cylinder">Quad Cylinder (8 dmg · 57 DPS · ×0.14s · 24 mag)</option>
+              <option value="shotgun">Shotgun (6 dmg/pellet · 20 DPS · ×0.30s · 8 shells)</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <!-- UPGRADE ALLOCATIONS -->
+      <div id="primary-upgrades">
+        <div class="field-label" style="margin-bottom:6px">Upgrade Allocation <span class="dimtext" style="text-transform:none;letter-spacing:0">(20 total slots at max level)</span></div>
+        <!-- Damage: max 8 slots, +5% per slot, up to +40% -->
+        <div class="upgrade-row" id="primary-upg-row-dmg">
+          <div class="upgrade-name" data-tip="+5% base dmg per slot, max +40%">Damage</div>
+          <div class="upgrade-bar" onclick="barClick(event,'primary','dmg')">
+            <div class="upgrade-bar-fill" id="primary-bar-dmg"></div>
+          </div>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepUpgrade('primary','dmg',-1)">−</button>
+            <button class="step-btn" onclick="stepUpgrade('primary','dmg',1)">+</button>
+          </div>
+          <div class="upgrade-value" id="primary-val-dmg">0/8</div>
+        </div>
+        <!-- Fire Rate: max 16 slots, +5% per slot, up to +80% -->
+        <div class="upgrade-row">
+          <div class="upgrade-name" data-tip="+5% fire rate per slot, max +80%">Fire Rate</div>
+          <div class="upgrade-bar" onclick="barClick(event,'primary','fr')">
+            <div class="upgrade-bar-fill" id="primary-bar-fr"></div>
+          </div>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepUpgrade('primary','fr',-1)">−</button>
+            <button class="step-btn" onclick="stepUpgrade('primary','fr',1)">+</button>
+          </div>
+          <div class="upgrade-value" id="primary-val-fr">0/16</div>
+        </div>
+        <!-- Clip Size: max 16 slots, +10% per slot, up to +160% -->
+        <div class="upgrade-row">
+          <div class="upgrade-name" data-tip="+10% clip size per slot, max +160%">Clip Size</div>
+          <div class="upgrade-bar" onclick="barClick(event,'primary','cs')">
+            <div class="upgrade-bar-fill" id="primary-bar-cs"></div>
+          </div>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepUpgrade('primary','cs',-1)">−</button>
+            <button class="step-btn" onclick="stepUpgrade('primary','cs',1)">+</button>
+          </div>
+          <div class="upgrade-value" id="primary-val-cs">0/16</div>
+        </div>
+        <!-- Reload Speed: max 16 slots, +7.5% per slot, up to +120% -->
+        <div class="upgrade-row">
+          <div class="upgrade-name" data-tip="+7.5% reload speed per slot, max +120%">Reload Spd</div>
+          <div class="upgrade-bar" onclick="barClick(event,'primary','rs')">
+            <div class="upgrade-bar-fill" id="primary-bar-rs"></div>
+          </div>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepUpgrade('primary','rs',-1)">−</button>
+            <button class="step-btn" onclick="stepUpgrade('primary','rs',1)">+</button>
+          </div>
+          <div class="upgrade-value" id="primary-val-rs">0/16</div>
+        </div>
+        <!-- Draw Speed: max 3 slots, +30% per slot, up to +90% -->
+        <div class="upgrade-row">
+          <div class="upgrade-name" data-tip="+30% draw speed per slot, max +90%">Draw Speed</div>
+          <div class="upgrade-bar" onclick="barClick(event,'primary','ds')">
+            <div class="upgrade-bar-fill" id="primary-bar-ds"></div>
+          </div>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepUpgrade('primary','ds',-1)">−</button>
+            <button class="step-btn" onclick="stepUpgrade('primary','ds',1)">+</button>
+          </div>
+          <div class="upgrade-value" id="primary-val-ds">0/3</div>
+        </div>
+        <!-- Accuracy: max 5 slots, +5% per slot, up to +25% -->
+        <div class="upgrade-row">
+          <div class="upgrade-name" data-tip="+5% accuracy per slot, max +25%">Accuracy</div>
+          <div class="upgrade-bar" onclick="barClick(event,'primary','acc')">
+            <div class="upgrade-bar-fill" id="primary-bar-acc"></div>
+          </div>
+          <div class="stepper">
+            <button class="step-btn" onclick="stepUpgrade('primary','acc',-1)">−</button>
+            <button class="step-btn" onclick="stepUpgrade('primary','acc',1)">+</button>
+          </div>
+          <div class="upgrade-value" id="primary-val-acc">0/5</div>
+        </div>
+        <!-- Slot pool indicator -->
+        <div class="slot-budget">
+          <div class="slot-budget-header">
+            <span>Upgrade Slots Used</span>
+            <span class="slot-budget-label-val"><span id="primary-slots-used">0</span> / 20</span>
+          </div>
+          <div class="slot-budget-bar">
+            <div class="slot-budget-fill" id="primary-slots-bar"></div>
+          </div>
+          <div id="primary-slots-warn" class="warn" style="margin-top:3px;display:none">⚠ Over slot limit!</div>
+        </div>
+      </div>
+
+      <!-- JOKER SLOTS -->
+      <div class="slot-budget" style="margin-top:14px;padding-top:14px">
+        <div class="slot-budget-header">
+          <span>Joker Points Used</span>
+          <span class="slot-budget-label-val"><span id="primary-joker-used">0</span> / 16 <span style="color:var(--text-muted)">(+2 prestige)</span></span>
+        </div>
+        <div class="slot-budget-bar">
+          <div class="slot-budget-fill" id="primary-joker-bar"></div>
+        </div>
+      </div>
+      <div class="joker-slots-area" id="primary-joker-slots">
+        <!-- Generated dynamically -->
+      </div>
+      <div class="flex-row mt8">
+        <button class="btn btn-ghost btn-sm" onclick="addJokerSlot('primary')">+ Add Joker Slot</button>
+        <button class="btn btn-red btn-sm" onclick="clearJokers('primary')">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECONDARY WEAPON PANEL -->
+  <section class="panel" id="panel-secondary">
+    <div class="panel-header">
+      <div class="panel-title">⚙ Secondary Weapon</div>
+      <div class="panel-tag">Sidearm</div>
+    </div>
+    <div class="panel-body">
+      <div class="weapon-select-row">
+        <div class="field-group" style="margin:0">
+          <div class="field-label">Sidearm</div>
+          <select id="secondary-weapon" onchange="onSecondaryWeaponChange()">
+            <option value="">— Select Sidearm —</option>
+            <optgroup label="Sidearms">
+              <option value="boomerang">Boomerang (throw · 1 mag · elemental)</option>
+              <option value="bow">Bow (charge shot · 1 mag · elemental)</option>
+              <option value="dual-revolvers">Dual Revolvers (11 dmg · 73 DPS · ×0.15s · elemental explosion)</option>
+              <option value="revolver">Revolver (13 dmg · 43 DPS · ×0.30s · 6 mag)</option>
+              <option value="sheriff-star">Sheriff Star (throw · 15 mag · elemental)</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <div class="weapon-element-row">
+        <div class="field-label">Elemental Type</div>
+        <select id="secondary-element" onchange="markDirty()">
+          <option value="pyro">🔥 Pyro</option>
+          <option value="elec">⚡ Elec</option>
+          <option value="acid">☠ Acid</option>
+        </select>
+      </div>
+
+      <div class="field-label" style="margin-bottom:6px">Upgrade Allocation <span class="dimtext" style="text-transform:none;letter-spacing:0">(20 total slots)</span></div>
+
+      <div class="upgrade-row">
+        <div class="upgrade-name" data-tip="+5% base dmg per slot, max +40%">Damage</div>
+        <div class="upgrade-bar" onclick="barClick(event,'secondary','dmg')">
+          <div class="upgrade-bar-fill" id="secondary-bar-dmg"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepUpgrade('secondary','dmg',-1)">−</button>
+          <button class="step-btn" onclick="stepUpgrade('secondary','dmg',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="secondary-val-dmg">0/8</div>
+      </div>
+      <div class="upgrade-row">
+        <div class="upgrade-name" data-tip="+5% fire rate per slot, max +80%">Fire Rate</div>
+        <div class="upgrade-bar" onclick="barClick(event,'secondary','fr')">
+          <div class="upgrade-bar-fill" id="secondary-bar-fr"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepUpgrade('secondary','fr',-1)">−</button>
+          <button class="step-btn" onclick="stepUpgrade('secondary','fr',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="secondary-val-fr">0/16</div>
+      </div>
+      <div class="upgrade-row">
+        <div class="upgrade-name" data-tip="+10% clip size per slot, max +160%">Clip Size</div>
+        <div class="upgrade-bar" onclick="barClick(event,'secondary','cs')">
+          <div class="upgrade-bar-fill" id="secondary-bar-cs"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepUpgrade('secondary','cs',-1)">−</button>
+          <button class="step-btn" onclick="stepUpgrade('secondary','cs',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="secondary-val-cs">0/16</div>
+      </div>
+      <div class="upgrade-row">
+        <div class="upgrade-name" data-tip="+7.5% reload speed per slot, max +120%">Reload Spd</div>
+        <div class="upgrade-bar" onclick="barClick(event,'secondary','rs')">
+          <div class="upgrade-bar-fill" id="secondary-bar-rs"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepUpgrade('secondary','rs',-1)">−</button>
+          <button class="step-btn" onclick="stepUpgrade('secondary','rs',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="secondary-val-rs">0/16</div>
+      </div>
+      <div class="upgrade-row">
+        <div class="upgrade-name" data-tip="+30% draw speed per slot, max +90%">Draw Speed</div>
+        <div class="upgrade-bar" onclick="barClick(event,'secondary','ds')">
+          <div class="upgrade-bar-fill" id="secondary-bar-ds"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepUpgrade('secondary','ds',-1)">−</button>
+          <button class="step-btn" onclick="stepUpgrade('secondary','ds',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="secondary-val-ds">0/3</div>
+      </div>
+      <!-- Lifesteal (sidearm-specific) -->
+      <div class="upgrade-row">
+        <div class="upgrade-name" data-tip="+3% lifesteal per slot, max +24% (8 slots)">Lifesteal</div>
+        <div class="upgrade-bar" onclick="barClick(event,'secondary','ls')">
+          <div class="upgrade-bar-fill" id="secondary-bar-ls"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepUpgrade('secondary','ls',-1)">−</button>
+          <button class="step-btn" onclick="stepUpgrade('secondary','ls',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="secondary-val-ls">0/8</div>
+      </div>
+
+      <div class="slot-budget">
+        <div class="slot-budget-header">
+          <span>Upgrade Slots Used</span>
+          <span class="slot-budget-label-val"><span id="secondary-slots-used">0</span> / 20</span>
+        </div>
+        <div class="slot-budget-bar">
+          <div class="slot-budget-fill" id="secondary-slots-bar"></div>
+        </div>
+        <div id="secondary-slots-warn" class="warn" style="margin-top:3px;display:none">⚠ Over slot limit!</div>
+      </div>
+
+      <div class="slot-budget" style="margin-top:14px;padding-top:14px">
+        <div class="slot-budget-header">
+          <span>Joker Points Used</span>
+          <span class="slot-budget-label-val"><span id="secondary-joker-used">0</span> / 16</span>
+        </div>
+        <div class="slot-budget-bar">
+          <div class="slot-budget-fill" id="secondary-joker-bar"></div>
+        </div>
+      </div>
+      <div class="joker-slots-area" id="secondary-joker-slots"></div>
+      <div class="flex-row mt8">
+        <button class="btn btn-ghost btn-sm" onclick="addJokerSlot('secondary')">+ Add Joker Slot</button>
+        <button class="btn btn-red btn-sm" onclick="clearJokers('secondary')">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT COLUMN: CALCULATOR -->
+  <section class="panel" id="panel-right">
+    <div class="panel-header">
+      <div class="panel-title">◈ Calculator</div>
+      <div class="panel-tag">Real-Time Stats</div>
+    </div>
+    <div class="panel-body">
+
+      <div class="calc-section-title">Primary DPS</div>
+      <div class="calc-metric dmg">
+        <div class="calc-metric-label">Theoretical DPS</div>
+        <div class="calc-metric-value" id="calc-primary-dps">—<span class="calc-metric-unit">dmg/s</span></div>
+        <div class="calc-metric-sub" id="calc-primary-dps-sub">Select a weapon to calculate</div>
+      </div>
+      <div class="calc-metric dmg">
+        <div class="calc-metric-label">Single-Hit Damage</div>
+        <div class="calc-metric-value" id="calc-primary-hit">—<span class="calc-metric-unit">dmg</span></div>
+        <div class="calc-metric-sub" id="calc-primary-hit-sub">Base × Damage upgrade multiplier</div>
+      </div>
+
+      <div class="calc-section-title">Secondary DPS</div>
+      <div class="calc-metric dmg">
+        <div class="calc-metric-label">Theoretical DPS</div>
+        <div class="calc-metric-value" id="calc-secondary-dps">—<span class="calc-metric-unit">dmg/s</span></div>
+        <div class="calc-metric-sub" id="calc-secondary-dps-sub">Select a sidearm</div>
+      </div>
+      <div class="calc-metric dmg">
+        <div class="calc-metric-label">Single-Hit Damage</div>
+        <div class="calc-metric-value" id="calc-secondary-hit">—<span class="calc-metric-unit">dmg</span></div>
+        <div class="calc-metric-sub" id="calc-secondary-hit-sub">Base × Damage upgrade multiplier</div>
+      </div>
+
+      <div class="calc-section-title">Joker Modifiers</div>
+      <div class="calc-metric dmg">
+        <div class="calc-metric-label">Effective Damage Multiplier</div>
+        <div class="calc-metric-value" id="calc-joker-dmg-mult">×1.00</div>
+        <div class="calc-metric-sub" id="calc-joker-dmg-sub">Glass Cannon, Headbang, Weak Link, etc.</div>
+      </div>
+
+      <div class="calc-section-title">Recovery / Sustain</div>
+      <div class="calc-metric heal">
+        <div class="calc-metric-label">Theoretical HPS (Voodoo / Lifesteal)</div>
+        <div class="calc-metric-value" id="calc-hps">—<span class="calc-metric-unit">hp/s</span></div>
+        <div class="calc-metric-sub" id="calc-hps-sub">Lifesteal + Hit Me regen estimate</div>
+      </div>
+      <div class="calc-metric heal">
+        <div class="calc-metric-label">Hero HP Pool (Upgraded)</div>
+        <div class="calc-metric-value" id="calc-hero-hp">100<span class="calc-metric-unit">hp</span></div>
+        <div class="calc-metric-sub">Base 100 HP × Health upgrade multiplier</div>
+      </div>
+
+      <div class="calc-section-title">Joker Budget Summary</div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);line-height:1.9">
+        <div class="flex-between"><span>Primary Jokers</span><span id="sum-primary-joker" style="color:var(--amber)">0/16 pts</span></div>
+        <div class="flex-between"><span>Secondary Jokers</span><span id="sum-secondary-joker" style="color:var(--amber)">0/16 pts</span></div>
+        <div class="flex-between"><span>Hero Jokers</span><span id="sum-hero-joker" style="color:var(--amber)">0/16 pts</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HERO PANEL -->
+  <section class="panel" id="panel-hero">
+    <div class="panel-header">
+      <div class="panel-title">★ Hero Profile</div>
+      <div class="panel-tag">Max Level · Prestige 5</div>
+    </div>
+    <div class="panel-body">
+      <div class="field-label" style="margin-bottom:6px">Hero Upgrades <span class="dimtext" style="text-transform:none;letter-spacing:0">(26 total slots at max prestige)</span></div>
+
+      <!-- Hero has: Health, Spell CDR, Speed, Ammo Bag, Jump Height -->
+      <div class="hero-upgrade-row">
+        <div class="upgrade-name" data-tip="+6% max HP per slot, max +30% (5 slots)">Health</div>
+        <div class="upgrade-bar" onclick="heroBarClick(event,'health')">
+          <div class="upgrade-bar-fill" id="hero-bar-health"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepHero('health',-1)">−</button>
+          <button class="step-btn" onclick="stepHero('health',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="hero-val-health">0/5</div>
+      </div>
+      <div class="hero-upgrade-row">
+        <div class="upgrade-name" data-tip="+3% Spell CDR per slot, max +12% (4 slots)">Spell CDR</div>
+        <div class="upgrade-bar" onclick="heroBarClick(event,'cdr')">
+          <div class="upgrade-bar-fill" id="hero-bar-cdr"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepHero('cdr',-1)">−</button>
+          <button class="step-btn" onclick="stepHero('cdr',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="hero-val-cdr">0/4</div>
+      </div>
+      <div class="hero-upgrade-row">
+        <div class="upgrade-name" data-tip="+6% move speed per slot, max +24% (4 slots)">Speed</div>
+        <div class="upgrade-bar" onclick="heroBarClick(event,'speed')">
+          <div class="upgrade-bar-fill" id="hero-bar-speed"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepHero('speed',-1)">−</button>
+          <button class="step-btn" onclick="stepHero('speed',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="hero-val-speed">0/4</div>
+      </div>
+      <div class="hero-upgrade-row">
+        <div class="upgrade-name" data-tip="+10% ammo bag per slot, max +40% (4 slots)">Ammo Bag</div>
+        <div class="upgrade-bar" onclick="heroBarClick(event,'ammo')">
+          <div class="upgrade-bar-fill" id="hero-bar-ammo"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepHero('ammo',-1)">−</button>
+          <button class="step-btn" onclick="stepHero('ammo',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="hero-val-ammo">0/4</div>
+      </div>
+      <div class="hero-upgrade-row">
+        <div class="upgrade-name" data-tip="+14% jump height per slot, max +42% (3 slots)">Jump Height</div>
+        <div class="upgrade-bar" onclick="heroBarClick(event,'jump')">
+          <div class="upgrade-bar-fill" id="hero-bar-jump"></div>
+        </div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepHero('jump',-1)">−</button>
+          <button class="step-btn" onclick="stepHero('jump',1)">+</button>
+        </div>
+        <div class="upgrade-value" id="hero-val-jump">0/3</div>
+      </div>
+
+      <div class="slot-budget">
+        <div class="slot-budget-header">
+          <span>Hero Upgrade Slots</span>
+          <span class="slot-budget-label-val"><span id="hero-slots-used">0</span> / 26</span>
+        </div>
+        <div class="slot-budget-bar">
+          <div class="slot-budget-fill" id="hero-slots-bar"></div>
+        </div>
+        <div id="hero-slots-warn" class="warn" style="margin-top:3px;display:none">⚠ Over slot limit!</div>
+      </div>
+
+      <!-- Hero Jokers -->
+      <div class="slot-budget" style="margin-top:14px;padding-top:14px">
+        <div class="slot-budget-header">
+          <span>Hero Joker Points</span>
+          <span class="slot-budget-label-val"><span id="hero-joker-used">0</span> / 16</span>
+        </div>
+        <div class="slot-budget-bar">
+          <div class="slot-budget-fill" id="hero-joker-bar"></div>
+        </div>
+      </div>
+      <div class="joker-slots-area" id="hero-joker-slots"></div>
+      <div class="flex-row mt8">
+        <button class="btn btn-ghost btn-sm" onclick="addJokerSlot('hero')">+ Add Joker Slot</button>
+        <button class="btn btn-red btn-sm" onclick="clearJokers('hero')">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- UTILITY PANEL -->
+  <section class="panel" id="panel-utility">
+    <div class="panel-header">
+      <div class="panel-title">◉ Utility Slot</div>
+      <div class="panel-tag">Single-Use Equipment</div>
+    </div>
+    <div class="panel-body">
+      <div class="field-group">
+        <div class="field-label">Utility Equipment</div>
+        <select id="utility-select" onchange="markDirty()">
+          <option value="">— None —</option>
+          <option value="ammo-pack">📦 Ammo Pack — Instant ammo resupply for all weapons</option>
+          <option value="bottle-crate">🍾 Bottle Crate — Instant HP restore for nearby allies</option>
+          <option value="healing-area">💊 Healing Area — Deploy a sustained heal zone</option>
+          <option value="impulse-grenade">💥 Impulse Grenade — AoE knockback &amp; positioning tool</option>
+        </select>
+      </div>
+      <div class="section-divider"></div>
+      <div class="field-label" style="margin-bottom:6px">Utility Notes</div>
+      <div class="dimtext" style="font-size:0.78rem;line-height:1.6">
+        Utility items are single-use per mission. 
+        <strong style="color:var(--sand)">Toolbox</strong> (Legendary Joker) auto-refills utility every 90s.
+        <strong style="color:var(--sand)">Care Package</strong> (Fine Joker) grants +1 extra use.
+        <strong style="color:var(--sand)">Lazy</strong> Joker disables utility pickups but allows passive regen.
+      </div>
+      <div id="utility-toolbox-note" style="margin-top:8px;display:none" class="dimtext">
+        <span style="color:var(--copper)">⚡ Toolbox detected</span> — utility recharges every 90s.
+      </div>
+    </div>
+  </section>
+
+  <!-- SPELLS PANEL -->
+  <section class="panel" id="panel-spells">
+    <div class="panel-header">
+      <div class="panel-title">✦ Ability Slots</div>
+      <div class="panel-tag">Up to 3 Active Spells</div>
+    </div>
+    <div class="panel-body">
+      <div class="spell-slots-grid">
+        <!-- Slot 1 -->
+        <div class="spell-slot-inner">
+          <div class="spell-slot-num">Slot 1</div>
+          <select id="spell-1" onchange="onSpellChange(1)">
+            <option value="">— None —</option>
+          </select>
+          <div class="spell-school-label" id="spell-1-school"></div>
+        </div>
+        <!-- Slot 2 -->
+        <div class="spell-slot-inner">
+          <div class="spell-slot-num">Slot 2</div>
+          <select id="spell-2" onchange="onSpellChange(2)">
+            <option value="">— None —</option>
+          </select>
+          <div class="spell-school-label" id="spell-2-school"></div>
+        </div>
+        <!-- Slot 3 -->
+        <div class="spell-slot-inner">
+          <div class="spell-slot-num">Slot 3 (Unlock: Hero Lv 3)</div>
+          <select id="spell-3" onchange="onSpellChange(3)">
+            <option value="">— None —</option>
+          </select>
+          <div class="spell-school-label" id="spell-3-school"></div>
+        </div>
+      </div>
+
+      <!-- Combo hint -->
+      <div id="combo-hint" class="dimtext" style="margin-top:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:0.78rem;display:none"></div>
+    </div>
+  </section>
+
+  <!-- SHARE / IMPORT-EXPORT PANEL -->
+  <section class="panel" id="panel-share">
+    <div class="panel-header">
+      <div class="panel-title">⇄ State Share</div>
+      <div class="panel-tag">Import · Export · Share</div>
+    </div>
+    <div class="panel-body">
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end">
+        <div>
+          <div class="field-label" style="margin-bottom:4px">Build Code (Base64)</div>
+          <textarea class="share-code-area" id="share-code" rows="3" placeholder="Paste a build code here to import, or click Export to generate one…"></textarea>
+        </div>
+        <button class="btn btn-copper" style="align-self:end" onclick="doExport()">Export ⬆</button>
+        <button class="btn btn-amber" style="align-self:end" onclick="importFromCode()">Import ⬇</button>
+      </div>
+      <div class="dimtext mt8" style="font-size:0.76rem">
+        Export generates a compact code encoding your full build state. Paste the code and click Import to restore any saved build.
+        <span style="color:var(--copper)"> Tip: bookmark or share the URL after pasting the code in #build-name.</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- NOTIFY TOAST -->
+<div class="notify" id="notify-toast"></div>
+
+<script>
+// =============================================================
+//  DATA DEFINITIONS
+// =============================================================
+
+const WEAPONS = {
+  // Primaries
+  'leveredge':      { name:'Leveredge',       type:'primary',   baseDmg:30, fireRate:0.50, mag:10,  dps:60  },
+  'long-ranger':    { name:'Long Ranger',      type:'primary',   baseDmg:50, fireRate:1.30, mag:7,   dps:38  },
+  'minigun':        { name:'Minigun',          type:'primary',   baseDmg:7,  fireRate:1.00, mag:300, dps:7   },
+  'quad-cylinder':  { name:'Quad Cylinder',    type:'primary',   baseDmg:8,  fireRate:0.14, mag:24,  dps:57  },
+  'shotgun':        { name:'Shotgun',          type:'primary',   baseDmg:6,  fireRate:0.30, mag:8,   dps:20, pellets:12 },
+  // Sidearms
+  'boomerang':      { name:'Boomerang',        type:'secondary', baseDmg:25, fireRate:0.60, mag:1,   dps:25, elemental:true },
+  'bow':            { name:'Bow',              type:'secondary', baseDmg:40, fireRate:0.60, mag:1,   dps:30, elemental:true },
+  'dual-revolvers': { name:'Dual Revolvers',   type:'secondary', baseDmg:11, fireRate:0.15, mag:12,  dps:73, elemental:true },
+  'revolver':       { name:'Revolver',         type:'secondary', baseDmg:13, fireRate:0.30, mag:6,   dps:43, elemental:true },
+  'sheriff-star':   { name:'Sheriff Star',     type:'secondary', baseDmg:20, fireRate:0.50, mag:15,  dps:40, elemental:true },
+};
+
+const UPGRADE_DEFS = {
+  dmg: { label:'Damage',      max:8,  perSlot:5,   unit:'%',  cap:40  },
+  fr:  { label:'Fire Rate',   max:16, perSlot:5,   unit:'%',  cap:80  },
+  cs:  { label:'Clip Size',   max:16, perSlot:10,  unit:'%',  cap:160 },
+  rs:  { label:'Reload Spd',  max:16, perSlot:7.5, unit:'%',  cap:120 },
+  ds:  { label:'Draw Speed',  max:3,  perSlot:30,  unit:'%',  cap:90  },
+  acc: { label:'Accuracy',    max:5,  perSlot:5,   unit:'%',  cap:25  },
+  ls:  { label:'Lifesteal',   max:8,  perSlot:3,   unit:'%',  cap:24  },
+};
+
+const HERO_UPGRADE_DEFS = {
+  health: { label:'Health',     max:5, perSlot:6,  unit:'%', cap:30 },
+  cdr:    { label:'Spell CDR',  max:4, perSlot:3,  unit:'%', cap:12 },
+  speed:  { label:'Speed',      max:4, perSlot:6,  unit:'%', cap:24 },
+  ammo:   { label:'Ammo Bag',   max:4, perSlot:10, unit:'%', cap:40 },
+  jump:   { label:'Jump Height',max:3, perSlot:14, unit:'%', cap:42 },
+};
+
+// Rarity: Normal=1, Fine=2, Prime=3, Mythic=4, Legendary=5, Unique=5 (weapon-specific)
+const JOKERS = [
+  // Normal (1pt)
+  { id:'chickshot',       name:'Chickshot',          rarity:'normal',    cost:1,  scope:'weapon', effect:'+50% chance bullets make chicken sounds' },
+  { id:'cushion-boots',   name:'Cushion Boots',      rarity:'normal',    cost:1,  scope:'hero',   effect:'Negates fall damage' },
+  { id:'deadly-strong',   name:'Deadly Strong',      rarity:'normal',    cost:1,  scope:'hero',   effect:'Faster & more dmg as a ghost' },
+  { id:'gold-tooth',      name:'Gold Tooth',         rarity:'normal',    cost:1,  scope:'hero',   effect:'+10% chance enemies drop gold' },
+  { id:'heavy-drinker',   name:'Heavy Drinker',      rarity:'normal',    cost:1,  scope:'hero',   effect:'Healing bottles 25% more effective' },
+  { id:'helping-hand',    name:'Helping Hand',       rarity:'normal',    cost:1,  scope:'hero',   effect:'Revive allies 2× faster' },
+  { id:'last-dance',      name:'Last Dance',         rarity:'normal',    cost:1,  scope:'hero',   effect:'+30% move speed under 30% HP' },
+  { id:'party-shot',      name:'Party Shot',         rarity:'normal',    cost:1,  scope:'weapon', effect:'+50% chance weakspot hits blow confetti' },
+  { id:'pigshot',         name:'Pigshot',            rarity:'normal',    cost:1,  scope:'weapon', effect:'+5% chance to spawn explosive pig on hit' },
+  { id:'relentless',      name:'Relentless',         rarity:'normal',    cost:1,  scope:'hero',   effect:'+30% damage under 30% HP', dmgMult:0.30 },
+  { id:'rubber-duck',     name:'Rubber Duck',        rarity:'normal',    cost:1,  scope:'hero',   effect:'Walking makes rubber duck noises' },
+  { id:'shine-bright',    name:'Shine Bright',       rarity:'normal',    cost:1,  scope:'hero',   effect:'+50% hero glow' },
+  { id:'swift-shot',      name:'Swift Shot',         rarity:'normal',    cost:1,  scope:'weapon', effect:'+10% fire rate when aiming' },
+  // Fine (2pt)
+  { id:'anti-gravity-falls', name:'Anti-Gravity Falls', rarity:'fine',  cost:2,  scope:'hero',   effect:'+2% chance to spawn anti-grav area on death' },
+  { id:'bell-shot',       name:'Bell Shot',          rarity:'fine',      cost:2,  scope:'weapon', effect:'+5% chance precision hits summon healing bell', hpRegen:true },
+  { id:'bouncing-ball',   name:'Bouncing Ball',      rarity:'fine',      cost:2,  scope:'hero',   effect:'+15% damage while airborne', dmgMult:0.15 },
+  { id:'cactus-day',      name:'Cactus Day',         rarity:'fine',      cost:2,  scope:'hero',   effect:'+3% chance to spawn Cactus Mino on kill' },
+  { id:'care-package',    name:'Care Package',       rarity:'fine',      cost:2,  scope:'hero',   effect:'+1 Utility charge' },
+  { id:'chad',            name:'Chad',               rarity:'fine',      cost:2,  scope:'hero',   effect:'Reveals Wandering Trader + 20% discount' },
+  { id:'clutch',          name:'Clutch',             rarity:'fine',      cost:2,  scope:'weapon', effect:'Last 2 bullets in magazine are explosive', dmgMult:0.10 },
+  { id:'fist-fight',      name:'Fist Fight',         rarity:'fine',      cost:2,  scope:'hero',   effect:'Melee hits are 2× powerful' },
+  { id:'gold-prospector', name:'Gold Prospector',    rarity:'fine',      cost:2,  scope:'hero',   effect:'+20% Gold at end of mission' },
+  { id:'pick-pick',       name:'Pick Pick',          rarity:'fine',      cost:2,  scope:'weapon', effect:'+5% chance on hit to spawn damaging pickaxes' },
+  { id:'rage',            name:'Rage',               rarity:'fine',      cost:2,  scope:'hero',   effect:'At 25% HP: burning wave (60s CD)' },
+  { id:'rampage',         name:'Rampage',            rarity:'fine',      cost:2,  scope:'hero',   effect:'+25% move speed for 3s on kill' },
+  { id:'run-and-gun',     name:'Run & Gun',          rarity:'fine',      cost:2,  scope:'hero',   effect:'+30% move speed when shooting' },
+  { id:'run-and-reload',  name:'Run & Reload',       rarity:'fine',      cost:2,  scope:'hero',   effect:'+30% move speed when reloading' },
+  { id:'shroom-grave',    name:'Shroom Grave',       rarity:'fine',      cost:2,  scope:'hero',   effect:'+10% chance to spawn healing shroom on kill', hpRegen:true },
+  { id:'soul-reaper',     name:'Soul Reaper',        rarity:'fine',      cost:2,  scope:'hero',   effect:'+20% Souls at end of mission' },
+  { id:'soul-siphon',     name:'Soul Siphon',        rarity:'fine',      cost:2,  scope:'hero',   effect:'+Soul pickup range, +2 HP per soul', hpRegen:true },
+  { id:'speedy-gunzales', name:'Speedy Gunzales',    rarity:'fine',      cost:2,  scope:'hero',   effect:'+10% move speed' },
+  // Prime (3pt)
+  { id:'ammo-supply',     name:'Ammo Supply',        rarity:'prime',     cost:3,  scope:'hero',   effect:'+5% chance enemies drop ammo box' },
+  { id:'cheapskate',      name:'Cheapskate',         rarity:'prime',     cost:3,  scope:'hero',   effect:'+1 HP per 20 Gold in inventory', hpRegen:true },
+  { id:'chonky',          name:'Chonky',             rarity:'prime',     cost:3,  scope:'hero',   effect:'+20% damage, +25% gravity', dmgMult:0.20 },
+  { id:'destroyer',       name:'Destroyer',          rarity:'prime',     cost:3,  scope:'weapon', effect:'First 25% of clip: +15% damage', dmgMult:0.075 },
+  { id:'disgrace',        name:'Disgrace',           rarity:'prime',     cost:3,  scope:'hero',   effect:'+30% move speed; horse refuses you' },
+  { id:'explosive-rounds',name:'Explosive Rounds',   rarity:'prime',     cost:3,  scope:'weapon', effect:'+5% chance to fire Pyro explosive projectiles' },
+  { id:'healthy-boi',     name:'Healthy Boi',        rarity:'prime',     cost:3,  scope:'hero',   effect:'+20% speed/reload/fire rate at full HP', dmgMult:0.20 },
+  { id:'lucky-strike',    name:'Lucky Strike',       rarity:'prime',     cost:3,  scope:'weapon', effect:'+10% chance to deal double damage', dmgMult:0.10 },
+  { id:'magic-friendship',name:'Magic Friendship',   rarity:'prime',     cost:3,  scope:'hero',   effect:'Passive HP regen near allies', hpRegen:true },
+  { id:'reload-mastery',  name:'Reload Mastery',     rarity:'prime',     cost:3,  scope:'weapon', effect:'Empty-clip reloads 50% faster' },
+  { id:'soul-eater',      name:'Soul Eater',         rarity:'prime',     cost:3,  scope:'hero',   effect:'Soul pickup: +20% damage & reload 5s', dmgMult:0.10 },
+  { id:'stonks',          name:'Stonks',             rarity:'prime',     cost:3,  scope:'hero',   effect:'+15% chance chests contain a Joker' },
+  { id:'weak-link',       name:'Weak Link',          rarity:'prime',     cost:3,  scope:'weapon', effect:'Weakspot +35%, regular hits −35%', dmgMult:0.175 },
+  { id:'weakspot-refund', name:'Weakspot Refund',    rarity:'prime',     cost:3,  scope:'weapon', effect:'+20% chance to refund bullet on weakspot' },
+  // Mythic (4pt)
+  { id:'acid-mastery',    name:'Acid Mastery',       rarity:'mythic',    cost:4,  scope:'hero',   effect:'−10% Acid CDR per equipped Acid spell' },
+  { id:'battlemage',      name:'Battlemage',         rarity:'mythic',    cost:4,  scope:'hero',   effect:'Kills shorten ongoing spell CDR by 1%' },
+  { id:'cactus-mastery',  name:'Cactus Mastery',     rarity:'mythic',    cost:4,  scope:'hero',   effect:'−10% Cactus CDR per equipped Cactus spell' },
+  { id:'consumer',        name:'Consumer',           rarity:'mythic',    cost:4,  scope:'weapon', effect:'+20% weapon damage; reload wastes ammo', dmgMult:0.20 },
+  { id:'elec-mastery',    name:'Elec Mastery',       rarity:'mythic',    cost:4,  scope:'hero',   effect:'−10% Elec CDR per equipped Elec spell' },
+  { id:'extra-jump',      name:'Extra Jump',         rarity:'mythic',    cost:4,  scope:'hero',   effect:'+1 Jump' },
+  { id:'headbang',        name:'Headbang',           rarity:'mythic',    cost:4,  scope:'weapon', effect:'+20% damage to weakspots', dmgMult:0.20 },
+  { id:'hit-me',          name:'Hit Me',             rarity:'mythic',    cost:4,  scope:'hero',   effect:'Heal 0.5 HP/s for 20s after being hit', hpRegen:true, hpsValue:0.5 },
+  { id:'hoarder',         name:'Hoarder',            rarity:'mythic',    cost:4,  scope:'hero',   effect:'+15% chance picked-up Jokers spawn another' },
+  { id:'joker-dealer',    name:'Joker Dealer',       rarity:'mythic',    cost:4,  scope:'hero',   effect:'+1 HP per active Joker', hpRegen:true },
+  { id:'lazy',            name:'Lazy',               rarity:'mythic',    cost:4,  scope:'hero',   effect:'No ammo pickups; passive ammo regen' },
+  { id:'life-pact',       name:'Life Pact',          rarity:'mythic',    cost:4,  scope:'hero',   effect:'Kills heal 2 HP; max HP −30%', hpRegen:true, hpsValue:1.0 },
+  { id:'medicard',        name:'Medicard',           rarity:'mythic',    cost:4,  scope:'hero',   effect:'Picking up a Joker heals +50 HP', hpRegen:true },
+  { id:'moon-gravity',    name:'Moon Gravity',       rarity:'mythic',    cost:4,  scope:'hero',   effect:'25% lower gravity' },
+  { id:'pyro-mastery',    name:'Pyro Mastery',       rarity:'mythic',    cost:4,  scope:'hero',   effect:'−10% Pyro CDR per equipped Pyro spell' },
+  { id:'second-wind',     name:'Second Wind',        rarity:'mythic',    cost:4,  scope:'hero',   effect:'Heal 50 HP instead of dying (180s CD)', hpRegen:true, hpsValue:0.3 },
+  { id:'voodoo-mastery',  name:'Voodoo Mastery',     rarity:'mythic',    cost:4,  scope:'hero',   effect:'−10% Voodoo CDR per equipped Voodoo spell' },
+  { id:'west-wizard',     name:'West Wizard',        rarity:'mythic',    cost:4,  scope:'hero',   effect:'−30% spell CDR; −30% HP' },
+  // Legendary (5pt)
+  { id:'camper',          name:'Camper',             rarity:'legendary', cost:5,  scope:'weapon', effect:'50% chance not to consume ammo while still' },
+  { id:'cantrip',         name:'Cantrip One-Trick',  rarity:'legendary', cost:5,  scope:'hero',   effect:'−20% CDR on spells with base CD ≤35s' },
+  { id:'dwarf',           name:'Dwarf',              rarity:'legendary', cost:5,  scope:'hero',   effect:'Smaller hitbox; +move speed, +fire rate, lower grav' },
+  { id:'extra-dash',      name:'Extra Dash',         rarity:'legendary', cost:5,  scope:'hero',   effect:'+1 Dash charge' },
+  { id:'giant',           name:'Giant',              rarity:'legendary', cost:5,  scope:'hero',   effect:'+HP, +weapon damage, +Spell CDR', dmgMult:0.20 },
+  { id:'glass-cannon',    name:'Glass Cannon',       rarity:'legendary', cost:5,  scope:'hero',   effect:'+40% weapon & melee damage; −25% HP', dmgMult:0.40 },
+  { id:'machine-gun',     name:'Machine Gun',        rarity:'legendary', cost:5,  scope:'weapon', effect:'+0.3% fire rate per 50 damage dealt (per mission)' },
+  { id:'ricochet',        name:'Ricochet',           rarity:'legendary', cost:5,  scope:'weapon', effect:'Bullets ricochet, 30% chance to auto-hit nearby enemy', dmgMult:0.15 },
+  { id:'speedster',       name:'Speedster',          rarity:'legendary', cost:5,  scope:'hero',   effect:'Damage & fire rate scale with movement speed', dmgMult:0.20 },
+  { id:'toolbox',         name:'Toolbox',            rarity:'legendary', cost:5,  scope:'hero',   effect:'No utility pickups; utility refills every 90s', isToolbox:true },
+  // Unique (5pt, weapon-specific)
+  { id:'aiming-burst',    name:'Aiming Burst',       rarity:'unique',    cost:5,  scope:'weapon', effect:'Perfect accuracy while aiming' },
+  { id:'chonky-throw',    name:'Chonky Throw',       rarity:'unique',    cost:5,  scope:'weapon', weapon:'boomerang', effect:'Boomerang is 2× bigger' },
+  { id:'eagle-lever',     name:'Eagle Lever',        rarity:'unique',    cost:5,  scope:'weapon', weapon:'leveredge', effect:'+5% damage per consecutive hit, up to +50%', dmgMult:0.25 },
+  { id:'eco-trick',       name:'Eco Trick',          rarity:'unique',    cost:5,  scope:'weapon', effect:'Reloading no longer wastes ammo' },
+  { id:'elemental-spin',  name:'Elemental Spin',     rarity:'unique',    cost:5,  scope:'weapon', weapon:'minigun', effect:'30% chance to fire random elemental bullet' },
+  { id:'fanning-ace',     name:'Fanning Ace',        rarity:'unique',    cost:5,  scope:'weapon', weapon:'revolver', effect:'Time a mid-reload to chain-fire all bullets' },
+  { id:'focus-shot',      name:'Focus Shot',         rarity:'unique',    cost:5,  scope:'weapon', effect:'Each kill cuts spell CDR by 1s' },
+  { id:'frenzy-spin',     name:'Frenzy Spin',        rarity:'unique',    cost:5,  scope:'weapon', weapon:'minigun', effect:'Fire rate doubles past 10 kills on counter', dmgMult:0.30 },
+  { id:'homing-burst',    name:'Homing Burst',       rarity:'unique',    cost:5,  scope:'weapon', effect:'Every 20 bullets fire 5 homing rounds', dmgMult:0.125 },
+  { id:'jump-star',       name:'Jump Star',          rarity:'unique',    cost:5,  scope:'weapon', weapon:'sheriff-star', effect:'+2 Jumps while equipped' },
+  { id:'lingering-throw', name:'Lingering Throw',    rarity:'unique',    cost:5,  scope:'weapon', weapon:'boomerang', effect:'Doubles linger duration' },
+  { id:'mark-ace',        name:'Mark Ace',           rarity:'unique',    cost:5,  scope:'weapon', effect:'Bullets mark enemies 3s; marked take +15% dmg', dmgMult:0.15 },
+  { id:'mindshot',        name:'Mindshot',           rarity:'unique',    cost:5,  scope:'weapon', effect:'Weakspot hits cause explosion', dmgMult:0.20 },
+  { id:'overblast',       name:'Overblast',          rarity:'unique',    cost:5,  scope:'weapon', weapon:'shotgun', effect:'+1 pellet per missing round in magazine', dmgMult:0.15 },
+  { id:'overdraw',        name:'Overdraw',           rarity:'unique',    cost:5,  scope:'weapon', weapon:'bow', effect:'2s charge fires a 3-arrow cone' },
+  { id:'rush-blast',      name:'Rush Blast',         rarity:'unique',    cost:5,  scope:'weapon', effect:'First bullet: perfect accuracy + extra range' },
+  { id:'scavenger-star',  name:'Scavenger Star',     rarity:'unique',    cost:5,  scope:'weapon', weapon:'sheriff-star', effect:'+30% speed & +100% pickup range' },
+  { id:'stacked-lever',   name:'Stacked Lever',      rarity:'unique',    cost:5,  scope:'weapon', weapon:'leveredge', effect:'Reload 2 reserve bullets instantly on kill' },
+  { id:'swamp-trick',     name:'Swamp Trick',        rarity:'unique',    cost:5,  scope:'weapon', weapon:'dual-revolvers', effect:'Reload explosions leave elemental puddles' },
+  { id:'ultra-draw',      name:'Ultra Draw',         rarity:'unique',    cost:5,  scope:'weapon', weapon:'bow', effect:'4s charge fires one massive explosive arrow', dmgMult:0.40 },
+];
+
+const SPELLS = {
+  // Pyro
+  'fireball':    { name:'Fireball',     school:'pyro',   effect:'Lob a fireball that ignites enemies on impact' },
+  'firebeam':    { name:'Firebeam',     school:'pyro',   effect:'Sustained fire beam; ignites Acid surfaces into Tornados' },
+  'surcharge':   { name:'Surcharge',    school:'pyro',   effect:'Explosive Pyro charge detonation' },
+  'wisp-pyro':   { name:'Wisp (Pyro)',  school:'pyro',   effect:'Spawn a floating Pyro wisp companion' },
+  'finger-guns': { name:'Finger Guns',  school:'pyro',   effect:'Rapid-fire Pyro bursts from each finger' },
+  // Elec
+  'strikes':     { name:'Strikes',      school:'elec',   effect:'Lightning strikes in an area; chains through Acid surfaces' },
+  'boing':       { name:'Boing',        school:'elec',   effect:'Bouncing electric orb with chaining damage' },
+  'portal':      { name:'Portal',       school:'elec',   effect:'Place portal pairs; spells fired through are duplicated' },
+  'swap':        { name:'Swap',         school:'elec',   effect:'Teleport to a target location instantly' },
+  'thunderstrike':{ name:'Thunderstrike',school:'elec',  effect:'Call a massive targeted lightning strike' },
+  // Acid
+  'thrower':     { name:'Thrower',      school:'acid',   effect:'Lob acid that creates a damaging puddle on impact' },
+  'geyser':      { name:'Geyser',       school:'acid',   effect:'Create an erupting acid geyser at target location' },
+  'bubble':      { name:'Bubble',       school:'acid',   effect:'Acid bubble that traps and damages an enemy' },
+  'contagion':   { name:'Contagion',    school:'acid',   effect:'Spread acid status to nearby enemies' },
+  'rain':        { name:'Rain',         school:'acid',   effect:'Call acid rain over a large area' },
+  // Voodoo
+  'drain':       { name:'Drain',        school:'voodoo', effect:'Siphon HP from target enemy to yourself', healBonus:true },
+  'rescue':      { name:'Rescue',       school:'voodoo', effect:'Heal an ally or yourself for a burst of HP', healBonus:true },
+  'corruption':  { name:'Corruption',   school:'voodoo', effect:'Corrupt an enemy to fight for your side' },
+  'ritual':      { name:'Ritual',       school:'voodoo', effect:'Area heal candle that persists and heals nearby allies', healBonus:true },
+  'doll':        { name:'Doll',         school:'voodoo', effect:'Send voodoo doll to drain enemy HP continuously', healBonus:true },
+  // Cactus
+  'mino':        { name:'Mino',         school:'cactus', effect:'Summon a Cactus Minotaur to fight for you' },
+  'pistolero':   { name:'Pistolero',    school:'cactus', effect:'Deploy a cactus turret that shoots enemies' },
+  'wallo':       { name:'Wallo',        school:'cactus', effect:'Create a cactus wall for cover and damage' },
+  'decoyo':      { name:'Decoyo',       school:'cactus', effect:'Place a cactus decoy to draw enemy attention' },
+  'bandito':     { name:'Bandito',      school:'cactus', effect:'Summon an armed cactus bandit companion' },
+};
+
+const COMBO_HINTS = [
+  { schools: ['pyro','acid'],   hint:'🌪 Tornado: Fire Beam on Acid surface → spinning damage vortex' },
+  { schools: ['elec','acid'],   hint:'⚡ Chain Reaction: Elec strikes chain across connected Acid puddles' },
+  { schools: ['pyro','elec'],   hint:'💥 Dual Ignite: Fire + Elec both trigger powerful elemental burst' },
+  { schools: ['voodoo','acid'], hint:'🕯 Candle Field: Voodoo essence on Acid pool → healing candle zone' },
+  { schools: ['cactus','elec'], hint:'⚡ Charged Cactus: Hit cactus summon with Elec spell → electric attacks' },
+  { schools: ['cactus','voodoo'], hint:'🌵 Corrupted Cactus: Voodoo + Cactus → corrupted minion summons' },
+  { schools: ['cactus','pyro'], hint:'🔥 Blazing Cactus: Fire spells charge cactus summons with Pyro damage' },
+];
+
+// =============================================================
+//  STATE
+// =============================================================
+
+const state = {
+  buildName: '',
+  buildNotes: '',
+  primary: {
+    weapon: '',
+    upgrades: { dmg:0, fr:0, cs:0, rs:0, ds:0, acc:0 },
+    jokers: [],        // array of joker ids
+  },
+  secondary: {
+    weapon: '',
+    element: 'pyro',
+    upgrades: { dmg:0, fr:0, cs:0, rs:0, ds:0, ls:0 },
+    jokers: [],
+  },
+  hero: {
+    upgrades: { health:0, cdr:0, speed:0, ammo:0, jump:0 },
+    jokers: [],
+  },
+  utility: '',
+  spells: ['','',''],
+};
+
+// upgrade slot maximums per weapon (max 20 base, 26 with full prestige upgrades)
+const WEAPON_MAX_UPGRADE_SLOTS = 26;
+const HERO_MAX_UPGRADE_SLOTS   = 26;
+
+// =============================================================
+//  JOKER SLOT UI
+// =============================================================
+
+function buildJokerDropdown(scopeKey, index) {
+  const ctx = (scopeKey === 'hero') ? 'hero' : scopeKey; // 'primary','secondary','hero'
+  const weaponId = ctx === 'primary' ? state.primary.weapon : (ctx === 'secondary' ? state.secondary.weapon : null);
+
+  const el = document.createElement('select');
+  el.className = 'share-code-area';
+  el.style.cssText = 'font-size:0.76rem;padding:5px 8px;min-height:auto;background:var(--surface);color:var(--text)';
+  el.onchange = () => { onJokerChange(scopeKey, index, el.value); };
+
+  const empty = document.createElement('option');
+  empty.value = '';
+  empty.textContent = '— Select Joker —';
+  el.appendChild(empty);
+
+  // Group by rarity
+  const rarities = ['normal','fine','prime','mythic','legendary','unique'];
+  rarities.forEach(r => {
+    const group = document.createElement('optgroup');
+    group.label = r.charAt(0).toUpperCase() + r.slice(1) + ` (${rarityToCost(r)} pt${rarityToCost(r)>1?'s':''})`;
+    let hasItems = false;
+
+    JOKERS.filter(j => j.rarity === r).forEach(j => {
+      // Filter: hero scope can only use hero+general jokers; weapon can only use weapon+general
+      const scopeOk = (scopeKey === 'hero') ? (j.scope === 'hero' || j.scope === 'both') : (j.scope === 'weapon' || j.scope === 'both');
+      if (!scopeOk) return;
+
+      const opt = document.createElement('option');
+      opt.value = j.id;
+      opt.textContent = `${j.name} — ${j.effect}`;
+      if (j.weapon && j.weapon !== weaponId) {
+        opt.textContent += ` [${WEAPONS[j.weapon]?.name || j.weapon} only]`;
+        opt.style.color = 'var(--text-muted)';
+      }
+      group.appendChild(opt);
+      hasItems = true;
+    });
+
+    if (hasItems) el.appendChild(group);
+  });
+
+  return el;
+}
+
+function rarityToCost(r) {
+  const map = { normal:1, fine:2, prime:3, mythic:4, legendary:5, unique:5 };
+  return map[r] || 1;
+}
+
+function addJokerSlot(scopeKey) {
+  const arr = getScopeJokers(scopeKey);
+  if (arr.length >= 10) { notify('Maximum 10 joker cards per slot'); return; }
+  arr.push('');
+  renderJokerSlots(scopeKey);
+  markDirty();
+}
+
+function clearJokers(scopeKey) {
+  const arr = getScopeJokers(scopeKey);
+  arr.length = 0;
+  renderJokerSlots(scopeKey);
+  updateCalc();
+  markDirty();
+}
+
+function onJokerChange(scopeKey, index, val) {
+  const arr = getScopeJokers(scopeKey);
+  arr[index] = val;
+  updateJokerBudget(scopeKey);
+  updateCalc();
+  updateUtilityNote();
+  markDirty();
+}
+
+function getScopeJokers(scopeKey) {
+  if (scopeKey === 'primary')   return state.primary.jokers;
+  if (scopeKey === 'secondary') return state.secondary.jokers;
+  return state.hero.jokers;
+}
+
+function renderJokerSlots(scopeKey) {
+  const container = document.getElementById(`${scopeKey}-joker-slots`);
+  container.innerHTML = '';
+  const arr = getScopeJokers(scopeKey);
+  arr.forEach((val, i) => {
+    const row = document.createElement('div');
+    row.className = 'joker-slot-row';
+    row.style.marginBottom = '5px';
+
+    const dd = buildJokerDropdown(scopeKey, i);
+    dd.value = val;
+
+    const jokerDef = JOKERS.find(j => j.id === val);
+    const costBadge = document.createElement('div');
+    costBadge.className = `joker-cost-badge badge-${jokerDef ? jokerDef.rarity : 'normal'}`;
+    costBadge.textContent = jokerDef ? jokerDef.cost + 'pt' : '—';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'step-btn';
+    removeBtn.textContent = '✕';
+    removeBtn.title = 'Remove slot';
+    removeBtn.onclick = () => { arr.splice(i, 1); renderJokerSlots(scopeKey); updateCalc(); markDirty(); };
+
+    row.appendChild(dd);
+    row.appendChild(costBadge);
+    row.appendChild(removeBtn);
+    container.appendChild(row);
+  });
+  updateJokerBudget(scopeKey);
+}
+
+function updateJokerBudget(scopeKey) {
+  const arr = getScopeJokers(scopeKey);
+  let used = 0;
+  arr.forEach(id => {
+    const j = JOKERS.find(x => x.id === id);
+    if (j) used += j.cost;
+  });
+  const max = 16;
+  const pct = Math.min(100, (used / max) * 100);
+  const bar = document.getElementById(`${scopeKey}-joker-bar`);
+  const lbl = document.getElementById(`${scopeKey}-joker-used`);
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.className = 'slot-budget-fill' + (used > max ? ' over' : used === max ? ' full' : '');
+  }
+  if (lbl) lbl.textContent = used;
+
+  // also update summary in calc
+  const sumEl = document.getElementById(`sum-${scopeKey}-joker`);
+  if (sumEl) sumEl.textContent = `${used}/${max} pts`;
+}
+
+// =============================================================
+//  UPGRADE ALLOCATION
+// =============================================================
+
+const PRIMARY_UPGRADE_KEYS   = ['dmg','fr','cs','rs','ds','acc'];
+const SECONDARY_UPGRADE_KEYS = ['dmg','fr','cs','rs','ds','ls'];
+
+function stepUpgrade(scope, key, delta) {
+  const upgrades = scope === 'primary' ? state.primary.upgrades : state.secondary.upgrades;
+  const def = UPGRADE_DEFS[key];
+  const current = upgrades[key] || 0;
+  const totalSlots = getTotalUpgradeSlots(scope);
+  const maxSlots = WEAPON_MAX_UPGRADE_SLOTS;
+
+  if (delta > 0) {
+    if (current >= def.max) { notify(`Max ${def.max} slots for ${def.label}`); return; }
+    if (totalSlots >= maxSlots) { notify('Upgrade slot limit reached (26 max with prestige)'); return; }
+  }
+  if (delta < 0 && current <= 0) return;
+
+  upgrades[key] = current + delta;
+  updateUpgradeUI(scope);
+  updateCalc();
+  markDirty();
+}
+
+function barClick(event, scope, key) {
+  const def = UPGRADE_DEFS[key];
+  const bar = event.currentTarget;
+  const rect = bar.getBoundingClientRect();
+  const pct = (event.clientX - rect.left) / rect.width;
+  const target = Math.round(pct * def.max);
+  const upgrades = scope === 'primary' ? state.primary.upgrades : state.secondary.upgrades;
+  upgrades[key] = Math.max(0, Math.min(def.max, target));
+  updateUpgradeUI(scope);
+  updateCalc();
+  markDirty();
+}
+
+function getTotalUpgradeSlots(scope) {
+  const upgrades = scope === 'primary' ? state.primary.upgrades : state.secondary.upgrades;
+  const keys = scope === 'primary' ? PRIMARY_UPGRADE_KEYS : SECONDARY_UPGRADE_KEYS;
+  return keys.reduce((s,k) => s + (upgrades[k] || 0), 0);
+}
+
+function updateUpgradeUI(scope) {
+  const upgrades = scope === 'primary' ? state.primary.upgrades : state.secondary.upgrades;
+  const keys = scope === 'primary' ? PRIMARY_UPGRADE_KEYS : SECONDARY_UPGRADE_KEYS;
+
+  keys.forEach(key => {
+    const def = UPGRADE_DEFS[key];
+    const val = upgrades[key] || 0;
+    const pct = (val / def.max) * 100;
+    const bar = document.getElementById(`${scope}-bar-${key}`);
+    const label = document.getElementById(`${scope}-val-${key}`);
+    if (bar) {
+      bar.style.width = pct + '%';
+      bar.className = 'upgrade-bar-fill' + (val >= def.max ? ' maxed' : '');
+    }
+    if (label) label.textContent = `${val}/${def.max}`;
+  });
+
+  const total = getTotalUpgradeSlots(scope);
+  const maxS  = WEAPON_MAX_UPGRADE_SLOTS;
+  const usedEl = document.getElementById(`${scope}-slots-used`);
+  const barEl  = document.getElementById(`${scope}-slots-bar`);
+  const warnEl = document.getElementById(`${scope}-slots-warn`);
+  if (usedEl) usedEl.textContent = total;
+  if (barEl) {
+    barEl.style.width = Math.min(100, (total/maxS)*100) + '%';
+    barEl.className = 'slot-budget-fill' + (total > maxS ? ' over' : total === maxS ? ' full' : '');
+  }
+  if (warnEl) warnEl.style.display = total > maxS ? '' : 'none';
+}
+
+// =============================================================
+//  HERO UPGRADES
+// =============================================================
+
+const HERO_UPGRADE_KEYS = ['health','cdr','speed','ammo','jump'];
+
+function stepHero(key, delta) {
+  const def = HERO_UPGRADE_DEFS[key];
+  const current = state.hero.upgrades[key] || 0;
+  const total = HERO_UPGRADE_KEYS.reduce((s,k) => s + (state.hero.upgrades[k]||0), 0);
+
+  if (delta > 0) {
+    if (current >= def.max) { notify(`Max ${def.max} slots for ${def.label}`); return; }
+    if (total >= HERO_MAX_UPGRADE_SLOTS) { notify('Hero upgrade slot limit reached (26 max)'); return; }
+  }
+  if (delta < 0 && current <= 0) return;
+
+  state.hero.upgrades[key] = current + delta;
+  updateHeroUpgradeUI();
+  updateCalc();
+  markDirty();
+}
+
+function heroBarClick(event, key) {
+  const def = HERO_UPGRADE_DEFS[key];
+  const bar = event.currentTarget;
+  const rect = bar.getBoundingClientRect();
+  const pct = (event.clientX - rect.left) / rect.width;
+  const target = Math.round(pct * def.max);
+  state.hero.upgrades[key] = Math.max(0, Math.min(def.max, target));
+  updateHeroUpgradeUI();
+  updateCalc();
+  markDirty();
+}
+
+function updateHeroUpgradeUI() {
+  HERO_UPGRADE_KEYS.forEach(key => {
+    const def = HERO_UPGRADE_DEFS[key];
+    const val = state.hero.upgrades[key] || 0;
+    const pct = (val / def.max) * 100;
+    const bar = document.getElementById(`hero-bar-${key}`);
+    const label = document.getElementById(`hero-val-${key}`);
+    if (bar) {
+      bar.style.width = pct + '%';
+      bar.className = 'upgrade-bar-fill' + (val >= def.max ? ' maxed' : '');
+    }
+    if (label) label.textContent = `${val}/${def.max}`;
+  });
+
+  const total = HERO_UPGRADE_KEYS.reduce((s,k) => s + (state.hero.upgrades[k]||0), 0);
+  const maxS = HERO_MAX_UPGRADE_SLOTS;
+  const usedEl = document.getElementById('hero-slots-used');
+  const barEl  = document.getElementById('hero-slots-bar');
+  const warnEl = document.getElementById('hero-slots-warn');
+  if (usedEl) usedEl.textContent = total;
+  if (barEl) {
+    barEl.style.width = Math.min(100,(total/maxS)*100) + '%';
+    barEl.className = 'slot-budget-fill' + (total > maxS ? ' over' : total === maxS ? ' full' : '');
+  }
+  if (warnEl) warnEl.style.display = total > maxS ? '' : 'none';
+}
+
+// =============================================================
+//  WEAPON SELECTION
+// =============================================================
+
+function onPrimaryWeaponChange() {
+  state.primary.weapon = document.getElementById('primary-weapon').value;
+  renderJokerSlots('primary');
+  updateCalc();
+  markDirty();
+}
+
+function onSecondaryWeaponChange() {
+  state.secondary.weapon = document.getElementById('secondary-weapon').value;
+  renderJokerSlots('secondary');
+  updateCalc();
+  markDirty();
+}
+
+// =============================================================
+//  SPELLS
+// =============================================================
+
+function populateSpellSelects() {
+  const schools = ['pyro','elec','acid','voodoo','cactus'];
+  [1,2,3].forEach(slot => {
+    const sel = document.getElementById(`spell-${slot}`);
+    if (!sel) return;
+    // Keep empty option
+    sel.innerHTML = '<option value="">— None —</option>';
+    schools.forEach(school => {
+      const group = document.createElement('optgroup');
+      group.label = school.charAt(0).toUpperCase() + school.slice(1);
+      Object.entries(SPELLS).filter(([,s]) => s.school === school).forEach(([id, s]) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = s.name + ' — ' + s.effect;
+        group.appendChild(opt);
+      });
+      sel.appendChild(group);
+    });
+  });
+}
+
+function onSpellChange(slot) {
+  state.spells[slot-1] = document.getElementById(`spell-${slot}`).value;
+  updateSpellSchoolLabels();
+  updateComboHint();
+  updateCalc();
+  markDirty();
+}
+
+const SCHOOL_LABELS = { pyro:'🔥 Pyro', elec:'⚡ Elec', acid:'☠ Acid', voodoo:'🔮 Voodoo', cactus:'🌵 Cactus' };
+
+function updateSpellSchoolLabels() {
+  [1,2,3].forEach(slot => {
+    const id = state.spells[slot-1];
+    const lbl = document.getElementById(`spell-${slot}-school`);
+    if (!lbl) return;
+    if (id && SPELLS[id]) {
+      const school = SPELLS[id].school;
+      lbl.textContent = SCHOOL_LABELS[school] || school;
+      lbl.className = `spell-school-label spell-school-${school}`;
+    } else {
+      lbl.textContent = '';
+    }
+  });
+}
+
+function updateComboHint() {
+  const schools = state.spells.filter(s=>s).map(id => SPELLS[id]?.school).filter(Boolean);
+  const uniqueSchools = [...new Set(schools)];
+  const hint = document.getElementById('combo-hint');
+  const matches = COMBO_HINTS.filter(c => c.schools.every(s => uniqueSchools.includes(s)));
+  if (matches.length) {
+    hint.innerHTML = matches.map(m => m.hint).join('<br>');
+    hint.style.display = '';
+  } else if (schools.length >= 2) {
+    hint.innerHTML = '💡 No specific combo detected — mix elements for elemental reaction triggers';
+    hint.style.display = '';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+// =============================================================
+//  CALCULATOR
+// =============================================================
+
+function updateCalc() {
+  calcPrimary();
+  calcSecondary();
+  calcJokerMult();
+  calcHPS();
+  calcHeroHP();
+}
+
+function getJokerMultiplier(jokerIds) {
+  let mult = 1.0;
+  jokerIds.forEach(id => {
+    const j = JOKERS.find(x => x.id === id);
+    if (j && j.dmgMult) mult += j.dmgMult;
+  });
+  return mult;
+}
+
+function calcPrimary() {
+  const w = WEAPONS[state.primary.weapon];
+  const dpsEl  = document.getElementById('calc-primary-dps');
+  const hitEl  = document.getElementById('calc-primary-hit');
+  const subDps = document.getElementById('calc-primary-dps-sub');
+  const subHit = document.getElementById('calc-primary-hit-sub');
+
+  if (!w) {
+    dpsEl.innerHTML = '—<span class="calc-metric-unit">dmg/s</span>';
+    hitEl.innerHTML = '—<span class="calc-metric-unit">dmg</span>';
+    subDps.textContent = 'Select a weapon to calculate';
+    subHit.textContent = 'Base × Damage upgrade multiplier';
+    return;
+  }
+
+  const dmgSlots = state.primary.upgrades.dmg || 0;
+  const frSlots  = state.primary.upgrades.fr  || 0;
+  const dmgMult  = 1 + (dmgSlots * 0.05);
+  const frMult   = 1 + (frSlots  * 0.05);
+
+  const effectiveDmg = w.baseDmg * dmgMult;
+  const effectiveFR  = w.fireRate / frMult; // lower is faster
+  const effectiveDPS = effectiveDmg / effectiveFR;
+
+  const jokerDmgMult = getJokerMultiplier(state.primary.jokers);
+  const finalDPS = effectiveDPS * jokerDmgMult;
+  const finalHit = effectiveDmg * jokerDmgMult;
+
+  dpsEl.innerHTML = `${finalDPS.toFixed(1)}<span class="calc-metric-unit">dmg/s</span>`;
+  hitEl.innerHTML = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
+  subDps.textContent = `${w.name} · +${(dmgSlots*5)}% dmg · +${(frSlots*5)}% fire rate · ×${jokerDmgMult.toFixed(2)} joker`;
+  subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${jokerDmgMult.toFixed(2)} joker`;
+}
+
+function calcSecondary() {
+  const w = WEAPONS[state.secondary.weapon];
+  const dpsEl  = document.getElementById('calc-secondary-dps');
+  const hitEl  = document.getElementById('calc-secondary-hit');
+  const subDps = document.getElementById('calc-secondary-dps-sub');
+  const subHit = document.getElementById('calc-secondary-hit-sub');
+
+  if (!w) {
+    dpsEl.innerHTML = '—<span class="calc-metric-unit">dmg/s</span>';
+    hitEl.innerHTML = '—<span class="calc-metric-unit">dmg</span>';
+    subDps.textContent = 'Select a sidearm';
+    subHit.textContent = 'Base × Damage upgrade multiplier';
+    return;
+  }
+
+  const dmgSlots = state.secondary.upgrades.dmg || 0;
+  const frSlots  = state.secondary.upgrades.fr  || 0;
+  const dmgMult  = 1 + (dmgSlots * 0.05);
+  const frMult   = 1 + (frSlots  * 0.05);
+
+  const effectiveDmg = (w.baseDmg || 0) * dmgMult;
+  const effectiveFR  = (w.fireRate || 0.5) / frMult;
+  const effectiveDPS = effectiveDmg / effectiveFR;
+
+  const jokerDmgMult = getJokerMultiplier(state.secondary.jokers);
+  const finalDPS = effectiveDPS * jokerDmgMult;
+  const finalHit = effectiveDmg * jokerDmgMult;
+
+  dpsEl.innerHTML = `${finalDPS.toFixed(1)}<span class="calc-metric-unit">dmg/s</span>`;
+  hitEl.innerHTML = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
+  subDps.textContent = `${w.name} [${state.secondary.element}] · +${(dmgSlots*5)}% dmg · ×${jokerDmgMult.toFixed(2)} joker`;
+  subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${jokerDmgMult.toFixed(2)} joker`;
+}
+
+function calcJokerMult() {
+  const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
+  const mult = getJokerMultiplier(allJokers);
+  const el = document.getElementById('calc-joker-dmg-mult');
+  const sub = document.getElementById('calc-joker-dmg-sub');
+  if (el) el.innerHTML = `×${mult.toFixed(2)}`;
+
+  const activeNames = allJokers.filter(id => {
+    const j = JOKERS.find(x => x.id === id);
+    return j && j.dmgMult;
+  }).map(id => JOKERS.find(x => x.id === id)?.name).filter(Boolean);
+
+  if (sub) sub.textContent = activeNames.length ? activeNames.join(', ') : 'No damage jokers equipped';
+}
+
+function calcHPS() {
+  const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
+  let hps = 0;
+
+  // Lifesteal contribution from secondary upgrades
+  const lsSlots = state.secondary.upgrades.ls || 0;
+  const lsPct   = lsSlots * 3; // 3% per slot
+  if (lsPct > 0) {
+    const w = WEAPONS[state.secondary.weapon];
+    if (w) {
+      const secDmg = (w.baseDmg || 0) * (1 + (state.secondary.upgrades.dmg || 0) * 0.05);
+      const secDPS = secDmg / ((w.fireRate || 0.5) / (1 + (state.secondary.upgrades.fr || 0) * 0.05));
+      hps += secDPS * (lsPct / 100);
+    }
+  }
+
+  // Hit Me: 0.5 HP/s for 20s burst ≈ average ~0.25 HP/s if triggered every ~40s
+  const hitMe = allJokers.filter(id => id === 'hit-me').length;
+  hps += hitMe * 0.25;
+
+  // Life Pact: kills heal 2 HP
+  const lifePact = allJokers.filter(id => id === 'life-pact').length;
+  hps += lifePact * 0.5; // rough estimate
+
+  // Second Wind: 50 HP every 180s ≈ 0.28/s
+  const secondWind = allJokers.filter(id => id === 'second-wind').length;
+  hps += secondWind * 0.28;
+
+  // Soul Siphon: +2 HP per soul (estimated 1 kill/2s avg)
+  const soulSiphon = allJokers.filter(id => id === 'soul-siphon').length;
+  hps += soulSiphon * 0.5;
+
+  // Voodoo heal spells
+  const voodooSpells = state.spells.filter(id => id && SPELLS[id]?.healBonus);
+  hps += voodooSpells.length * 1.0; // rough estimate per heal spell
+
+  const el    = document.getElementById('calc-hps');
+  const subEl = document.getElementById('calc-hps-sub');
+
+  if (hps === 0) {
+    el.innerHTML = '—<span class="calc-metric-unit">hp/s</span>';
+    if (subEl) subEl.textContent = 'No heal sources detected';
+  } else {
+    el.innerHTML = `${hps.toFixed(2)}<span class="calc-metric-unit">hp/s</span>`;
+    const sources = [];
+    if (lsPct > 0) sources.push(`${lsPct}% lifesteal`);
+    if (hitMe) sources.push(`Hit Me (×${hitMe})`);
+    if (lifePact) sources.push(`Life Pact`);
+    if (secondWind) sources.push(`Second Wind`);
+    if (soulSiphon) sources.push(`Soul Siphon (×${soulSiphon})`);
+    if (voodooSpells.length) sources.push(`Voodoo spells (×${voodooSpells.length})`);
+    if (subEl) subEl.textContent = sources.join(' · ') || 'Estimate based on active sources';
+  }
+}
+
+function calcHeroHP() {
+  const healthSlots = state.hero.upgrades.health || 0;
+  const baseHP = 100;
+  const bonusPct = healthSlots * 6; // 6% per slot, max 30%
+  const effectiveHP = Math.round(baseHP * (1 + bonusPct / 100));
+
+  // Check for life-pact penalty
+  const lifePactCount = state.hero.jokers.filter(id => id === 'life-pact').length;
+  const hpAfterPenalty = lifePactCount > 0 ? Math.round(effectiveHP * 0.70) : effectiveHP;
+
+  // Glass Cannon penalty
+  const glassCount = state.hero.jokers.filter(id => id === 'glass-cannon').length;
+  const finalHP = glassCount > 0 ? Math.round(hpAfterPenalty * 0.75) : hpAfterPenalty;
+
+  // West Wizard penalty
+  const wwCount = state.hero.jokers.filter(id => id === 'west-wizard').length;
+  const finalHP2 = wwCount > 0 ? Math.round(finalHP * 0.70) : finalHP;
+
+  const el = document.getElementById('calc-hero-hp');
+  if (el) el.innerHTML = `${finalHP2}<span class="calc-metric-unit">hp</span>`;
+}
+
+// =============================================================
+//  UTILITY NOTE
+// =============================================================
+
+function updateUtilityNote() {
+  const allJokers = [...state.hero.jokers];
+  const hasToolbox = allJokers.some(id => id === 'toolbox');
+  const note = document.getElementById('utility-toolbox-note');
+  if (note) note.style.display = hasToolbox ? '' : 'none';
+}
+
+// =============================================================
+//  IMPORT / EXPORT
+// =============================================================
+
+function serializeState() {
+  // Pull live DOM values into state first
+  syncDOMToState();
+  const json = JSON.stringify(state);
+  return btoa(unescape(encodeURIComponent(json)));
+}
+
+function syncDOMToState() {
+  state.buildName  = document.getElementById('build-name').value;
+  state.buildNotes = document.getElementById('build-notes').value;
+  state.primary.weapon    = document.getElementById('primary-weapon').value;
+  state.secondary.weapon  = document.getElementById('secondary-weapon').value;
+  state.secondary.element = document.getElementById('secondary-element').value;
+  state.utility = document.getElementById('utility-select').value;
+  [1,2,3].forEach(i => { state.spells[i-1] = document.getElementById(`spell-${i}`).value; });
+}
+
+function deserializeState(code) {
+  const json = decodeURIComponent(escape(atob(code.trim())));
+  const loaded = JSON.parse(json);
+  // Merge carefully
+  Object.assign(state, loaded);
+  applyStateToDOM();
+}
+
+function applyStateToDOM() {
+  document.getElementById('build-name').value  = state.buildName  || '';
+  document.getElementById('build-notes').value = state.buildNotes || '';
+  document.getElementById('primary-weapon').value   = state.primary.weapon   || '';
+  document.getElementById('secondary-weapon').value = state.secondary.weapon || '';
+  document.getElementById('secondary-element').value = state.secondary.element || 'pyro';
+  document.getElementById('utility-select').value   = state.utility || '';
+  [1,2,3].forEach(i => {
+    const el = document.getElementById(`spell-${i}`);
+    if (el) el.value = state.spells[i-1] || '';
+  });
+  // Ensure arrays exist
+  if (!state.primary.jokers)   state.primary.jokers   = [];
+  if (!state.secondary.jokers) state.secondary.jokers = [];
+  if (!state.hero.jokers)      state.hero.jokers      = [];
+  if (!state.hero.upgrades)    state.hero.upgrades    = { health:0, cdr:0, speed:0, ammo:0, jump:0 };
+
+  renderJokerSlots('primary');
+  renderJokerSlots('secondary');
+  renderJokerSlots('hero');
+  updateUpgradeUI('primary');
+  updateUpgradeUI('secondary');
+  updateHeroUpgradeUI();
+  updateSpellSchoolLabels();
+  updateComboHint();
+  updateCalc();
+  updateUtilityNote();
+}
+
+function doExport() {
+  const code = serializeState();
+  const codeEl = document.getElementById('share-code');
+  if (codeEl) codeEl.value = code;
+  navigator.clipboard?.writeText(code).catch(()=>{});
+  notify('Build code copied to clipboard ✓');
+}
+
+function doImport() {
+  const code = document.getElementById('share-code').value.trim();
+  if (!code) { notify('Paste a build code first'); return; }
+  try {
+    deserializeState(code);
+    notify('Build loaded ✓');
+  } catch(e) {
+    notify('Invalid build code — could not parse');
+    console.error(e);
+  }
+}
+
+function importFromCode() { doImport(); }
+
+// =============================================================
+//  MISC
+// =============================================================
+
+function markDirty() {
+  // Future: dirty flag for unsaved warning
+}
+
+function clearAll() {
+  if (!confirm('Clear all fields and start a new build?')) return;
+  state.buildName = '';
+  state.buildNotes = '';
+  state.primary   = { weapon:'', upgrades:{dmg:0,fr:0,cs:0,rs:0,ds:0,acc:0}, jokers:[] };
+  state.secondary = { weapon:'', element:'pyro', upgrades:{dmg:0,fr:0,cs:0,rs:0,ds:0,ls:0}, jokers:[] };
+  state.hero      = { upgrades:{health:0,cdr:0,speed:0,ammo:0,jump:0}, jokers:[] };
+  state.utility   = '';
+  state.spells    = ['','',''];
+  applyStateToDOM();
+  document.getElementById('share-code').value = '';
+  notify('Build cleared');
+}
+
+let notifyTimer = null;
+function notify(msg) {
+  const el = document.getElementById('notify-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (notifyTimer) clearTimeout(notifyTimer);
+  notifyTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// =============================================================
+//  INIT
+// =============================================================
+
+(function init() {
+  populateSpellSelects();
+  renderJokerSlots('primary');
+  renderJokerSlots('secondary');
+  renderJokerSlots('hero');
+  updateCalc();
+
+  // Wire secondary element change
+  document.getElementById('secondary-element').addEventListener('change', function() {
+    state.secondary.element = this.value;
+    updateCalc();
+    markDirty();
+  });
+
+  // Wire utility
+  document.getElementById('utility-select').addEventListener('change', function() {
+    state.utility = this.value;
+    updateUtilityNote();
+    markDirty();
+  });
+
+  // Check for ?b= URL param (share link)
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('b')) {
+    try { deserializeState(params.get('b')); } catch(e) {}
+  }
+})();
+</script>
+</body>
+</html>
