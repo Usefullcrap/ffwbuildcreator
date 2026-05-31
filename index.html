@@ -537,12 +537,12 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Loadout</span> Planner</div>
-    <div class="header-subtitle">Far Far West · Build Theory-Crafter · v1.0</div>
+    <div class="header-subtitle">Far Far West · v1.0</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
-    <button class="btn btn-copper" onclick="doExport()">⬆ Export</button>
-    <button class="btn btn-amber" onclick="doImport()">⬇ Import</button>
+    <button class="btn btn-copper" onclick="doExport()"> Export</button>
+    <button class="btn btn-amber" onclick="doImport()"> Import</button>
   </div>
 </header>
 
@@ -552,7 +552,7 @@
   <!-- IDENTITY PANEL -->
   <section class="panel" id="panel-identity">
     <div class="panel-header">
-      <div class="panel-title">⬡ Build Identity</div>
+      <div class="panel-title"> Build Identity</div>
       <div class="panel-tag">Name & Notes</div>
     </div>
     <div class="panel-body">
@@ -576,7 +576,7 @@
   <!-- PRIMARY WEAPON PANEL -->
   <section class="panel" id="panel-primary">
     <div class="panel-header">
-      <div class="panel-title">⚙ Primary Weapon</div>
+      <div class="panel-title"> Primary Weapon</div>
       <div class="panel-tag">Main Gun</div>
     </div>
     <div class="panel-body">
@@ -680,7 +680,7 @@
           <div class="slot-budget-bar">
             <div class="slot-budget-fill" id="primary-slots-bar"></div>
           </div>
-          <div id="primary-slots-warn" class="warn" style="margin-top:3px;display:none">⚠ Over slot limit!</div>
+          <div id="primary-slots-warn" class="warn" style="margin-top:3px;display:none"> Over slot limit!</div>
         </div>
       </div>
 
@@ -707,7 +707,7 @@
   <!-- SECONDARY WEAPON PANEL -->
   <section class="panel" id="panel-secondary">
     <div class="panel-header">
-      <div class="panel-title">⚙ Secondary Weapon</div>
+      <div class="panel-title"> Secondary Weapon</div>
       <div class="panel-tag">Sidearm</div>
     </div>
     <div class="panel-body">
@@ -730,9 +730,9 @@
       <div class="weapon-element-row">
         <div class="field-label">Elemental Type</div>
         <select id="secondary-element" onchange="markDirty()">
-          <option value="pyro">🔥 Pyro</option>
-          <option value="elec">⚡ Elec</option>
-          <option value="acid">☠ Acid</option>
+          <option value="pyro"> Pyro</option>
+          <option value="elec"> Elec</option>
+          <option value="acid"> Acid</option>
         </select>
       </div>
 
@@ -814,7 +814,7 @@
         <div class="slot-budget-bar">
           <div class="slot-budget-fill" id="secondary-slots-bar"></div>
         </div>
-        <div id="secondary-slots-warn" class="warn" style="margin-top:3px;display:none">⚠ Over slot limit!</div>
+        <div id="secondary-slots-warn" class="warn" style="margin-top:3px;display:none"> Over slot limit!</div>
       </div>
 
       <div class="slot-budget" style="margin-top:14px;padding-top:14px">
@@ -837,7 +837,7 @@
   <!-- RIGHT COLUMN: CALCULATOR -->
   <section class="panel" id="panel-right">
     <div class="panel-header">
-      <div class="panel-title">◈ Calculator</div>
+      <div class="panel-title"> Calculator</div>
       <div class="panel-tag">Real-Time Stats</div>
     </div>
     <div class="panel-body">
@@ -885,11 +885,6 @@
         <div class="calc-metric-sub">Base 100 HP × Health upgrade multiplier</div>
       </div>
 
-      <div class="calc-section-title">Joker Budget Summary</div>
-      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);line-height:1.9">
-        <div class="flex-between"><span>Primary Jokers</span><span id="sum-primary-joker" style="color:var(--amber)">0/16 pts</span></div>
-        <div class="flex-between"><span>Secondary Jokers</span><span id="sum-secondary-joker" style="color:var(--amber)">0/16 pts</span></div>
-        <div class="flex-between"><span>Hero Jokers</span><span id="sum-hero-joker" style="color:var(--amber)">0/16 pts</span></div>
       </div>
 
     </div>
@@ -898,7 +893,7 @@
   <!-- HERO PANEL -->
   <section class="panel" id="panel-hero">
     <div class="panel-header">
-      <div class="panel-title">★ Hero Profile</div>
+      <div class="panel-title"> Hero Profile</div>
       <div class="panel-tag">Max Level · Prestige 5</div>
     </div>
     <div class="panel-body">
@@ -969,7 +964,7 @@
         <div class="slot-budget-bar">
           <div class="slot-budget-fill" id="hero-slots-bar"></div>
         </div>
-        <div id="hero-slots-warn" class="warn" style="margin-top:3px;display:none">⚠ Over slot limit!</div>
+        <div id="hero-slots-warn" class="warn" style="margin-top:3px;display:none"> Over slot limit!</div>
       </div>
 
       <!-- Hero Jokers -->
@@ -993,7 +988,7 @@
   <!-- UTILITY PANEL -->
   <section class="panel" id="panel-utility">
     <div class="panel-header">
-      <div class="panel-title">◉ Utility Slot</div>
+      <div class="panel-title"> Utility Slot</div>
       <div class="panel-tag">Single-Use Equipment</div>
     </div>
     <div class="panel-body">
@@ -1001,30 +996,19 @@
         <div class="field-label">Utility Equipment</div>
         <select id="utility-select" onchange="markDirty()">
           <option value="">— None —</option>
-          <option value="ammo-pack">📦 Ammo Pack — Instant ammo resupply for all weapons</option>
-          <option value="bottle-crate">🍾 Bottle Crate — Instant HP restore for nearby allies</option>
-          <option value="healing-area">💊 Healing Area — Deploy a sustained heal zone</option>
-          <option value="impulse-grenade">💥 Impulse Grenade — AoE knockback &amp; positioning tool</option>
+          <option value="ammo-pack"> Ammo Pack — Instant ammo resupply for all weapons</option>
+          <option value="bottle-crate"> Bottle Crate — Instant HP restore for nearby allies</option>
+          <option value="healing-area"> Healing Area — Deploy a sustained heal zone</option>
+          <option value="impulse-grenade"> Impulse Grenade — AoE knockback &amp; positioning tool</option>
         </select>
       </div>
-      <div class="section-divider"></div>
-      <div class="field-label" style="margin-bottom:6px">Utility Notes</div>
-      <div class="dimtext" style="font-size:0.78rem;line-height:1.6">
-        Utility items are single-use per mission. 
-        <strong style="color:var(--sand)">Toolbox</strong> (Legendary Joker) auto-refills utility every 90s.
-        <strong style="color:var(--sand)">Care Package</strong> (Fine Joker) grants +1 extra use.
-        <strong style="color:var(--sand)">Lazy</strong> Joker disables utility pickups but allows passive regen.
       </div>
-      <div id="utility-toolbox-note" style="margin-top:8px;display:none" class="dimtext">
-        <span style="color:var(--copper)">⚡ Toolbox detected</span> — utility recharges every 90s.
-      </div>
-    </div>
   </section>
 
   <!-- SPELLS PANEL -->
   <section class="panel" id="panel-spells">
     <div class="panel-header">
-      <div class="panel-title">✦ Ability Slots</div>
+      <div class="panel-title"> Ability Slots</div>
       <div class="panel-tag">Up to 3 Active Spells</div>
     </div>
     <div class="panel-body">
@@ -1055,15 +1039,14 @@
         </div>
       </div>
 
-      <!-- Combo hint -->
-      <div id="combo-hint" class="dimtext" style="margin-top:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:0.78rem;display:none"></div>
+      
     </div>
   </section>
 
   <!-- SHARE / IMPORT-EXPORT PANEL -->
   <section class="panel" id="panel-share">
     <div class="panel-header">
-      <div class="panel-title">⇄ State Share</div>
+      <div class="panel-title"> State Share</div>
       <div class="panel-tag">Import · Export · Share</div>
     </div>
     <div class="panel-body">
@@ -1072,8 +1055,8 @@
           <div class="field-label" style="margin-bottom:4px">Build Code (Base64)</div>
           <textarea class="share-code-area" id="share-code" rows="3" placeholder="Paste a build code here to import, or click Export to generate one…"></textarea>
         </div>
-        <button class="btn btn-copper" style="align-self:end" onclick="doExport()">Export ⬆</button>
-        <button class="btn btn-amber" style="align-self:end" onclick="importFromCode()">Import ⬇</button>
+        <button class="btn btn-copper" style="align-self:end" onclick="doExport()">Export </button>
+        <button class="btn btn-amber" style="align-self:end" onclick="importFromCode()">Import </button>
       </div>
       <div class="dimtext mt8" style="font-size:0.76rem">
         Export generates a compact code encoding your full build state. Paste the code and click Import to restore any saved build.
@@ -1263,12 +1246,12 @@ const SPELLS = {
 
 const COMBO_HINTS = [
   { schools: ['pyro','acid'],   hint:'🌪 Tornado: Fire Beam on Acid surface → spinning damage vortex' },
-  { schools: ['elec','acid'],   hint:'⚡ Chain Reaction: Elec strikes chain across connected Acid puddles' },
-  { schools: ['pyro','elec'],   hint:'💥 Dual Ignite: Fire + Elec both trigger powerful elemental burst' },
+  { schools: ['elec','acid'],   hint:' Chain Reaction: Elec strikes chain across connected Acid puddles' },
+  { schools: ['pyro','elec'],   hint:' Dual Ignite: Fire + Elec both trigger powerful elemental burst' },
   { schools: ['voodoo','acid'], hint:'🕯 Candle Field: Voodoo essence on Acid pool → healing candle zone' },
-  { schools: ['cactus','elec'], hint:'⚡ Charged Cactus: Hit cactus summon with Elec spell → electric attacks' },
+  { schools: ['cactus','elec'], hint:' Charged Cactus: Hit cactus summon with Elec spell → electric attacks' },
   { schools: ['cactus','voodoo'], hint:'🌵 Corrupted Cactus: Voodoo + Cactus → corrupted minion summons' },
-  { schools: ['cactus','pyro'], hint:'🔥 Blazing Cactus: Fire spells charge cactus summons with Pyro damage' },
+  { schools: ['cactus','pyro'], hint:' Blazing Cactus: Fire spells charge cactus summons with Pyro damage' },
 ];
 
 // =============================================================
@@ -1625,7 +1608,7 @@ function onSpellChange(slot) {
   markDirty();
 }
 
-const SCHOOL_LABELS = { pyro:'🔥 Pyro', elec:'⚡ Elec', acid:'☠ Acid', voodoo:'🔮 Voodoo', cactus:'🌵 Cactus' };
+const SCHOOL_LABELS = { pyro:' Pyro', elec:' Elec', acid:' Acid', voodoo:'🔮 Voodoo', cactus:'🌵 Cactus' };
 
 function updateSpellSchoolLabels() {
   [1,2,3].forEach(slot => {
