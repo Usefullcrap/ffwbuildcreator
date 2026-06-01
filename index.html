@@ -144,4 +144,1318 @@
     text-transform: uppercase;
   }
   select, input[type="text"] {
-    width
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border-hi);
+    color: var(--text);
+    padding: 8px;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    outline: none;
+  }
+  select:focus, input[type="text"]:focus {
+    border-color: var(--copper);
+  }
+
+  /* Upgrade Rows */
+  .upgrade-group {
+    margin-bottom: 14px;
+  }
+  .upgrade-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    background: var(--surface);
+    padding: 6px 10px;
+    border-left: 2px solid var(--copper-dim);
+  }
+  .upgrade-info {
+    flex-grow: 1;
+  }
+  .upgrade-name {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  .upgrade-desc {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .upgrade-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-counter {
+    background: var(--panel-hi);
+    border: 1px solid var(--border-hi);
+    color: var(--text);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    user-select: none;
+  }
+  .btn-counter:hover:not(:disabled) {
+    background: var(--border-hi);
+    color: var(--amber);
+  }
+  .btn-counter:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .counter-val {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    width: 18px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* Jokers Configuration */
+  .joker-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 2px;
+  }
+  .joker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .joker-slot {
+    background: var(--surface);
+    border: 1px dashed var(--border-hi);
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    padding: 4px;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .joker-slot:hover {
+    background: var(--panel-hi);
+    border-color: var(--copper-dim);
+  }
+  .joker-slot.active {
+    border-style: solid;
+    border-color: var(--amber-dim);
+    background: #221c10;
+  }
+  .joker-slot .j-icon {
+    font-size: 1.25rem;
+    margin-bottom: 2px;
+  }
+  .joker-slot .j-name {
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    line-height: 1.1;
+    color: var(--text-dim);
+    word-break: break-all;
+  }
+  .joker-slot.active .j-name {
+    color: var(--amber);
+  }
+
+  /* Spells Panel Specifics */
+  .spell-row {
+    margin-bottom: 10px;
+  }
+
+  /* Sidebar/Calculator Layout */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .calc-panel {
+    background: #161410;
+    border: 1px solid var(--border-hi);
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .calc-title {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    color: var(--amber);
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--copper-dim);
+    padding-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .calc-group {
+    margin-bottom: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px;
+  }
+  .calc-group-title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(61, 54, 40, 0.3);
+  }
+  .calc-row:last-child {
+    border-bottom: none;
+  }
+  .calc-label {
+    color: var(--text-dim);
+  }
+  .calc-val {
+    color: var(--text);
+    font-weight: 500;
+  }
+  .calc-val.highlight {
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* Share link block */
+  .share-box {
+    margin-top: 4px;
+  }
+  .share-input-wrap {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* Modals */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-content {
+    background: var(--panel);
+    border: 2px solid var(--border-hi);
+    max-width: 500px;
+    width: 100%;
+    padding: 20px;
+    position: relative;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+  .modal-close:hover { color: #fff; }
+  .joker-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: var(--surface);
+  }
+  .joker-list-item:hover {
+    border-color: var(--amber-dim);
+    background: var(--panel-hi);
+  }
+  .joker-list-item .j-list-icon {
+    font-size: 1.75rem;
+  }
+  .joker-list-item .j-list-details {
+    flex-grow: 1;
+  }
+  .joker-list-title {
+    font-family: var(--font-mono);
+    color: var(--amber);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .joker-list-desc {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* Utility Note box */
+  .utility-note {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: -4px;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    min-height: 34px;
+  }
+
+  /* Toast Notification */
+  #notify-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--copper-dim);
+    color: #fff;
+    padding: 10px 20px;
+    font-family: var(--font-mono);
+    border: 1px solid var(--copper);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 2000;
+  }
+  #notify-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 900px) {
+    .main-layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      position: static;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>FFW Loadout Planner</h1>
+    <p>Telegraph Office Build Engine — Version 1.2</p>
+  </div>
+  <div class="top-actions">
+    <button class="btn" onclick="clearBuild()">Clear All</button>
+  </div>
+</header>
+
+<div class="main-layout">
+  
+  <div class="planner-grid">
+    
+    <div class="panel" id="primary-panel">
+      <div class="panel-title">
+        <div>Primary Weapon</div>
+        <div class="panel-subtitle">Main Armament</div>
+      </div>
+      <label for="primary-select">Select Weapon</label>
+      <select id="primary-select" onchange="onPrimaryWeaponChange()">
+        <option value="">-- Choose Primary --</option>
+        <option value="leveredge">Leveredge (Repeater Rifle)</option>
+        <option value="pax">Pax-44 (Heavy Revolver)</option>
+        <option value="brasscaster">Brasscaster (Volley Gun)</option>
+        <option value="ironclad">Ironclad (Breach Loader)</option>
+      </select>
+
+      <div id="primary-upgrades-container">
+        </div>
+
+      <div class="joker-section-title">Weapon Jokers (Max 4)</div>
+      <div class="joker-grid" id="primary-joker-grid">
+        </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <div>Secondary Sidearm</div>
+        <div class="panel-subtitle">Auxiliary Gear</div>
+      </div>
+      <label for="secondary-select">Select Sidearm</label>
+      <select id="secondary-select" onchange="onSecondaryWeaponChange()">
+        <option value="derringer">Derringer Pocket Pistol</option>
+        <option value="boomerang">Gilded Boomerang</option>
+        <option value="bolas">Weighted Bolas</option>
+      </select>
+
+      <label for="secondary-element">Infused Element</label>
+      <select id="secondary-element">
+        <option value="none">None (Physical)</option>
+        <option value="kinetic">Kinetic Shock</option>
+        <option value="incendiary">Incendiary Ignite</option>
+        <option value="toxic">Corrosive Toxic</option>
+      </select>
+
+      <div id="secondary-upgrades-container">
+        <div class="upgrade-group">
+          <div class="upgrade-row">
+            <div class="upgrade-info">
+              <div class="upgrade-name">Potency</div>
+              <div class="upgrade-desc">Increases baseline damage/effect</div>
+            </div>
+            <div class="upgrade-controls">
+              <button class="btn-counter" onclick="adjustSecondaryUpgrade('potency', -1)">-</button>
+              <span class="counter-val" id="sec-val-potency">0</span>
+              <button class="btn-counter" onclick="adjustSecondaryUpgrade('potency', 1)">+</button>
+            </div>
+          </div>
+          <div class="upgrade-row">
+            <div class="upgrade-info">
+              <div class="upgrade-name">Cycle Rate</div>
+              <div class="upgrade-desc">Speeds up usage frequency / cooldown</div>
+            </div>
+            <div class="upgrade-controls">
+              <button class="btn-counter" onclick="adjustSecondaryUpgrade('cycle', -1)">-</button>
+              <span class="counter-val" id="sec-val-cycle">0</span>
+              <button class="btn-counter" onclick="adjustSecondaryUpgrade('cycle', 1)">+</button>
+            </div>
+          </div>
+          <div class="upgrade-row">
+            <div class="upgrade-info">
+              <div class="upgrade-name">Capacity / Scope</div>
+              <div class="upgrade-desc">Increases size, retention, or bounce count</div>
+            </div>
+            <div class="upgrade-controls">
+              <button class="btn-counter" onclick="adjustSecondaryUpgrade('capacity', -1)">-</button>
+              <span class="counter-val" id="sec-val-capacity">0</span>
+              <button class="btn-counter" onclick="adjustSecondaryUpgrade('capacity', 1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="joker-section-title">Sidearm Jokers (Max 2)</div>
+      <div class="joker-grid" id="secondary-joker-grid">
+        </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <div>Utility & Incantations</div>
+        <div class="panel-subtitle">Tactical Matrix</div>
+      </div>
+
+      <label for="utility-select">Utility Item</label>
+      <select id="utility-select">
+        <option value="">-- None Selected --</option>
+        <option value="grapple">Steam-Powered Grapple Hook</option>
+        <option value="shield">Deployable Galvanic Barricade</option>
+        <option value="jumpboots">Clockwork Jump Boots</option>
+      </select>
+      <div class="utility-note" id="utility-note-box">Select a utility mechanism to display operational parameters.</div>
+
+      <label>Active Spells (Slots 1 - 3)</label>
+      <div class="spell-row">
+        <select id="spell-0" onchange="onSpellChange(0)"></select>
+      </div>
+      <div class="spell-row">
+        <select id="spell-1" onchange="onSpellChange(1)"></select>
+      </div>
+      <div class="spell-row">
+        <select id="spell-2" onchange="onSpellChange(2)"></select>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <div>Hero Enhancements</div>
+        <div class="panel-subtitle">Physique & Core Upgrades</div>
+      </div>
+
+      <div id="hero-upgrades-container">
+        <div class="upgrade-row">
+          <div class="upgrade-info">
+            <div class="upgrade-name">Max Health Vitality</div>
+            <div class="upgrade-desc">Increases threshold for physical punishment</div>
+          </div>
+          <div class="upgrade-controls">
+            <button class="btn-counter" onclick="adjustHeroUpgrade('health', -1)">-</button>
+            <span class="counter-val" id="hero-val-health">0</span>
+            <button class="btn-counter" onclick="adjustHeroUpgrade('health', 1)">+</button>
+          </div>
+        </div>
+        <div class="upgrade-row">
+          <div class="upgrade-info">
+            <div class="upgrade-name">Spiritual Cooldown</div>
+            <div class="upgrade-desc">Speeds up recharge of spells and items</div>
+          </div>
+          <div class="upgrade-controls">
+            <button class="btn-counter" onclick="adjustHeroUpgrade('cdr', -1)">-</button>
+            <span class="counter-val" id="hero-val-cdr">0</span>
+            <button class="btn-counter" onclick="adjustHeroUpgrade('cdr', 1)">+</button>
+          </div>
+        </div>
+        <div class="upgrade-row">
+          <div class="upgrade-info">
+            <div class="upgrade-name">Locomotion Velocity</div>
+            <div class="upgrade-desc">Increases standard sprint and run pacing</div>
+          </div>
+          <div class="upgrade-controls">
+            <button class="btn-counter" onclick="adjustHeroUpgrade('speed', -1)">-</button>
+            <span class="counter-val" id="hero-val-speed">0</span>
+            <button class="btn-counter" onclick="adjustHeroUpgrade('speed', 1)">+</button>
+          </div>
+        </div>
+        <div class="upgrade-row">
+          <div class="upgrade-info">
+            <div class="upgrade-name">Reserve Ammo Bags</div>
+            <div class="upgrade-desc">Expands carrying limits for backup munitions</div>
+          </div>
+          <div class="upgrade-controls">
+            <button class="btn-counter" onclick="adjustHeroUpgrade('ammo', -1)">-</button>
+            <span class="counter-val" id="hero-val-ammo">0</span>
+            <button class="btn-counter" onclick="adjustHeroUpgrade('ammo', 1)">+</button>
+          </div>
+        </div>
+        <div class="upgrade-row">
+          <div class="upgrade-info">
+            <div class="upgrade-name">Vertical Jump Kinetic</div>
+            <div class="upgrade-desc">Enhances vertical launch height</div>
+          </div>
+          <div class="upgrade-controls">
+            <button class="btn-counter" onclick="adjustHeroUpgrade('jump', -1)">-</button>
+            <span class="counter-val" id="hero-val-jump">0</span>
+            <button class="btn-counter" onclick="adjustHeroUpgrade('jump', 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="joker-section-title">Hero Jokers (Max 5)</div>
+      <div class="joker-grid" id="hero-joker-grid">
+        </div>
+    </div>
+
+  </div>
+
+  <div class="sidebar">
+    <div class="calc-panel">
+      <div class="calc-title">Telegraph Output</div>
+      
+      <div class="calc-group">
+        <div class="calc-group-title" id="calc-primary-title">Primary: None</div>
+        <div class="calc-row">
+          <span class="calc-label">Normal Hit Damage:</span>
+          <span class="calc-val" id="out-pri-dmg">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Weakspot Strike:</span>
+          <span class="calc-val" id="out-pri-weak">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Fire Interval Rate:</span>
+          <span class="calc-val" id="out-pri-fr">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Magazine Capacity:</span>
+          <span class="calc-val" id="out-pri-mag">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Reload Cycle Duration:</span>
+          <span class="calc-val" id="out-pri-reload">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Theoretical DPS (Weakspot):</span>
+          <span class="calc-val highlight" id="out-pri-dps">-</span>
+        </div>
+      </div>
+
+      <div class="calc-group">
+        <div class="calc-group-title" id="calc-secondary-title">Secondary: Derringer</div>
+        <div class="calc-row">
+          <span class="calc-label">Impact Damage Value:</span>
+          <span class="calc-val" id="out-sec-dmg">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Weakspot Strike:</span>
+          <span class="calc-val" id="out-sec-weak">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Action Interval Rate:</span>
+          <span class="calc-val" id="out-sec-rate">-</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Elemental Status Infusion:</span>
+          <span class="calc-val" id="out-sec-elem">-</span>
+        </div>
+      </div>
+
+      <div class="calc-group">
+        <div class="calc-group-title">Spiritual Matrices</div>
+        <div class="calc-row">
+          <span class="calc-label">Effective Cooldown Mod:</span>
+          <span class="calc-val highlight" id="out-hero-cdr">100% (0% Reduction)</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Active Incantation Loadout:</span>
+          <span class="calc-val" id="out-spells-active">0 / 3 Equipped</span>
+        </div>
+      </div>
+
+      <div class="calc-group">
+        <div class="calc-group-title">Physique Matrix</div>
+        <div class="calc-row">
+          <span class="calc-label">Maximum Hit Points:</span>
+          <span class="calc-val" id="out-hero-hp">100 HP</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Sustain Mechanics:</span>
+          <span class="calc-val" id="out-hero-sustain">None active</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Movement Pace Speed:</span>
+          <span class="calc-val" id="out-hero-speed">100% Base</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Total Allocated Jokers:</span>
+          <span class="calc-val" id="out-total-jokers">0</span>
+        </div>
+      </div>
+
+      <div class="share-box">
+        <label for="share-code">Telegraph Manifest Link</label>
+        <div class="share-input-wrap">
+          <input type="text" id="share-code" readonly placeholder="Select parameters to compile Link..." onclick="this.select()">
+          <button class="btn btn-accent" style="padding:0 12px; margin-bottom:12px;" onclick="copyShareLink()">Copy</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="joker-modal" onclick="closeJokerModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <span class="modal-close" onclick="closeJokerModal(null)">&times;</span>
+    <h3 class="panel-title" style="margin-bottom:16px;">Select Joker Card</h3>
+    <div id="joker-modal-list">
+      </div>
+  </div>
+</div>
+
+<div id="notify-toast">Build synchronized.</div>
+
+<script>
+// Database definition
+const DATA = {
+  primaries: {
+    leveredge: {
+      name: "Leveredge (Repeater Rifle)",
+      upgrades: {
+        dmg:    { name: "Heavy Rimfire Caliber", desc: "Increases impact force at expense of capacity", max: 5 },
+        fr:     { name: "Polished Action Toggle", desc: "Decreases cycling time delay between round delivery", max: 5 },
+        cs:     { name: "Serrated Extractor Teeth", desc: "Reduces reload overhead operational duration", max: 5 },
+        rs:     { name: "Hair Trigger Assembly", desc: "Improves overall handling and accuracy profiles", max: 5 },
+        ds:     { name: "Deep Grooved Rifling", desc: "Increases projectile range retention characteristics", max: 5 },
+        ls:     { name: "Nickel Plated Pins", desc: "Slightly reduces recoil stability deviation", max: 5 }
+      },
+      base: { dmg: 30, fr: 0.45, mag: 7, reload: 2.1 }
+    },
+    pax: {
+      name: "Pax-44 (Heavy Revolver)",
+      upgrades: {
+        dmg:    { name: "Magnum Powder Grain", desc: "Forces higher exit velocities for punchier impacts", max: 5 },
+        fr:     { name: "Fanned Cylinder Pins", desc: "Enables swifter double-action operations", max: 5 },
+        cs:     { name: "Swing-Out Star Ejector", desc: "Drastically drops whole cylinder replenishment times", max: 5 },
+        rs:     { name: "Counterweighted Underlump", desc: "Keeps heavy muzzle climb managed during strings", max: 5 },
+        ds:     { name: "Choke-Bored Cylinder", desc: "Minimizes initial pressure leakage variables", max: 5 },
+        ls:     { name: "Hardened Hammer Spurs", desc: "Crisper mechanical snap feedback loop timing", max: 5 }
+      },
+      base: { dmg: 48, fr: 0.65, mag: 6, reload: 2.8 }
+    },
+    brasscaster: {
+      name: "Brasscaster (Volley Gun)",
+      upgrades: {
+        dmg:    { name: "Fulminate Caps Compound", desc: "Amplifies multi-barrel combustion thresholds", max: 5 },
+        fr:     { name: "Rotary Crank Synchronization", desc: "Shortens delays in cyclic sequential sweeps", max: 5 },
+        cs:     { name: "Slide-Latch Breech Box", desc: "Smoothes block extraction procedures", max: 5 },
+        rs:     { name: "Reinforced Water Jacket", desc: "Stabilizes thermal bloom alignment patterns", max: 5 },
+        ds:     { name: "Conical Gas Regulators", desc: "Alters exit pressure for tight spread density", max: 5 },
+        ls:     { name: "Tempered Firing Blocks", desc: "Prevents mechanical hangfires across individual pipes", max: 5 }
+      },
+      base: { dmg: 18, fr: 0.22, mag: 12, reload: 3.4 }
+    },
+    ironclad: {
+      name: "Ironclad (Breach Loader)",
+      upgrades: {
+        dmg:    { name: "Lead-Slug Castings", desc: "Unleashes devastating kinetic impacts per shell", max: 5 },
+        fr:     { name: "Lever-Assist Ejection", desc: "Speeds up opening mechanics ever so slightly", max: 5 },
+        cs:     { name: "Tapered Chamber Mouths", desc: "Speeds up loading of massive individual cartridges", max: 5 },
+        rs:     { name: "Pneumatic Buttplate Buffer", desc: "Absorbs violent heavy-charge energy pushes", max: 5 },
+        ds:     { name: "Rifled Choke Inlays", desc: "Maintains optimal slug orientation over longer arcs", max: 5 },
+        ls:     { name: "Over-Sized Thumb Latches", desc: "Ensures positive breach locking manipulation loops", max: 5 }
+      },
+      base: { dmg: 120, fr: 1.50, mag: 1, reload: 1.8 }
+    }
+  },
+  secondaries: {
+    derringer: { name: "Derringer Pocket Pistol", baseDmg: 20, baseRate: 0.35, baseWeak: 1.2 },
+    boomerang: { name: "Gilded Boomerang", baseDmg: 25, baseRate: 0.80, baseWeak: 1.0 },
+    bolas:     { name: "Weighted Bolas", baseDmg: 15, baseRate: 1.10, baseWeak: 1.0 }
+  },
+  spells: [
+    { id: "pyre", name: "Pyre Strike", desc: "Deploys localized thermal updraft eruptive pillars." },
+    { id: "frost", name: "Frost Chains", desc: "Binds targets within restrictive low-temp static fields." },
+    { id: "volt", name: "Voltaic Dash", desc: "Propels vector paths with lingering energy charges." },
+    { id: "miasma", name: "Corrosive Miasma", desc: "Saturates air zones with active armor melt compounds." },
+    { id: "ward", name: "Aegis Ward", desc: "Generates localized redirection energy barrier nodes." }
+  ],
+  jokers: {
+    primary: [
+      { id: "p_hollow", name: "Hollow Points", icon: "💥", desc: "+12% Base Damage, adds light bleed layers." },
+      { id: "p_drum", name: "Drum Magazine", icon: "🥁", desc: "+30% Magazine capacity capacity limits, rounds reload 10% slower." },
+      { id: "p_hair", name: "Match Trigger", icon: "🐎", desc: "+15% Cyclic fire interval recovery speed pacing." },
+      { id: "p_scope", name: "Vernier Optic", icon: "🔭", desc: "+25% Optimal range retention curves." },
+      { id: "p_heavy", name: "Heavy Frame", icon: "⚓", desc: "+20% Impact stagger coefficients, adds subtle weight feel." }
+    ],
+    secondary: [
+      { id: "s_split", name: "Splitter Core", icon: "🔱", desc: "Divides projectiles or impacts into dual low-yield elements." },
+      { id: "s_bounce", name: "Ricochet Path", icon: "💫", desc: "Grants alternative rebound capabilities off hard boundaries." },
+      { id: "s_catalyst", name: "Catalyst Mix", icon: "🧪", desc: "Increases internal elemental payload application rates by 25%." },
+      { id: "s_quick", name: "Sleeve Holster", icon: "⚡", desc: "Cuts sidearm draw speed and initial deploy timers in half." }
+    ],
+    hero: [
+      { id: "h_plat", name: "Plated Vest", icon: "🛡️", desc: "+25 Maximum Hit Points armor values." },
+      { id: "h_vamp", name: "Sanguine Siphon", icon: "🩸", desc: "Restores minor health metrics upon executing confirmed critical strikes." },
+      { id: "h_surge", name: "Spiritual Conduit", icon: "🌀", desc: "+15% Spell operational recovery cooldown rates." },
+      { id: "h_fleet", name: "Winged Boots", icon: "🦿", desc: "+8% Absolute standard locomotion velocities." },
+      { id: "h_hoard", name: "Bandolier Rig", icon: "🎒", desc: "+40% Reserves containment capacity across all shell classes." }
+    ]
+  }
+};
+
+// Application State Object
+let state = {
+  primary: {
+    id: '',
+    upgrades: { dmg:0, fr:0, cs:0, rs:0, ds:0, ls:0 },
+    jokers: [null, null, null, null] // max 4
+  },
+  secondary: {
+    id: 'derringer',
+    element: 'none',
+    upgrades: { potency:0, cycle:0, capacity:0 },
+    jokers: [null, null] // max 2
+  },
+  hero: {
+    upgrades: { health:0, cdr:0, speed:0, ammo:0, jump:0 },
+    jokers: [null, null, null, null, null] // max 5
+  },
+  utility: '',
+  spells: ['', '', ''] // slots 1, 2, 3
+};
+
+let activeModalSlot = { type: '', index: null };
+let isDirty = false;
+
+// =============================================================
+//  UI MANIPULATION & RENDERERS
+// =============================================================
+
+function populateSpellSelects() {
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById(`spell-${i}`);
+    el.innerHTML = '<option value="">-- No Spell Slotted --</option>';
+    DATA.spells.forEach(s => {
+      el.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+    });
+  }
+}
+
+function renderPrimaryUpgrades() {
+  const container = document.getElementById('primary-upgrades-container');
+  if (!state.primary.id) {
+    container.innerHTML = `<div style="text-align:center; color:var(--text-dim); padding:20px; font-style:italic; font-family:var(--font-mono); font-size:0.8rem; border:1px dashed var(--border); margin-bottom:12px;">Select a baseline weapon mechanism from the archives above.</div>`;
+    return;
+  }
+
+  const wpData = DATA.primaries[state.primary.id];
+  let html = '<div class="upgrade-group">';
+  
+  Object.keys(wpData.upgrades).forEach(key => {
+    const upg = wpData.upgrades[key];
+    const currentVal = state.primary.upgrades[key] || 0;
+    
+    html += `
+      <div class="upgrade-row">
+        <div class="upgrade-info">
+          <div class="upgrade-name">${upg.name}</div>
+          <div class="upgrade-desc">${upg.desc}</div>
+        </div>
+        <div class="upgrade-controls">
+          <button class="btn-counter" onclick="adjustPrimaryUpgrade('${key}', -1)">-</button>
+          <span class="counter-val" id="pri-val-${key}">${currentVal}</span>
+          <button class="btn-counter" onclick="adjustPrimaryUpgrade('${key}', 1)">+</button>
+        </div>
+      </div>`;
+  });
+  
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function updateUpgradeUI(type) {
+  if (type === 'primary' && state.primary.id) {
+    Object.keys(state.primary.upgrades).forEach(key => {
+      const el = document.getElementById(`pri-val-${key}`);
+      if (el) el.textContent = state.primary.upgrades[key];
+    });
+  } else if (type === 'secondary') {
+    Object.keys(state.secondary.upgrades).forEach(key => {
+      const el = document.getElementById(`sec-val-${key}`);
+      if (el) el.textContent = state.secondary.upgrades[key];
+    });
+  }
+}
+
+function updateHeroUpgradeUI() {
+  Object.keys(state.hero.upgrades).forEach(key => {
+    const el = document.getElementById(`hero-val-${key}`);
+    if (el) el.textContent = state.hero.upgrades[key];
+  });
+}
+
+function renderJokerSlots(type) {
+  const grid = document.getElementById(`${type}-joker-grid`);
+  grid.innerHTML = '';
+  const max = type === 'primary' ? 4 : (type === 'secondary' ? 2 : 5);
+  
+  for (let i = 0; i < max; i++) {
+    const jokerId = state[type].jokers[i];
+    let slotHtml = '';
+    
+    if (jokerId) {
+      const jData = DATA.jokers[type].find(j => j.id === jokerId);
+      slotHtml = `
+        <div class="joker-slot active" onclick="openJokerModal('${type}', ${i})">
+          <div class="j-icon">${jData.icon}</div>
+          <div class="j-name">${jData.name}</div>
+        </div>`;
+    } else {
+      slotHtml = `
+        <div class="joker-slot" onclick="openJokerModal('${type}', ${i})">
+          <div class="j-icon" style="color:var(--border-hi)">+</div>
+          <div class="j-name">Empty</div>
+        </div>`;
+    }
+    grid.innerHTML += slotHtml;
+  }
+}
+
+function updateUtilityNote() {
+  const el = document.getElementById('utility-note-box');
+  const val = state.utility;
+  if (val === 'grapple') {
+    el.textContent = "Grapple Hook: Range 22m. Adds vertical positioning options.";
+  } else if (val === 'shield') {
+    el.textContent = "Galvanic Barricade: Width 4m. Absorbs direct light projectiles.";
+  } else if (val === 'jumpboots') {
+    el.textContent = "Jump Boots: Height +3.5m. Passive aerial maneuver vectors.";
+  } else {
+    el.textContent = "Select a utility mechanism to display operational parameters.";
+  }
+}
+
+// =============================================================
+//  MUTATORS & HANDLERS
+// =============================================================
+
+function onPrimaryWeaponChange() {
+  state.primary.id = document.getElementById('primary-select').value;
+  // reset upgrades
+  state.primary.upgrades = { dmg:0, fr:0, cs:0, rs:0, ds:0, ls:0 };
+  state.primary.jokers = [null, null, null, null];
+  
+  renderPrimaryUpgrades();
+  renderJokerSlots('primary');
+  updateCalc();
+  markDirty();
+}
+
+function adjustPrimaryUpgrade(key, amt) {
+  if (!state.primary.id) return;
+  const limits = DATA.primaries[state.primary.id].upgrades[key].max;
+  let cur = state.primary.upgrades[key] || 0;
+  cur += amt;
+  if (cur < 0) cur = 0;
+  if (cur > limits) cur = limits;
+  state.primary.upgrades[key] = cur;
+  
+  document.getElementById(`pri-val-${key}`).textContent = cur;
+  updateCalc();
+  markDirty();
+}
+
+function onSecondaryWeaponChange() {
+  state.secondary.id = document.getElementById('secondary-select').value;
+  updateCalc();
+  markDirty();
+}
+
+function adjustSecondaryUpgrade(key, amt) {
+  let cur = state.secondary.upgrades[key] || 0;
+  cur += amt;
+  if (cur < 0) cur = 0;
+  if (cur > 5) cur = 5; // standard cap
+  state.secondary.upgrades[key] = cur;
+  document.getElementById(`sec-val-${key}`).textContent = cur;
+  updateCalc();
+  markDirty();
+}
+
+function adjustHeroUpgrade(key, amt) {
+  let cur = state.hero.upgrades[key] || 0;
+  cur += amt;
+  if (cur < 0) cur = 0;
+  if (cur > 5) cur = 5;
+  state.hero.upgrades[key] = cur;
+  document.getElementById(`hero-val-${key}`).textContent = cur;
+  updateCalc();
+  markDirty();
+}
+
+function onSpellChange(slotIndex) {
+  const val = document.getElementById(`spell-${slotIndex}`).value;
+  state.spells[slotIndex] = val;
+  updateCalc();
+  markDirty();
+}
+
+// =============================================================
+//  JOKER SELECTION MODAL SYSTEM
+// =============================================================
+
+function openJokerModal(type, index) {
+  activeModalSlot = { type, index };
+  const modal = document.getElementById('joker-modal');
+  const listCont = document.getElementById('joker-modal-list');
+  listCont.innerHTML = '';
+
+  // Add a "Clear Slot" choice
+  listCont.innerHTML += `
+    <div class="joker-list-item" onclick="selectJokerCard(null)">
+      <div class="j-list-icon" style="color:var(--text-dim)">❌</div>
+      <div class="j-list-details">
+        <div class="joker-list-title" style="color:var(--text-dim)">Clear Card Slot</div>
+        <div class="joker-list-desc">Leave this vector slot unfilled.</div>
+      </div>
+    </div>`;
+
+  // Populate valid available options
+  const pool = DATA.jokers[type] || [];
+  pool.forEach(card => {
+    // optional check: is it already equipped elsewhere in this section?
+    const alreadyEquipped = state[type].jokers.includes(card.id);
+    const isThisSlot = state[type].jokers[index] === card.id;
+    const opacityStyle = (alreadyEquipped && !isThisSlot) ? 'style="opacity: 0.4"' : '';
+
+    listCont.innerHTML += `
+      <div class="joker-list-item" onclick="selectJokerCard('${card.id}')" ${opacityStyle}>
+        <div class="j-list-icon">${card.icon}</div>
+        <div class="j-list-details">
+          <div class="joker-list-title">${card.name} ${alreadyEquipped && !isThisSlot ? '<span style="font-size:0.7rem; color:var(--copper); font-family:var(--font-mono)">[DUPLICATE]</span>' : ''}</div>
+          <div class="joker-list-desc">${card.desc}</div>
+        </div>
+      </div>`;
+  });
+
+  modal.classList.add('show');
+}
+
+function closeJokerModal(e) {
+  document.getElementById('joker-modal').classList.remove('show');
+}
+
+function selectJokerCard(cardId) {
+  const { type, index } = activeModalSlot;
+  if (type && index !== null) {
+    state[type].jokers[index] = cardId;
+    renderJokerSlots(type);
+    updateCalc();
+    markDirty();
+  }
+  closeJokerModal(null);
+}
+
+// =============================================================
+//  CORE MATHEMATICAL TELEGRAPH CALCULATOR
+// =============================================================
+
+function updateCalc() {
+  // -----------------------------------------------------------
+  //  PRIMARY CALCULATOR LOGIC
+  // -----------------------------------------------------------
+  if (!state.primary.id) {
+    document.getElementById('calc-primary-title').textContent = "Primary: None Selected";
+    document.getElementById('out-pri-dmg').textContent = "-";
+    document.getElementById('out-pri-weak').textContent = "-";
+    document.getElementById('out-pri-fr').textContent = "-";
+    document.getElementById('out-pri-mag').textContent = "-";
+    document.getElementById('out-pri-reload').textContent = "-";
+    document.getElementById('out-pri-dps').textContent = "-";
+  } else {
+    const wp = DATA.primaries[state.primary.id];
+    document.getElementById('calc-primary-title').textContent = `Primary: ${wp.name}`;
+
+    // gather indices
+    let upgDmg = state.primary.upgrades.dmg || 0;
+    let upgFr  = state.primary.upgrades.fr || 0;
+    let upgCs  = state.primary.upgrades.cs || 0;
+
+    // calculations base modifiers
+    let baseDmg = wp.base.dmg;
+    let finalDmg = baseDmg + (upgDmg * (baseDmg * 0.08)); // +8% per level
+
+    // check jokers
+    let hasHollow = state.primary.jokers.includes('p_hollow');
+    let hasDrum   = state.primary.jokers.includes('p_drum');
+    let hasHair   = state.primary.jokers.includes('p_hair');
+
+    if (hasHollow) finalDmg *= 1.12;
+
+    // Weakspot calculation (Always 1.5x of normal final damage)
+    let finalWeak = finalDmg * 1.5;
+
+    // Fire rate timing
+    let baseFr = wp.base.fr;
+    let finalFr = baseFr - (upgFr * 0.03); // down seconds
+    if (hasHair) finalFr -= 0.05;
+    if (finalFr < 0.10) finalFr = 0.10; // floor limit
+
+    // Magazine
+    let baseMag = wp.base.mag;
+    let finalMag = baseMag;
+    if (state.primary.id !== 'ironclad') {
+      // increase capacity based on choices
+      // ironclad locked to 1
+    }
+    if (hasDrum && state.primary.id !== 'ironclad') {
+      finalMag = Math.round(finalMag * 1.30);
+    }
+
+    // Reload
+    let baseReload = wp.base.reload;
+    let finalReload = baseReload - (upgCs * 0.15);
+    if (hasDrum) finalReload *= 1.10; // delay penalty
+    if (finalReload < 0.5) finalReload = 0.5;
+
+    // Theoretical Weakspot DPS calculation
+    let cycleTime = (finalFr * finalMag) + finalReload;
+    let cycleDmg = finalWeak * finalMag;
+    let finalDps = cycleDmg / cycleTime;
+
+    document.getElementById('out-pri-dmg').textContent = `${finalDmg.toFixed(1)}`;
+    document.getElementById('out-pri-weak').textContent = `${finalWeak.toFixed(1)}`;
+    document.getElementById('out-pri-fr').textContent = `${finalFr.toFixed(2)}s`;
+    document.getElementById('out-pri-mag').textContent = `${finalMag}`;
+    document.getElementById('out-pri-reload').textContent = `${finalReload.toFixed(2)}s`;
+    document.getElementById('out-pri-dps').textContent = `${finalDps.toFixed(1)} DMG/s`;
+  }
+
+  // -----------------------------------------------------------
+  //  SECONDARY CALCULATOR LOGIC
+  // -----------------------------------------------------------
+  const secId = state.secondary.id || 'derringer';
+  const secData = DATA.secondaries[secId];
+  document.getElementById('calc-secondary-title').textContent = `Secondary: ${secData.name}`;
+
+  let secUpgPot = state.secondary.upgrades.potency || 0;
+  let secUpgCyc = state.secondary.upgrades.cycle || 0;
+
+  let secDmg = secData.baseDmg + (secUpgPot * 3);
+  let secRate = secData.baseRate - (secUpgCyc * 0.05);
+  if (secRate < 0.15) secRate = 0.15;
+
+  // Weakspot multiplier rules: 1.5x normal hit unless equipped sidearm is boomerang
+  let secWeak;
+  if (secId === 'boomerang') {
+    secWeak = secDmg * secData.baseWeak; // Keeps its specific base weakspot factor
+  } else {
+    secWeak = secDmg * 1.5;
+  }
+
+  document.getElementById('out-sec-dmg').textContent = `${secDmg.toFixed(1)}`;
+  document.getElementById('out-sec-weak').textContent = `${secWeak.toFixed(1)}`;
+  document.getElementById('out-sec-rate').textContent = `${secRate.toFixed(2)}s`;
+
+  let elemText = "Physical";
+  if (state.secondary.element === 'kinetic') elemText = "Kinetic Shock Force";
+  if (state.secondary.element === 'incendiary') elemText = "Incendiary Damage Burn";
+  if (state.secondary.element === 'toxic') elemText = "Corrosive Acid Poison";
+  document.getElementById('out-sec-elem').textContent = elemText;
+
+  // -----------------------------------------------------------
+  //  SPELLS & COOLDOWNS MODIFICATION
+  // -----------------------------------------------------------
+  let heroCdrLevel = state.hero.upgrades.cdr || 0;
+  let hasSurge = state.hero.jokers.includes('h_surge');
+  
+  let cdrReductionPct = (heroCdrLevel * 5); // 5% per point
+  if (hasSurge) cdrReductionPct += 15;
+  if (cdrReductionPct > 50) cdrReductionPct = 50; // hard engine cap
+
+  let effectiveCdPct = 100 - cdrReductionPct;
+  document.getElementById('out-hero-cdr').textContent = `${effectiveCdPct}% (${cdrReductionPct}% Reduction)`;
+
+  let activeSpellCount = 0;
+  state.spells.forEach(s => { if (s) activeSpellCount++; });
+  document.getElementById('out-spells-active').textContent = `${activeSpellCount} / 3 Equipped`;
+
+  // -----------------------------------------------------------
+  //  HERO MATRIX & PHYSIQUE
+  // -----------------------------------------------------------
+  let heroHpLevel = state.hero.upgrades.health || 0;
+  let hasPlat = state.hero.jokers.includes('h_plat');
+  let finalHp = 100 + (heroHpLevel * 10);
+  if (hasPlat) finalHp += 25;
+  document.getElementById('out-hero-hp').textContent = `${finalHp} HP`;
+
+  let hasVamp = state.hero.jokers.includes('h_vamp');
+  let sustainText = "None active";
+  if (hasVamp) {
+    sustainText = "Sanguine Siphon Vitals Sync";
+  }
+  document.getElementById('out-hero-sustain').textContent = sustainText;
+
+  let heroSpeedLevel = state.hero.upgrades.speed || 0;
+  let hasFleet = state.hero.jokers.includes('h_fleet');
+  let finalSpeed = 100 + (heroSpeedLevel * 4);
+  if (hasFleet) finalSpeed += 8;
+  document.getElementById('out-hero-speed').textContent = `${finalSpeed}% Pacing`;
+
+  // Total allocated jokers counter
+  let totalJokers = 0;
+  state.primary.jokers.forEach(j => { if (j) totalJokers++; });
+  state.secondary.jokers.forEach(j => { if (j) totalJokers++; });
+  state.hero.jokers.forEach(j => { if (j) totalJokers++; });
+  document.getElementById('out-total-jokers').textContent = `${totalJokers}`;
+
+  // Update compiled share code text field automatically
+  generateShareLinkString();
+}
+
+// =============================================================
+//  COMPILATION & LINK ENCODING MATRIX
+// =============================================================
+
+function generateShareLinkString() {
+  const codeBox = document.getElementById('share-code');
+  try {
+    // Compact serialization scheme
+    const p_up = Object.values(state.primary.upgrades).join('');
+    const p_j  = state.primary.jokers.map(j => j ? j.split('_')[1] : '0').join(',');
+    const s_up = Object.values(state.secondary.upgrades).join('');
+    const s_j  = state.secondary.jokers.map(j => j ? j.split('_')[1] : '0').join(',');
+    const h_up = Object.values(state.hero.upgrades).join('');
+    const h_j  = state.hero.jokers.map(j => j ? j.split('_')[1] : '0').join(',');
+    const sp   = state.spells.map(s => s || '0').join(',');
+
+    const query = new URLSearchParams();
+    if (state.primary.id) query.set('p', state.primary.id);
+    query.set('pu', p_up);
+    query.set('pj', p_j);
+    query.set('s', state.secondary.id);
+    query.set('se', state.secondary.element);
+    query.set('su', s_up);
+    query.set('sj', s_j);
+    query.set('hu', h_up);
+    query.set('hj', h_j);
+    query.set('ut', state.utility || '0');
+    query.set('sp', sp);
+
+    const fullUrl = `${window.location.origin}${window.location.pathname}?${query.toString()}`;
+    codeBox.value = fullUrl;
+  } catch (err) {
+    codeBox.value = "";
+  }
+}
+
+function copyShareLink() {
+  const el = document.getElementById('share-code');
+  if (!el.value) return;
+  el.select();
+  navigator.clipboard.writeText(el.value).then(() => {
+    notify('Telegraph operational link copied');
+  });
+}
+
+function markDirty() {
+  isDirty = true;
+}
+
+function parseUrlParameters() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('p') && !params.has('s') && !params.has('hu')) return; // empty default state
+
+  try {
+    if (params.has('p')) state.primary.id = params.get('p');
+    
+    // Parse primary upgrades string
+    if (params.has('pu')) {
+      const pu = params.get('pu');
+      const keys = Object.keys(state.primary.upgrades);
+      for (let i = 0; i < keys.length; i++) {
+        if (pu[i]) state.primary.upgrades[keys[i]] = parseInt(pu[i], 10) || 0;
+      }
+    }
+    // Parse primary jokers
+    if (params.has('pj')) {
+      const pj = params.get('pj').split(',');
+      for (let i = 0; i < 4; i++) {
+        if (pj[i] && pj[i] !== '0') state.primary.jokers[i] = `p_${pj[i]}`;
+      }
+    }
+
+    if (params.has('s')) state.secondary.id = params.get('s');
+    if (params.has('se')) state.secondary.element = params.get('se');
+    
+    if (params.has('su')) {
+      const su = params.get('su');
+      const keys = Object.keys(state.secondary.upgrades);
+      for (let i = 0; i < keys.length; i++) {
+        if (su[i]) state.secondary.upgrades[keys[i]] = parseInt(su[i], 10) || 0;
+      }
+    }
+    if (params.has('sj')) {
+      const sj = params.get('sj').split(',');
+      for (let i = 0; i < 2; i++) {
+        if (sj[i] && sj[i] !== '0') state.secondary.jokers[i] = `s_${sj[i]}`;
+      }
+    }
+
+    if (params.has('hu')) {
+      const hu = params.get('hu');
+      const keys = Object.keys(state.hero.upgrades);
+      for (let i = 0; i < keys.length; i++) {
+        if (hu[i]) state.hero.upgrades[keys[i]] = parseInt(hu[i], 10) || 0;
+      }
+    }
+    if (params.has('hj')) {
+      const hj = params.get('hj').split(',');
+      for (let i = 0; i < 5; i++) {
+        if (hj[i] && hj[i] !== '0') state.hero.jokers[i] = `h_${hj[i]}`;
+      }
+    }
+
+    if (params.has('ut') && params.get('ut') !== '0') state.utility = params.get('ut');
+    
+    if (params.has('sp')) {
+      const sp = params.get('sp').split(',');
+      for (let i = 0; i < 3; i++) {
+        if (sp[i] && sp[i] !== '0') state.spells[i] = sp[i];
+      }
+    }
+
+    // Reflect state to DOM elements
+    applyStateToDOM();
+    notify('Manifest parsed from link coordinates');
+  } catch (e) {
+    console.error("Failed parsing configurations", e);
+  }
+}
+
+function applyStateToDOM() {
+  document.getElementById('primary-select').value = state.primary.id;
+  document.getElementById('secondary-select').value = state.secondary.id;
+  document.getElementById('secondary-element').value = state.secondary.element;
+  document.getElementById('utility-select').value = state.utility;
+
+  renderPrimaryUpgrades();
+  updateUpgradeUI('primary');
+  updateUpgradeUI('secondary');
+  updateHeroUpgradeUI();
+
+  renderJokerSlots('primary');
+  renderJokerSlots('secondary');
+  renderJokerSlots('hero');
+
+  for (let i = 0; i < 3; i++) {
+    document.getElementById(`spell-${i}`).value = state.spells[i];
+  }
+
+  updateUtilityNote();
+  updateCalc();
+}
+
+function clearBuild() {
+  state.primary.id = '';
+  state.primary.upgrades = { dmg:0, fr:0, cs:0, rs:0, ds:0, ls:0 };
+  state.primary.jokers   = [null, null, null, null];
+  state.secondary.id = 'derringer';
+  state.secondary.element = 'none';
+  state.secondary.upgrades = { potency:0, cycle:0, capacity:0 };
+  state.secondary.jokers   = [null, null];
+  state.hero.upgrades    = { health:0, cdr:0, speed:0, ammo:0, jump:0 };
+  state.hero.jokers      = [null, null, null, null, null];
+  state.utility    = '';
+  state.spells     = ['','',''];
+  applyStateToDOM();
+  document.getElementById('share-code').value = '';
+  notify('Build cleared');
+}
+
+let notifyTimer = null;
+function notify(msg) {
+  const el = document.getElementById('notify-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (notifyTimer) clearTimeout(notifyTimer);
+  notifyTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// =============================================================
+//  INIT
+// =============================================================
+
+(function init() {
+  populateSpellSelects();
+  renderPrimaryUpgrades();        // renders placeholder or choices
+  renderJokerSlots('primary');
+  renderJokerSlots('secondary');
+  renderJokerSlots('hero');
+  updateUpgradeUI('secondary');
+  updateHeroUpgradeUI();
+  updateCalc();
+
+  document.getElementById('secondary-element').addEventListener('change', function() {
+    state.secondary.element = this.value; updateCalc(); markDirty();
+  });
+  document.getElementById('utility-select').addEventListener('change', function() {
+    state.utility = this.value; updateUtilityNote(); markDirty();
+  });
+
+  // URL parameters processing loop
+  parseUrlParameters();
+})();
+</script>
+</body>
+</html>
