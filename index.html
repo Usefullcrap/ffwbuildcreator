@@ -472,6 +472,7 @@
   #panel-utility    { grid-column: 2; }
   #panel-spells     { grid-column: 1 / 3; }
   #panel-share      { grid-column: 1 / -1; }
+  #panel-ratings    { grid-column: 1 / -1; }
 
   /* Responsive */
   @media (max-width: 1100px) {
@@ -528,7 +529,45 @@
     transition: opacity 0.2s, transform 0.2s;
     pointer-events: none;
   }
-  .notify.show { opacity: 1; transform: translateY(0); }
+  /* ── Rating panel ── */
+  .rating-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 40px;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .rating-row:last-child { border-bottom: none; }
+  .rating-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--sand-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .rating-bar-track {
+    height: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rating-bar-fill {
+    height: 100%;
+    transition: width 0.2s;
+    border-radius: 2px;
+  }
+  .rating-green { background: var(--green); }
+  .rating-amber { background: var(--amber); }
+  .rating-red   { background: var(--red); }
+  .rating-value {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--amber);
+    text-align: right;
+  }
 </style>
 </head>
 <body>
@@ -598,7 +637,7 @@
 
       <!-- UPGRADE ALLOCATIONS -->
       <div id="primary-upgrades">
-        <div class="field-label" style="margin-bottom:6px">Upgrade Allocation <span class="dimtext" style="text-transform:none;letter-spacing:0">(26 total slots at max prestige)</span></div>
+        <div class="field-label" style="margin-bottom:6px">Upgrade Allocation</div>
         <!-- Primary upgrade rows are rendered dynamically by renderPrimaryUpgrades() -->
         <div id="primary-upgrade-rows"></div>
         <!-- Slot pool indicator -->
@@ -666,7 +705,7 @@
         </select>
       </div>
 
-      <div class="field-label" style="margin-bottom:6px">Upgrade Allocation <span class="dimtext" style="text-transform:none;letter-spacing:0">(26 total slots)</span></div>
+      <div class="field-label" style="margin-bottom:6px">Upgrade Allocation</div>
 
       <div class="upgrade-row">
         <div class="upgrade-name" data-tip="+5% base dmg per slot, max +40%">Damage</div>
@@ -768,7 +807,7 @@
   <section class="panel" id="panel-right">
     <div class="panel-header">
       <div class="panel-title"> Calculator</div>
-      <div class="panel-tag">Real-Time Stats</div>
+      <div class="panel-tag">Build Stats</div>
     </div>
     <div class="panel-body">
 
@@ -815,33 +854,28 @@
 
       <div class="calc-section-title">Spell Cooldowns</div>
       <div class="calc-metric dmg">
-        <div class="calc-metric-label">Avg Spell Cooldown (Base)</div>
-        <div class="calc-metric-value" id="calc-spell-cd-base">—<span class="calc-metric-unit">s</span></div>
-        <div class="calc-metric-sub" id="calc-spell-cd-base-sub">Average of equipped spell base CDs</div>
-      </div>
-      <div class="calc-metric dmg">
         <div class="calc-metric-label">Avg Spell Cooldown (Effective)</div>
         <div class="calc-metric-value" id="calc-spell-cd-eff">—<span class="calc-metric-unit">s</span></div>
         <div class="calc-metric-sub" id="calc-spell-cd-eff-sub">After Hero CDR upgrades + Mastery + West Wizard jokers</div>
       </div>
 
-      <div class="calc-section-title">Recovery / Sustain</div>
+      <div class="calc-section-title">Sustain</div>
       <div class="calc-metric heal">
-        <div class="calc-metric-label">Theoretical HPS (Voodoo / Lifesteal)</div>
+        <div class="calc-metric-label">Theoretical HPS</div>
         <div class="calc-metric-value" id="calc-hps">—<span class="calc-metric-unit">hp/s</span></div>
         <div class="calc-metric-sub" id="calc-hps-sub">Lifesteal + Hit Me regen estimate</div>
       </div>
       <div class="calc-metric heal">
-        <div class="calc-metric-label">Hero HP Pool (Upgraded)</div>
+        <div class="calc-metric-label">Hero HP Pool</div>
         <div class="calc-metric-value" id="calc-hero-hp">100<span class="calc-metric-unit">hp</span></div>
         <div class="calc-metric-sub">Base 100 HP × Health upgrade multiplier</div>
       </div>
 
-      <div class="calc-section-title">Joker Budget Summary</div>
-      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);line-height:1.9">
-        <div class="flex-between"><span>Primary Jokers</span><span id="sum-primary-joker" style="color:var(--amber)">0/16 pts</span></div>
-        <div class="flex-between"><span>Secondary Jokers</span><span id="sum-secondary-joker" style="color:var(--amber)">0/16 pts</span></div>
-        <div class="flex-between"><span>Hero Jokers</span><span id="sum-hero-joker" style="color:var(--amber)">0/16 pts</span></div>
+      <div class="calc-section-title">Movement</div>
+      <div class="calc-metric">
+        <div class="calc-metric-label">Movement Speed</div>
+        <div class="calc-metric-value" id="calc-move-speed">100<span class="calc-metric-unit">%</span></div>
+        <div class="calc-metric-sub" id="calc-move-speed-sub">Base speed only</div>
       </div>
 
       </div>
@@ -856,7 +890,7 @@
       <div class="panel-tag">Max Level · Prestige 5</div>
     </div>
     <div class="panel-body">
-      <div class="field-label" style="margin-bottom:6px">Hero Upgrades <span class="dimtext" style="text-transform:none;letter-spacing:0">(26 total slots at max prestige)</span></div>
+      <div class="field-label" style="margin-bottom:6px">Hero Upgrades</div>
 
       <!-- Hero has: Health, Spell CDR, Speed, Ammo Bag, Jump Height -->
       <div class="hero-upgrade-row">
@@ -999,6 +1033,61 @@
       </div>
 
       
+    </div>
+  </section>
+
+  <!-- RATING PANEL -->
+  <section class="panel" id="panel-ratings" style="grid-column: 1 / -1">
+    <div class="panel-header">
+      <div class="panel-title"> Build Ratings</div>
+      <div class="panel-tag">Sustain · Cooldown · Mobility</div>
+    </div>
+    <div class="panel-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
+
+        <!-- Sustain -->
+        <div>
+          <div class="calc-section-title" style="margin-top:0">Sustain / 10</div>
+          <div class="rating-row">
+            <div class="rating-label">Sustain</div>
+            <div class="rating-bar-track"><div class="rating-bar-fill rating-red" id="rating-sustain-bar" style="width:0%"></div></div>
+            <div class="rating-value" id="rating-sustain-val">0.0</div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
+            Based on lifesteal &amp; Drain spell only.<br>
+            Target: <span style="color:var(--copper)">42.46 hp/s</span>
+          </div>
+        </div>
+
+        <!-- Spell Cooldown -->
+        <div>
+          <div class="calc-section-title" style="margin-top:0">Spell Cooldown / 10</div>
+          <div class="rating-row">
+            <div class="rating-label">CDR</div>
+            <div class="rating-bar-track"><div class="rating-bar-fill rating-red" id="rating-cooldown-bar" style="width:0%"></div></div>
+            <div class="rating-value" id="rating-cooldown-val">0.0</div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
+            Effective cooldown only. Jokers not counted.<br>
+            Target: <span style="color:var(--copper)">11.6s avg</span>
+          </div>
+        </div>
+
+        <!-- Mobility -->
+        <div>
+          <div class="calc-section-title" style="margin-top:0">Mobility / 10</div>
+          <div class="rating-row">
+            <div class="rating-label">Speed</div>
+            <div class="rating-bar-track"><div class="rating-bar-fill rating-red" id="rating-mobility-bar" style="width:0%"></div></div>
+            <div class="rating-value" id="rating-mobility-val">0.0</div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
+            Jokers &amp; upgrades only. Spells ignored.<br>
+            Target: <span style="color:var(--copper)">375% bonus (475% total)</span>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
 
@@ -1504,7 +1593,7 @@ function renderPrimaryUpgrades() {
   upgDefs.forEach(def => {
     const val = state.primary.upgrades[def.key] || 0;
     const pct = (val / def.max) * 100;
-    const noteDPS = !def.affectsDPS ? ' <span style="color:var(--text-muted);font-size:0.65rem">(no DPS effect)</span>' : '';
+    const noteDPS = '';
 
     const row = document.createElement('div');
     row.className = 'upgrade-row';
@@ -1779,7 +1868,164 @@ function updateComboHint() {
 }
 
 // =============================================================
-//  CALCULATOR
+//  MOVEMENT SPEED CALCULATOR
+// =============================================================
+
+function calcSpeedMult() {
+  // Base speed: 100% (represented as 1.0)
+  // Hero speed upgrades: +4% per slot
+  const speedSlots = state.hero.upgrades.speed || 0;
+  let speedPct = 100 + speedSlots * 4; // e.g. 6 slots = 124%
+
+  const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
+  const heroJokers = state.hero.jokers;
+
+  // Speedy Gunzales: +10% move speed
+  const speedyCount = heroJokers.filter(id => id === 'speedy-gunzales').length;
+  speedPct += speedyCount * 10;
+
+  // Disgrace: +30% move speed (hero joker)
+  const disgraceCount = heroJokers.filter(id => id === 'disgrace').length;
+  speedPct += disgraceCount * 30;
+
+  // Last Dance: +30% move speed under 30% HP — assume condition active
+  const lastDanceCount = heroJokers.filter(id => id === 'last-dance').length;
+  speedPct += lastDanceCount * 30;
+
+  // Run & Gun (+30% while shooting) vs Run & Reload (+30% while reloading) — mutually exclusive, take 1
+  const runGunCount    = heroJokers.filter(id => id === 'run-and-gun').length;
+  const runReloadCount = heroJokers.filter(id => id === 'run-and-reload').length;
+  // Take the higher of the two (can't stack both at same time)
+  if (runGunCount > 0 || runReloadCount > 0) {
+    speedPct += 30; // only one applies at a time, +30%
+  }
+
+  // Rampage: +25% for 3s on kill — condition-based, include as active
+  const rampageCount = heroJokers.filter(id => id === 'rampage').length;
+  speedPct += rampageCount * 25;
+
+  // Dwarf: +move speed (legendary) — estimated +20% (game data)
+  const dwarfCount = heroJokers.filter(id => id === 'dwarf').length;
+  speedPct += dwarfCount * 20;
+
+  // Scavenger Star (sidearm unique): +30% speed
+  const scavengerCount = state.secondary.jokers.filter(id => id === 'scavenger-star').length;
+  speedPct += scavengerCount * 30;
+
+  return speedPct / 100; // return as multiplier (1.0 = 100%)
+}
+
+function calcMovementSpeed() {
+  const speedMult = calcSpeedMult();
+  const speedPct  = Math.round(speedMult * 100);
+  const el    = document.getElementById('calc-move-speed');
+  const subEl = document.getElementById('calc-move-speed-sub');
+  if (el) el.innerHTML = `${speedPct}<span class="calc-metric-unit">%</span>`;
+
+  const heroJokers = state.hero.jokers;
+  const speedSlots = state.hero.upgrades.speed || 0;
+  const sources = [];
+  if (speedSlots)                                                              sources.push(`+${speedSlots*4}% hero upgrades`);
+  if (heroJokers.includes('speedy-gunzales'))                                  sources.push('+10% Speedy Gunzales');
+  if (heroJokers.includes('disgrace'))                                         sources.push('+30% Disgrace');
+  if (heroJokers.includes('last-dance'))                                       sources.push('+30% Last Dance');
+  if (heroJokers.includes('run-and-gun') || heroJokers.includes('run-and-reload')) sources.push('+30% Run & Gun/Reload');
+  if (heroJokers.includes('rampage'))                                          sources.push('+25% Rampage');
+  if (heroJokers.includes('dwarf'))                                            sources.push('+20% Dwarf');
+  if (state.secondary.jokers.includes('scavenger-star'))                       sources.push('+30% Scavenger Star');
+  if (subEl) subEl.textContent = sources.length ? sources.join(' · ') : 'Base speed only';
+}
+
+// =============================================================
+//  RATING PANEL
+// =============================================================
+
+function calcRatings() {
+  // ── Sustain rating (0-10): approaches 42.46 hp/s via lifesteal + drain only
+  const SUSTAIN_MAX = 42.46;
+  let sustainHps = 0;
+  const lsSlots = state.secondary.upgrades.ls || 0;
+  const lsPct   = lsSlots * 3;
+  if (lsPct > 0) {
+    const w = WEAPONS[state.secondary.weapon];
+    if (w) {
+      const dmgSlots = state.secondary.upgrades.dmg || 0;
+      const frSlots  = state.secondary.upgrades.fr  || 0;
+      const secDmg = (w.baseDmg||0) * (1 + dmgSlots * 0.05);
+      const secFR  = (w.fireRate||0.5) / (1 + frSlots * 0.05);
+      sustainHps += (secDmg / secFR) * (lsPct / 100);
+    }
+  }
+  const drainCount = state.spells.filter(id => id === 'drain').length;
+  sustainHps += drainCount * 1.0;
+  const sustainRating = Math.min(10, (sustainHps / SUSTAIN_MAX) * 10);
+
+  // ── Spell CDR rating (0-10): approaches 11.6s avg effective cooldown
+  // Lower CD = higher rating
+  const COOLDOWN_TARGET = 11.6;
+  let cdRating = 0;
+  const equippedSpells = state.spells.filter(id => id && SPELL_BASE_CD[id]);
+  if (equippedSpells.length > 0) {
+    let cdrPct = (state.hero.upgrades.cdr || 0) * 2;
+    if (state.hero.jokers.includes('west-wizard')) cdrPct += 30;
+    if (state.hero.jokers.includes('giant')) cdrPct += 10;
+    const cantripCount = state.hero.jokers.filter(id => id === 'cantrip').length;
+    const schoolCDRJokers = { pyro:'pyro-mastery', elec:'elec-mastery', acid:'acid-mastery', voodoo:'voodoo-mastery', cactus:'cactus-mastery' };
+    let schoolBonusPct = 0;
+    Object.entries(schoolCDRJokers).forEach(([school, jid]) => {
+      const mc = state.hero.jokers.filter(id => id === jid).length;
+      if (mc > 0) schoolBonusPct += mc * equippedSpells.filter(id => SPELLS[id]?.school === school).length * 10;
+    });
+    cdrPct += schoolBonusPct;
+    const effectiveCDs = equippedSpells.map(id => {
+      const base = SPELL_BASE_CD[id];
+      let extra = cdrPct;
+      if (cantripCount > 0 && base <= 35) extra += 20 * cantripCount;
+      return Math.max(base * (1 - Math.min(extra, 90) / 100), 1);
+    });
+    const avgEff = effectiveCDs.reduce((a,b)=>a+b,0) / effectiveCDs.length;
+    // Rating: target is 11.6s. Higher CD = lower rating, lower CD = higher rating
+    // At avgEff=11.6s → 10/10. At avgEff=30s+ → near 0.
+    // Use inverse scale: rating = 10 * (1 - clamp((avgEff - COOLDOWN_TARGET) / (30 - COOLDOWN_TARGET), 0, 1))
+    const COOLDOWN_BASE = 30; // typical unupgraded cooldown
+    cdRating = Math.max(0, Math.min(10, 10 * (1 - (avgEff - COOLDOWN_TARGET) / (COOLDOWN_BASE - COOLDOWN_TARGET))));
+  }
+
+  // ── Mobility rating (0-10): approaches 375% bonus from jokers OR 475% base speed
+  // Base speed (no bonuses) = 100%. Target: 375% bonus = 475% total, OR 475% base as ceiling.
+  const MOBILITY_BASE_SPEED = 100;
+  const MOBILITY_TARGET_TOTAL = 475; // 475% total speed
+  const speedMult  = calcSpeedMult();
+  const totalSpeed = speedMult * 100; // in percent
+  // Only joker/upgrade bonus, ignore spells
+  const mobilityRating = Math.min(10, ((totalSpeed - MOBILITY_BASE_SPEED) / (MOBILITY_TARGET_TOTAL - MOBILITY_BASE_SPEED)) * 10);
+
+  // Render ratings
+  renderRatingBar('rating-sustain',  sustainRating);
+  renderRatingBar('rating-cooldown', cdRating);
+  renderRatingBar('rating-mobility', mobilityRating);
+
+  const sEl = document.getElementById('rating-sustain-val');
+  const cEl = document.getElementById('rating-cooldown-val');
+  const mEl = document.getElementById('rating-mobility-val');
+  if (sEl) sEl.textContent = sustainRating.toFixed(1);
+  if (cEl) cEl.textContent = cdRating.toFixed(1);
+  if (mEl) mEl.textContent = mobilityRating.toFixed(1);
+}
+
+function renderRatingBar(id, rating) {
+  const bar = document.getElementById(id + '-bar');
+  if (!bar) return;
+  const pct = Math.min(100, (rating / 10) * 100);
+  bar.style.width = pct + '%';
+  // Color: 0-3 red, 3-6 amber, 6-10 green
+  if (rating >= 7) bar.className = 'rating-bar-fill rating-green';
+  else if (rating >= 4) bar.className = 'rating-bar-fill rating-amber';
+  else bar.className = 'rating-bar-fill rating-red';
+}
+
+// =============================================================
+//  CALCULATOR (main orchestrator)
 // =============================================================
 
 function updateCalc() {
@@ -1789,6 +2035,8 @@ function updateCalc() {
   calcSpellCooldown();
   calcHPS();
   calcHeroHP();
+  calcMovementSpeed();
+  calcRatings();
 }
 
 // Returns flat additive dmg multiplier from all dmgMult jokers in a list
@@ -1827,7 +2075,7 @@ function calcPrimary() {
     if (wsEl)   wsEl.innerHTML   = blank('dmg');
     if (subDps) subDps.textContent = 'Select a weapon to calculate';
     if (subHit) subHit.textContent = 'Base × damage upgrade multiplier';
-    if (subWs)  subWs.textContent  = 'Normal hit × weakspot multipliers';
+    if (subWs)  subWs.textContent  = 'Normal hit × 1.5 (weakspot)';
     return;
   }
 
@@ -1839,30 +2087,40 @@ function calcPrimary() {
   const dmgMult  = 1 + dmgSlots * (dmgDef ? dmgDef.perSlot / 100 : 0.05);
   const frMult   = 1 + frSlots  * (frDef  ? frDef.perSlot  / 100 : 0.05);
 
-  const baseDmg     = (w.pellets ? w.baseDmg * w.pellets : w.baseDmg);
+  const baseDmg      = (w.pellets ? w.baseDmg * w.pellets : w.baseDmg);
   const effectiveDmg = baseDmg * dmgMult;
   const effectiveFR  = w.fireRate / frMult;
-  const effectiveDPS = effectiveDmg / effectiveFR;
 
-  const jokerMult = getJokerDmgMult(state.primary.jokers);
-  const wsMult    = getWeakspotBonus(state.primary.jokers); // additive bonus on top of normal hit
-
-  // Weak Link joker: regular hits are −35% but weakspots get +35%
-  // We model max-hit as all weakspot, so add both the wsBonus and remove Weak Link's regular penalty
+  // Jokers applied last (as instructed)
+  const jokerMult    = getJokerDmgMult(state.primary.jokers);
+  const wsMult       = getWeakspotBonus(state.primary.jokers);
   const weakLinkCount = state.primary.jokers.filter(id => id === 'weak-link').length;
+  const wsBonusTotal = wsMult + (weakLinkCount * 0.35);
 
-  const finalDPS     = effectiveDPS * jokerMult;
-  const finalHit     = effectiveDmg * jokerMult;
-  // Max weakspot hit: normal hit + weakspot bonus (Headbang, Weak Link+35%, Mindshot if long-ranger)
-  const wsBonusTotal = wsMult + (weakLinkCount * 0.35); // Weak Link adds its ws bonus on top
-  const finalWsHit   = finalHit * (1 + wsBonusTotal);
+  // Apply speedster: caps at 190% base speed, so max 1.9× damage
+  const speedMult = calcSpeedMult();
+  const speedsterCount = [...state.primary.jokers, ...state.hero.jokers].filter(id => id === 'speedster').length;
+  const speedsterMult = speedsterCount > 0 ? Math.min(speedMult, 1.9) : 1.0;
+
+  // Eagle Lever: +50% damage at max stacks (50 stacks × 1%)
+  const eagleLeverCount = state.primary.jokers.filter(id => id === 'eagle-lever').length;
+  const eagleLeverBonus = eagleLeverCount > 0 ? 0.50 : 0.0;
+
+  const finalJokerMult = jokerMult * speedsterMult * (1 + eagleLeverBonus);
+
+  const finalHit     = effectiveDmg * finalJokerMult;
+  // Weakspot = 1.5× the normal hit, then apply weakspot joker bonuses on top
+  const finalWsHit   = finalHit * 1.5 * (1 + wsBonusTotal);
+  // DPS uses weakspot
+  const finalDPS     = (finalWsHit) / effectiveFR;
 
   if (dpsEl)  dpsEl.innerHTML  = `${finalDPS.toFixed(1)}<span class="calc-metric-unit">dmg/s</span>`;
   if (hitEl)  hitEl.innerHTML  = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
-  if (subDps) subDps.textContent = `${w.name} · +${(dmgSlots*(dmgDef?.perSlot||5)).toFixed(0)}% dmg · +${(frSlots*(frDef?.perSlot||5)).toFixed(0)}% FR · ×${jokerMult.toFixed(2)} joker`;
-  if (subHit) subHit.textContent = `Base ${baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${jokerMult.toFixed(2)} joker`;
-  if (subWs)  subWs.textContent  = wsBonusTotal > 0 ? `Normal ×${(1+wsBonusTotal).toFixed(2)} weakspot (${(wsBonusTotal*100).toFixed(0)}% bonus)` : 'No weakspot jokers — same as normal hit';
+  if (subDps) subDps.textContent = `${w.name} · +${(dmgSlots*(dmgDef?.perSlot||5)).toFixed(0)}% dmg · +${(frSlots*(frDef?.perSlot||5)).toFixed(0)}% FR · weakspot DPS`;
+  if (subHit) subHit.textContent = `Base ${baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker`;
+  const wsDesc = wsBonusTotal > 0 ? `1.5× base × ×${(1+wsBonusTotal).toFixed(2)} ws jokers (${(wsBonusTotal*100).toFixed(0)}% bonus)` : '1.5× normal hit';
+  if (subWs)  subWs.textContent  = wsDesc;
 }
 
 function calcSecondary() {
@@ -1881,9 +2139,11 @@ function calcSecondary() {
     if (wsEl)   wsEl.innerHTML   = blank('dmg');
     if (subDps) subDps.textContent = 'Select a sidearm';
     if (subHit) subHit.textContent = 'Base × damage upgrade multiplier';
-    if (subWs)  subWs.textContent  = 'Normal hit × weakspot multipliers';
+    if (subWs)  subWs.textContent  = 'Normal hit × 1.5 (weakspot)';
     return;
   }
+
+  const isBoomerang = state.secondary.weapon === 'boomerang';
 
   const dmgSlots = state.secondary.upgrades.dmg || 0;
   const frSlots  = state.secondary.upgrades.fr  || 0;
@@ -1892,23 +2152,30 @@ function calcSecondary() {
 
   const effectiveDmg = (w.baseDmg || 0) * dmgMult;
   const effectiveFR  = (w.fireRate || 0.5) / frMult;
-  const effectiveDPS = effectiveDmg / effectiveFR;
 
+  // Jokers applied last
   const jokerMult    = getJokerDmgMult(state.secondary.jokers);
   const wsBonus      = getWeakspotBonus(state.secondary.jokers);
   const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal = wsBonus + (weakLinkCount * 0.35);
 
-  const finalDPS   = effectiveDPS * jokerMult;
   const finalHit   = effectiveDmg * jokerMult;
-  const finalWsHit = finalHit * (1 + wsBonusTotal);
+  // Boomerang: no 1.5× weakspot multiplier
+  const finalWsHit = isBoomerang
+    ? finalHit * (1 + wsBonusTotal)
+    : finalHit * 1.5 * (1 + wsBonusTotal);
+  // DPS uses weakspot
+  const finalDPS   = finalWsHit / effectiveFR;
 
   if (dpsEl)  dpsEl.innerHTML  = `${finalDPS.toFixed(1)}<span class="calc-metric-unit">dmg/s</span>`;
   if (hitEl)  hitEl.innerHTML  = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
-  if (subDps) subDps.textContent = `${w.name} [${state.secondary.element}] · +${dmgSlots*5}% dmg · ×${jokerMult.toFixed(2)} joker`;
+  if (subDps) subDps.textContent = `${w.name} [${state.secondary.element}] · +${dmgSlots*5}% dmg · ×${jokerMult.toFixed(2)} joker · weakspot DPS`;
   if (subHit) subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${jokerMult.toFixed(2)} joker`;
-  if (subWs)  subWs.textContent  = wsBonusTotal > 0 ? `Normal ×${(1+wsBonusTotal).toFixed(2)} weakspot` : 'No weakspot jokers';
+  const wsLabel = isBoomerang
+    ? (wsBonusTotal > 0 ? `Normal ×${(1+wsBonusTotal).toFixed(2)} ws jokers (no 1.5× for boomerang)` : 'No 1.5× multiplier for Boomerang')
+    : (wsBonusTotal > 0 ? `1.5× base × ×${(1+wsBonusTotal).toFixed(2)} ws jokers` : '1.5× normal hit');
+  if (subWs)  subWs.textContent  = wsLabel;
 }
 
 function calcJokerMult() {
@@ -1924,21 +2191,16 @@ function calcJokerMult() {
 
 function calcSpellCooldown() {
   const equippedSpells = state.spells.filter(id => id && SPELL_BASE_CD[id]);
-  const cdBaseEl  = document.getElementById('calc-spell-cd-base');
   const cdEffEl   = document.getElementById('calc-spell-cd-eff');
-  const subBase   = document.getElementById('calc-spell-cd-base-sub');
   const subEff    = document.getElementById('calc-spell-cd-eff-sub');
 
   if (equippedSpells.length === 0) {
-    if (cdBaseEl) cdBaseEl.innerHTML = '—<span class="calc-metric-unit">s</span>';
     if (cdEffEl)  cdEffEl.innerHTML  = '—<span class="calc-metric-unit">s</span>';
-    if (subBase)  subBase.textContent = 'No spells equipped';
     if (subEff)   subEff.textContent  = 'No spells equipped';
     return;
   }
 
   const baseCDs  = equippedSpells.map(id => SPELL_BASE_CD[id]);
-  const avgBase  = baseCDs.reduce((a,b)=>a+b,0) / baseCDs.length;
 
   // CDR sources
   let cdrPct = 0;
@@ -1984,7 +2246,6 @@ function calcSpellCooldown() {
   });
   const avgEff = effectiveCDs.reduce((a,b)=>a+b,0) / effectiveCDs.length;
 
-  if (cdBaseEl) cdBaseEl.innerHTML = `${avgBase.toFixed(1)}<span class="calc-metric-unit">s</span>`;
   if (cdEffEl)  cdEffEl.innerHTML  = `${avgEff.toFixed(1)}<span class="calc-metric-unit">s</span>`;
   const cdrSources = [];
   if (cdrSlots)      cdrSources.push(`+${cdrSlots*2}% hero upgrades`);
@@ -1992,7 +2253,6 @@ function calcSpellCooldown() {
   if (giantCount)    cdrSources.push(`+10% Giant`);
   if (schoolBonusPct) cdrSources.push(`+${schoolBonusPct}% school mastery`);
   if (cantripCount)  cdrSources.push(`Cantrip on ≤35s spells`);
-  if (subBase) subBase.textContent = baseCDs.map((cd,i) => `${SPELLS[equippedSpells[i]].name}: ${cd}s`).join(' · ');
   if (subEff)  subEff.textContent  = cdrSources.length ? cdrSources.join(' · ') : 'No CDR sources active';
 }
 
@@ -2000,44 +2260,35 @@ function calcHPS() {
   const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
   let hps = 0;
 
-  // Lifesteal (secondary upgrade: 3% per slot)
+  // Lifesteal (secondary upgrade: 3% per slot) — based on weapon damage, not player HP
   const lsSlots = state.secondary.upgrades.ls || 0;
   const lsPct   = lsSlots * 3;
   if (lsPct > 0) {
     const w = WEAPONS[state.secondary.weapon];
     if (w) {
-      const secDmg = (w.baseDmg||0) * (1 + (state.secondary.upgrades.dmg||0) * 0.05);
-      const secFR  = (w.fireRate||0.5) / (1 + (state.secondary.upgrades.fr||0) * 0.05);
+      const dmgSlots = state.secondary.upgrades.dmg || 0;
+      const frSlots  = state.secondary.upgrades.fr  || 0;
+      const secDmg = (w.baseDmg||0) * (1 + dmgSlots * 0.05);
+      const secFR  = (w.fireRate||0.5) / (1 + frSlots * 0.05);
+      // DPS * lifesteal% = hp/s
       hps += (secDmg / secFR) * (lsPct / 100);
     }
   }
 
-  const hitMe      = allJokers.filter(id => id === 'hit-me').length;
-  const lifePact   = allJokers.filter(id => id === 'life-pact').length;
-  const secondWind = allJokers.filter(id => id === 'second-wind').length;
-  const soulSiphon = allJokers.filter(id => id === 'soul-siphon').length;
-  hps += hitMe * 0.25;
-  hps += lifePact * 0.5;
-  hps += secondWind * 0.28;
-  hps += soulSiphon * 0.5;
-
-  const voodooHeals = state.spells.filter(id => id && SPELLS[id]?.healBonus);
-  hps += voodooHeals.length * 1.0;
+  // Drain spell heals ~1 hp/s per equipped drain spell
+  const drainSpells = state.spells.filter(id => id === 'drain');
+  hps += drainSpells.length * 1.0;
 
   const el    = document.getElementById('calc-hps');
   const subEl = document.getElementById('calc-hps-sub');
   if (hps === 0) {
     if (el)    el.innerHTML = '—<span class="calc-metric-unit">hp/s</span>';
-    if (subEl) subEl.textContent = 'No heal sources detected';
+    if (subEl) subEl.textContent = 'No lifesteal or drain equipped';
   } else {
     if (el)    el.innerHTML = `${hps.toFixed(2)}<span class="calc-metric-unit">hp/s</span>`;
     const sources = [];
     if (lsPct > 0)          sources.push(`${lsPct}% lifesteal`);
-    if (hitMe)              sources.push(`Hit Me (×${hitMe})`);
-    if (lifePact)           sources.push(`Life Pact`);
-    if (secondWind)         sources.push(`Second Wind`);
-    if (soulSiphon)         sources.push(`Soul Siphon (×${soulSiphon})`);
-    if (voodooHeals.length) sources.push(`Voodoo spells (×${voodooHeals.length})`);
+    if (drainSpells.length) sources.push(`Drain (×${drainSpells.length})`);
     if (subEl) subEl.textContent = sources.join(' · ') || 'Estimate from active sources';
   }
 }
