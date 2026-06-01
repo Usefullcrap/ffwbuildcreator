@@ -1,6 +1,6 @@
 # FFW Build Calculator
 
-A single-page interactive configuration planner and calculator for **Far Far West** (Early Access, Evil Raptor / Fireshine Games).
+A single-page interactive configuration planner and calculator for **Far Far West** (Early Access).
 
 ## Features
 
