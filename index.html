@@ -625,11 +625,11 @@
           <select id="primary-weapon" onchange="onPrimaryWeaponChange()">
             <option value="">— Select Primary —</option>
             <optgroup label="Primary Weapons">
-              <option value="leveredge">Leveredge (30 dmg · 60 DPS · ×0.50s · 10 mag)</option>
-              <option value="long-ranger">Long Ranger (50 dmg · 38 DPS · ×1.30s · 7 mag)</option>
-              <option value="minigun">Minigun (7 dmg · 7 DPS · ×1.00s · 300 mag)</option>
-              <option value="quad-cylinder">Quad Cylinder (8 dmg · 57 DPS · ×0.14s · 24 mag)</option>
-              <option value="shotgun">Shotgun (6 dmg/pellet · 20 DPS · ×0.30s · 8 shells)</option>
+              <option value="leveredge">Leveredge (30 dmg · 90 wsDPS · ×0.50s · 10 mag)</option>
+              <option value="long-ranger">Long Ranger (50 dmg · 56 wsDPS · ×1.33s · 7 mag)</option>
+              <option value="minigun">Minigun (7 dmg · 131 wsDPS · ×0.08s · 300 mag)</option>
+              <option value="quad-cylinder">Quad Cylinder (8 dmg · 90 wsDPS · ×0.13s · 24 mag)</option>
+              <option value="shotgun">Shotgun (7 dmg/pellet · 189 wsDPS · ×0.33s · 8 shells)</option>
             </optgroup>
           </select>
         </div>
@@ -1054,8 +1054,8 @@
             <div class="rating-value" id="rating-sustain-val">0.0</div>
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
-            Based on lifesteal &amp; Drain spell only.<br>
-            Target: <span style="color:var(--copper)">42.46 hp/s</span>
+            Effective healing.<br>
+            Theoretical Max: <span style="color:var(--copper)">42.46 hp/s</span>
           </div>
         </div>
 
@@ -1069,7 +1069,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Effective cooldown only. Jokers not counted.<br>
-            Target: <span style="color:var(--copper)">11.6s avg</span>
+            Theoretical Max: <span style="color:var(--copper)">11.6s avg</span>
           </div>
         </div>
 
@@ -1083,7 +1083,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Jokers &amp; upgrades only. Spells ignored.<br>
-            Target: <span style="color:var(--copper)">375% bonus (475% total)</span>
+            Theoretical Max: <span style="color:var(--copper)">375% bonus (475% total)</span>
           </div>
         </div>
 
@@ -1125,11 +1125,11 @@
 
 const WEAPONS = {
   // Primaries
-  'leveredge':      { name:'Leveredge',       type:'primary',   baseDmg:30, fireRate:0.50, mag:10,  dps:60  },
-  'long-ranger':    { name:'Long Ranger',      type:'primary',   baseDmg:50, fireRate:1.30, mag:7,   dps:38  },
-  'minigun':        { name:'Minigun',          type:'primary',   baseDmg:7,  fireRate:1.00, mag:300, dps:7   },
-  'quad-cylinder':  { name:'Quad Cylinder',    type:'primary',   baseDmg:8,  fireRate:0.14, mag:24,  dps:57  },
-  'shotgun':        { name:'Shotgun',          type:'primary',   baseDmg:6,  fireRate:0.30, mag:8,   dps:20, pellets:12 },
+  'leveredge':      { name:'Leveredge',       type:'primary',   baseDmg:30, fireRate:0.50,   mag:10,  dps:90    },
+  'long-ranger':    { name:'Long Ranger',      type:'primary',   baseDmg:50, fireRate:1.3333, mag:7,   dps:56.25 },
+  'minigun':        { name:'Minigun',          type:'primary',   baseDmg:7,  fireRate:0.08,   mag:300, dps:131.25 },
+  'quad-cylinder':  { name:'Quad Cylinder',    type:'primary',   baseDmg:8,  fireRate:0.1333, mag:24,  dps:90    },
+  'shotgun':        { name:'Shotgun',          type:'primary',   baseDmg:7,  fireRate:0.3333, mag:8,   dps:189,  pellets:6 },
   // Sidearms
   'boomerang':      { name:'Boomerang',        type:'secondary', baseDmg:25, fireRate:0.60, mag:1,   dps:25, elemental:true },
   'bow':            { name:'Bow',              type:'secondary', baseDmg:40, fireRate:0.60, mag:1,   dps:30, elemental:true },
@@ -1142,45 +1142,45 @@ const WEAPONS = {
 // Each entry: array of upgrade key objects that apply to that weapon
 const PER_WEAPON_UPGRADES = {
   // ─── PRIMARY WEAPONS ────────────────────────────────────────────────
-  // Quad Cylinder: dmg(8), fr(16), rs(16,+10%/slot), cs(16,+7.5%/slot), ds(3)
+  // Quad Cylinder: dmg(8,+5%), fr(16,+5%), cs(16,+10%), rs(16,+7.5%), ds(3,+30%)
   'quad-cylinder': [
     { key:'dmg', label:'Damage',     max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
     { key:'fr',  label:'Fire Rate',  max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:true  },
-    { key:'rs',  label:'Reload Spd', max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
-    { key:'cs',  label:'Clip Size',  max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
+    { key:'cs',  label:'Clip Size',  max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
+    { key:'rs',  label:'Reload Spd', max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
   ],
-  // Shotgun: dmg(8), fr(16), rs(16,+10%), cs(16,+7.5%), acc(5, ignore DPS), ds(3)
+  // Shotgun: dmg(8,+5%), fr(16,+5%), cs(16,+10%), rs(16,+7.5%), acc(5,+5%), ds(3,+30%)
   'shotgun': [
     { key:'dmg', label:'Damage',     max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
     { key:'fr',  label:'Fire Rate',  max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:true  },
-    { key:'rs',  label:'Reload Spd', max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
-    { key:'cs',  label:'Clip Size',  max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
+    { key:'cs',  label:'Clip Size',  max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
+    { key:'rs',  label:'Reload Spd', max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
     { key:'acc', label:'Accuracy',   max:5,  perSlot:5,   unit:'%', cap:25,   affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
   ],
-  // Long Ranger: dmg(8), fr(16), rs(16,+10%), cs(16,+7.5%), ds(3)
+  // Long Ranger: dmg(8,+5%), fr(16,+5%), cs(16,+10%), rs(16,+7.5%), ds(3,+30%)
   'long-ranger': [
     { key:'dmg', label:'Damage',     max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
     { key:'fr',  label:'Fire Rate',  max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:true  },
-    { key:'rs',  label:'Reload Spd', max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
-    { key:'cs',  label:'Clip Size',  max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
+    { key:'cs',  label:'Clip Size',  max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
+    { key:'rs',  label:'Reload Spd', max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
   ],
-  // Minigun: dmg(8,+5%), fr(8,+5%), ammo-bag(16,+5%), acc(5, ignore DPS), ds(3)
+  // Minigun: dmg(8,+5%), fr(16,+5%), ammo-bag(16,+5%), acc(5,+5%), ds(3,+30%)
   'minigun': [
     { key:'dmg', label:'Damage',     max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
-    { key:'fr',  label:'Fire Rate',  max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
+    { key:'fr',  label:'Fire Rate',  max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:true  },
     { key:'ab',  label:'Ammo Bag',   max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:false },
     { key:'acc', label:'Accuracy',   max:5,  perSlot:5,   unit:'%', cap:25,   affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
   ],
-  // Leveredge: dmg(8), fr(16), rs(16,+10%), cs(16,+7.5%), ds(3)
+  // Leveredge: dmg(8,+5%), fr(16,+5%), cs(16,+10%), rs(16,+7.5%), ds(3,+30%)
   'leveredge': [
     { key:'dmg', label:'Damage',     max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
     { key:'fr',  label:'Fire Rate',  max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:true  },
-    { key:'rs',  label:'Reload Spd', max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
-    { key:'cs',  label:'Clip Size',  max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
+    { key:'cs',  label:'Clip Size',  max:16, perSlot:10,  unit:'%', cap:160,  affectsDPS:false },
+    { key:'rs',  label:'Reload Spd', max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
   ],
 };
