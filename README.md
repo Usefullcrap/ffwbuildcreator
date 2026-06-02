@@ -20,9 +20,4 @@ A single-page interactive configuration planner and calculator for **Far Far Wes
 2. Click **Export ⬆** — a Base64 code is generated and copied to clipboard
 3. Share the code with teammates; they paste it into the **Build Code** field and click **Import ⬇**
 
-You can also pass the code as a URL parameter to deep-link a build directly:
-```
-https://yoursite.github.io/ffw-loadout-planner/?b=<BASE64_CODE>
-```
-
 ---
