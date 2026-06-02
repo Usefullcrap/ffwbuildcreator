@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FFW Build Planner</title>
+<title>FFW Build Maker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -471,9 +471,10 @@
   /* Grid layout spans */
   #panel-primary    { grid-column: 1; }
   #panel-secondary  { grid-column: 2; }
-  #panel-right      { grid-column: 3; grid-row: 2 / 6; }
+  #panel-right      { grid-column: 3; grid-row: 2 / 7; }
   #panel-hero       { grid-column: 1; }
   #panel-utility    { grid-column: 2; }
+  #panel-weapons-notes { grid-column: 1 / 3; }
   #panel-spells     { grid-column: 1 / 3; }
   #panel-share      { grid-column: 1 / -1; }
   #panel-ratings    { grid-column: 1 / -1; }
@@ -576,8 +577,8 @@
 <!-- HEADER -->
 <header id="app-header">
   <div>
-    <div class="header-title">FFW <span>Loadout</span> Planner</div>
-    <div class="header-subtitle">Far Far West · v1.0</div>
+    <div class="header-title">FFW <span>Build</span> Maker</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.0</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -605,7 +606,7 @@
         </div>
         <div>
           <div class="field-group">
-            <div class="field-label">Notes / Strategy</div>
+            <div class="field-label">Overview</div>
             <textarea id="build-notes" placeholder="Describe your strategy, combos, and key synergies..." rows="2" oninput="markDirty()"></textarea>
           </div>
         </div>
@@ -657,8 +658,7 @@
       <!-- JOKER SLOTS -->
       <div class="slot-budget" style="margin-top:14px;padding-top:14px">
         <div class="slot-budget-header">
-          <span>Joker Points Used</span>
-          <span class="slot-budget-label-val"><span id="primary-joker-used">0</span> / 16 <span style="color:var(--text-muted)">(+2 prestige)</span></span>
+          <span>Joker Slots Used</span>
         </div>
         <div class="slot-budget-bar">
           <div class="slot-budget-fill" id="primary-joker-bar"></div>
@@ -723,7 +723,7 @@
 
       <div class="slot-budget" style="margin-top:14px;padding-top:14px">
         <div class="slot-budget-header">
-          <span>Joker Points Used</span>
+          <span>Joker Slots Used</span>
           <span class="slot-budget-label-val"><span id="secondary-joker-used">0</span> / 16</span>
         </div>
         <div class="slot-budget-bar">
@@ -811,6 +811,20 @@
     </div>
   </section>
 
+  <!-- WEAPONS NOTES PANEL -->
+  <section class="panel" id="panel-weapons-notes">
+    <div class="panel-header">
+      <div class="panel-title"> Weapons Notes</div>
+      <div class="panel-tag">Primary &amp; Secondary</div>
+    </div>
+    <div class="panel-body">
+      <div class="field-group">
+        <div class="field-label">Notes</div>
+        <textarea id="weapons-notes" placeholder="Notes on your weapon choices, upgrade priorities, joker synergies..." rows="3" oninput="markDirty()"></textarea>
+      </div>
+    </div>
+  </section>
+
   <!-- HERO PANEL -->
   <section class="panel" id="panel-hero">
     <div class="panel-header">
@@ -891,7 +905,7 @@
       <!-- Hero Jokers -->
       <div class="slot-budget" style="margin-top:14px;padding-top:14px">
         <div class="slot-budget-header">
-          <span>Hero Joker Points</span>
+          <span>Hero Joker Slots</span>
           <span class="slot-budget-label-val"><span id="hero-joker-used">0</span> / 16</span>
         </div>
         <div class="slot-budget-bar">
@@ -923,13 +937,17 @@
           <option value="impulse-grenade"> Impulse Grenade — AoE knockback &amp; positioning tool</option>
         </select>
       </div>
+      <div class="field-group" style="margin-top:10px">
+        <div class="field-label">Notes</div>
+        <textarea id="utility-notes" placeholder="Notes on your utility choice and usage..." rows="3" oninput="markDirty()"></textarea>
+      </div>
       </div>
   </section>
 
   <!-- SPELLS PANEL -->
   <section class="panel" id="panel-spells">
     <div class="panel-header">
-      <div class="panel-title"> Ability Slots</div>
+      <div class="panel-title"> Spell Slots</div>
       <div class="panel-tag">Up to 3 Active Spells</div>
     </div>
     <div class="panel-body">
@@ -960,6 +978,10 @@
         </div>
       </div>
 
+      <div class="field-group" style="margin-top:12px">
+        <div class="field-label">Notes</div>
+        <textarea id="spells-notes" placeholder="Notes on your spell choices, combos, and timing..." rows="3" oninput="markDirty()"></textarea>
+      </div>
       
     </div>
   </section>
@@ -1040,6 +1062,16 @@
 
 </main>
 
+<!-- FOOTER -->
+<footer style="max-width:1340px;margin:0 auto;padding:20px 18px 40px;border-top:1px solid var(--border);margin-top:0">
+  <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);line-height:1.8;margin-bottom:12px">
+    This is a project created by <span style="color:var(--copper)">phantombutphanthom</span> on discord. If you would like to give feedback or report a bug / issue, @ me in the builds channel of the FFW discord. Additionally, I am more than open to forking of this project. Just please credit me if you do so. Thanks.
+  </p>
+  <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);line-height:1.8">
+    Thank you to the following feedback givers / public testers: <span style="color:var(--sand-dim)">Fnostic, DracZ, Deciduken, and JellyFrog.</span> If your name is not listed here, apologies.
+  </p>
+</footer>
+
 <!-- NOTIFY TOAST -->
 <div class="notify" id="notify-toast"></div>
 
@@ -1092,10 +1124,10 @@ const PER_WEAPON_UPGRADES = {
     { key:'rs',  label:'Reload Spd', max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
   ],
-  // Minigun: dmg(8,+5%), fr(16,+5%), ammo-bag(16,+5%), acc(5,+5%), ds(3,+30%)
+  // Minigun: dmg(8,+5%), fr(8,+5%), ammo-bag(16,+5%), acc(5,+5%), ds(3,+30%)
   'minigun': [
     { key:'dmg', label:'Damage',     max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
-    { key:'fr',  label:'Fire Rate',  max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:true  },
+    { key:'fr',  label:'Fire Rate',  max:8,  perSlot:5,   unit:'%', cap:40,   affectsDPS:true  },
     { key:'ab',  label:'Ammo Bag',   max:16, perSlot:5,   unit:'%', cap:80,   affectsDPS:false },
     { key:'acc', label:'Accuracy',   max:5,  perSlot:5,   unit:'%', cap:25,   affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
