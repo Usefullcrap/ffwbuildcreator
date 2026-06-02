@@ -256,7 +256,11 @@
     font-size: 0.72rem;
     color: var(--amber);
     text-align: right;
-    min-width: 44px;
+    min-width: 80px;
+  }
+  .upgrade-bonus {
+    color: var(--copper);
+    font-size: 0.68rem;
   }
 
   /* ── Stepper buttons ── */
@@ -532,7 +536,7 @@
   /* ── Rating panel ── */
   .rating-row {
     display: grid;
-    grid-template-columns: 120px 1fr 40px;
+    grid-template-columns: 120px 1fr;
     align-items: center;
     gap: 8px;
     padding: 7px 0;
@@ -546,21 +550,18 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
-  .rating-bar-track {
-    height: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    overflow: hidden;
+  .rating-score {
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--amber);
+    line-height: 1;
   }
-  .rating-bar-fill {
-    height: 100%;
-    transition: width 0.2s;
-    border-radius: 2px;
+  .rating-denom {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
   }
-  .rating-green { background: var(--green); }
-  .rating-amber { background: var(--amber); }
-  .rating-red   { background: var(--red); }
   .rating-value {
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -686,11 +687,11 @@
           <select id="secondary-weapon" onchange="onSecondaryWeaponChange()">
             <option value="">— Select Sidearm —</option>
             <optgroup label="Sidearms">
-              <option value="boomerang">Boomerang (throw · 1 mag · elemental)</option>
-              <option value="bow">Bow (charge shot · 1 mag · elemental)</option>
-              <option value="dual-revolvers">Dual Revolvers (11 dmg · 73 DPS · ×0.15s · elemental explosion)</option>
-              <option value="revolver">Revolver (13 dmg · 43 DPS · ×0.30s · 6 mag)</option>
-              <option value="sheriff-star">Sheriff Star (throw · 15 mag · elemental)</option>
+              <option value="boomerang">Boomerang (5 dmg ×5 hits · 14.5 DPS · throw · elemental)</option>
+              <option value="bow">Bow (15 dmg · 22 wsDPS · charge · elemental)</option>
+              <option value="dual-revolvers">Dual Revolvers (11 dmg · 90 wsDPS · elemental)</option>
+              <option value="revolver">Revolver (13 dmg · 39 wsDPS · ×0.33s · 6 mag)</option>
+              <option value="sheriff-star">Sheriff Star (18 dmg · 57.6 wsDPS · ×0.50s · elemental)</option>
             </optgroup>
           </select>
         </div>
@@ -705,74 +706,8 @@
         </select>
       </div>
 
-      <div class="field-label" style="margin-bottom:6px">Upgrade Allocation</div>
-
-      <div class="upgrade-row">
-        <div class="upgrade-name" data-tip="+5% base dmg per slot, max +40%">Damage</div>
-        <div class="upgrade-bar" onclick="barClick(event,'secondary','dmg')">
-          <div class="upgrade-bar-fill" id="secondary-bar-dmg"></div>
-        </div>
-        <div class="stepper">
-          <button class="step-btn" onclick="stepUpgrade('secondary','dmg',-1)">−</button>
-          <button class="step-btn" onclick="stepUpgrade('secondary','dmg',1)">+</button>
-        </div>
-        <div class="upgrade-value" id="secondary-val-dmg">0/8</div>
-      </div>
-      <div class="upgrade-row">
-        <div class="upgrade-name" data-tip="+5% fire rate per slot, max +80%">Fire Rate</div>
-        <div class="upgrade-bar" onclick="barClick(event,'secondary','fr')">
-          <div class="upgrade-bar-fill" id="secondary-bar-fr"></div>
-        </div>
-        <div class="stepper">
-          <button class="step-btn" onclick="stepUpgrade('secondary','fr',-1)">−</button>
-          <button class="step-btn" onclick="stepUpgrade('secondary','fr',1)">+</button>
-        </div>
-        <div class="upgrade-value" id="secondary-val-fr">0/16</div>
-      </div>
-      <div class="upgrade-row">
-        <div class="upgrade-name" data-tip="+10% clip size per slot, max +160%">Clip Size</div>
-        <div class="upgrade-bar" onclick="barClick(event,'secondary','cs')">
-          <div class="upgrade-bar-fill" id="secondary-bar-cs"></div>
-        </div>
-        <div class="stepper">
-          <button class="step-btn" onclick="stepUpgrade('secondary','cs',-1)">−</button>
-          <button class="step-btn" onclick="stepUpgrade('secondary','cs',1)">+</button>
-        </div>
-        <div class="upgrade-value" id="secondary-val-cs">0/16</div>
-      </div>
-      <div class="upgrade-row">
-        <div class="upgrade-name" data-tip="+7.5% reload speed per slot, max +120%">Reload Spd</div>
-        <div class="upgrade-bar" onclick="barClick(event,'secondary','rs')">
-          <div class="upgrade-bar-fill" id="secondary-bar-rs"></div>
-        </div>
-        <div class="stepper">
-          <button class="step-btn" onclick="stepUpgrade('secondary','rs',-1)">−</button>
-          <button class="step-btn" onclick="stepUpgrade('secondary','rs',1)">+</button>
-        </div>
-        <div class="upgrade-value" id="secondary-val-rs">0/16</div>
-      </div>
-      <div class="upgrade-row">
-        <div class="upgrade-name" data-tip="+30% draw speed per slot, max +90%">Draw Speed</div>
-        <div class="upgrade-bar" onclick="barClick(event,'secondary','ds')">
-          <div class="upgrade-bar-fill" id="secondary-bar-ds"></div>
-        </div>
-        <div class="stepper">
-          <button class="step-btn" onclick="stepUpgrade('secondary','ds',-1)">−</button>
-          <button class="step-btn" onclick="stepUpgrade('secondary','ds',1)">+</button>
-        </div>
-        <div class="upgrade-value" id="secondary-val-ds">0/3</div>
-      </div>
-      <!-- Lifesteal (sidearm-specific) -->
-      <div class="upgrade-row">
-        <div class="upgrade-name" data-tip="+3% lifesteal per slot, max +24% (8 slots)">Lifesteal</div>
-        <div class="upgrade-bar" onclick="barClick(event,'secondary','ls')">
-          <div class="upgrade-bar-fill" id="secondary-bar-ls"></div>
-        </div>
-        <div class="stepper">
-          <button class="step-btn" onclick="stepUpgrade('secondary','ls',-1)">−</button>
-          <button class="step-btn" onclick="stepUpgrade('secondary','ls',1)">+</button>
-        </div>
-        <div class="upgrade-value" id="secondary-val-ls">0/8</div>
+      <div id="secondary-upgrade-rows">
+        <div class="dimtext" style="font-size:0.8rem;padding:8px 0">Select a sidearm to see its upgrades.</div>
       </div>
 
       <div class="slot-budget">
@@ -843,13 +778,6 @@
         <div class="calc-metric-label">Max Weakspot Hit Damage</div>
         <div class="calc-metric-value" id="calc-secondary-ws">—<span class="calc-metric-unit">dmg</span></div>
         <div class="calc-metric-sub" id="calc-secondary-ws-sub">Normal hit × weakspot multipliers</div>
-      </div>
-
-      <div class="calc-section-title">Joker Modifiers</div>
-      <div class="calc-metric dmg">
-        <div class="calc-metric-label">Effective Damage Multiplier</div>
-        <div class="calc-metric-value" id="calc-joker-dmg-mult">×1.00</div>
-        <div class="calc-metric-sub" id="calc-joker-dmg-sub">Glass Cannon, Headbang, Weak Link, etc.</div>
       </div>
 
       <div class="calc-section-title">Spell Cooldowns</div>
@@ -1050,8 +978,7 @@
           <div class="calc-section-title" style="margin-top:0">Sustain / 10</div>
           <div class="rating-row">
             <div class="rating-label">Sustain</div>
-            <div class="rating-bar-track"><div class="rating-bar-fill rating-red" id="rating-sustain-bar" style="width:0%"></div></div>
-            <div class="rating-value" id="rating-sustain-val">0.0</div>
+            <div class="rating-score" id="rating-sustain-val">0<span class="rating-denom">/10</span></div>
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Effective healing.<br>
@@ -1064,12 +991,11 @@
           <div class="calc-section-title" style="margin-top:0">Spell Cooldown / 10</div>
           <div class="rating-row">
             <div class="rating-label">CDR</div>
-            <div class="rating-bar-track"><div class="rating-bar-fill rating-red" id="rating-cooldown-bar" style="width:0%"></div></div>
-            <div class="rating-value" id="rating-cooldown-val">0.0</div>
+            <div class="rating-score" id="rating-cooldown-val">0<span class="rating-denom">/10</span></div>
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Effective cooldown only. Jokers not counted.<br>
-            Theoretical Max: <span style="color:var(--copper)">11.6s avg</span>
+            Theoretical Min: <span style="color:var(--copper)">2.1s avg</span>
           </div>
         </div>
 
@@ -1078,8 +1004,7 @@
           <div class="calc-section-title" style="margin-top:0">Mobility / 10</div>
           <div class="rating-row">
             <div class="rating-label">Speed</div>
-            <div class="rating-bar-track"><div class="rating-bar-fill rating-red" id="rating-mobility-bar" style="width:0%"></div></div>
-            <div class="rating-value" id="rating-mobility-val">0.0</div>
+            <div class="rating-score" id="rating-mobility-val">0<span class="rating-denom">/10</span></div>
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Jokers &amp; upgrades only. Spells ignored.<br>
@@ -1131,11 +1056,11 @@ const WEAPONS = {
   'quad-cylinder':  { name:'Quad Cylinder',    type:'primary',   baseDmg:8,  fireRate:0.1333, mag:24,  dps:90    },
   'shotgun':        { name:'Shotgun',          type:'primary',   baseDmg:7,  fireRate:0.3333, mag:8,   dps:189,  pellets:6 },
   // Sidearms
-  'boomerang':      { name:'Boomerang',        type:'secondary', baseDmg:25, fireRate:0.60, mag:1,   dps:25, elemental:true },
-  'bow':            { name:'Bow',              type:'secondary', baseDmg:40, fireRate:0.60, mag:1,   dps:30, elemental:true },
-  'dual-revolvers': { name:'Dual Revolvers',   type:'secondary', baseDmg:11, fireRate:0.15, mag:12,  dps:73, elemental:true },
-  'revolver':       { name:'Revolver',         type:'secondary', baseDmg:13, fireRate:0.30, mag:6,   dps:43, elemental:true },
-  'sheriff-star':   { name:'Sheriff Star',     type:'secondary', baseDmg:20, fireRate:0.50, mag:15,  dps:40, elemental:true },
+  'boomerang':      { name:'Boomerang',        type:'secondary', baseDmg:5,  fireRate:1.714, mag:1,   dps:14.5, hits:5, elemental:true },
+  'bow':            { name:'Bow',              type:'secondary', baseDmg:15, fireRate:0.15,  mag:1,   dps:22,   elemental:true },
+  'dual-revolvers': { name:'Dual Revolvers',   type:'secondary', baseDmg:11, fireRate:0.1067,mag:12,  dps:90,   elemental:true },
+  'revolver':       { name:'Revolver',         type:'secondary', baseDmg:13, fireRate:0.3333,mag:6,   dps:39,   elemental:true },
+  'sheriff-star':   { name:'Sheriff Star',     type:'secondary', baseDmg:18, fireRate:0.50,  mag:15,  dps:57.6, elemental:true },
 };
 
 // Per-weapon upgrade definitions for primaries (sidearms left unchanged by user)
@@ -1183,18 +1108,65 @@ const PER_WEAPON_UPGRADES = {
     { key:'rs',  label:'Reload Spd', max:16, perSlot:7.5, unit:'%', cap:120,  affectsDPS:false },
     { key:'ds',  label:'Draw Speed', max:3,  perSlot:30,  unit:'%', cap:90,   affectsDPS:false },
   ],
+  // ─── SECONDARY WEAPONS ──────────────────────────────────────────────
+  // Revolver: dmg(8,+5%), fr(16,+5%), cs(16,+10%), rs(16,+7.5%), ls(8,+3%), ds(3,+30%)
+  'revolver': [
+    { key:'dmg', label:'Damage',      max:8,  perSlot:5,   unit:'%', cap:40,  affectsDPS:true  },
+    { key:'fr',  label:'Fire Rate',   max:16, perSlot:5,   unit:'%', cap:80,  affectsDPS:true  },
+    { key:'cs',  label:'Clip Size',   max:16, perSlot:10,  unit:'%', cap:160, affectsDPS:false },
+    { key:'rs',  label:'Reload Spd',  max:16, perSlot:7.5, unit:'%', cap:120, affectsDPS:false },
+    { key:'ls',  label:'Lifesteal',   max:8,  perSlot:3,   unit:'%', cap:24,  affectsDPS:false },
+    { key:'ds',  label:'Draw Speed',  max:3,  perSlot:30,  unit:'%', cap:90,  affectsDPS:false },
+  ],
+  // Bow: dmg(8,+5%), ab(16,+5%), bs(8,+10%), ls(8,+3%), ds(3,+30%)
+  'bow': [
+    { key:'dmg', label:'Damage',      max:8,  perSlot:5,   unit:'%', cap:40,  affectsDPS:true  },
+    { key:'ab',  label:'Ammo Bag',    max:16, perSlot:5,   unit:'%', cap:80,  affectsDPS:false },
+    { key:'bs',  label:'Bend Speed',  max:8,  perSlot:10,  unit:'%', cap:80,  affectsDPS:false },
+    { key:'ls',  label:'Lifesteal',   max:8,  perSlot:3,   unit:'%', cap:24,  affectsDPS:false },
+    { key:'ds',  label:'Draw Speed',  max:3,  perSlot:30,  unit:'%', cap:90,  affectsDPS:false },
+  ],
+  // Dual Revolvers: dmg(8,+5%), ab(16,+5%), rs(16,+7.5%), ls(8,+3%), acc(5,+5%), ds(3,+30%)
+  'dual-revolvers': [
+    { key:'dmg', label:'Damage',      max:8,  perSlot:5,   unit:'%', cap:40,  affectsDPS:true  },
+    { key:'ab',  label:'Ammo Bag',    max:16, perSlot:5,   unit:'%', cap:80,  affectsDPS:false },
+    { key:'rs',  label:'Reload Spd',  max:16, perSlot:7.5, unit:'%', cap:120, affectsDPS:false },
+    { key:'ls',  label:'Lifesteal',   max:8,  perSlot:3,   unit:'%', cap:24,  affectsDPS:false },
+    { key:'acc', label:'Accuracy',    max:5,  perSlot:5,   unit:'%', cap:25,  affectsDPS:false },
+    { key:'ds',  label:'Draw Speed',  max:3,  perSlot:30,  unit:'%', cap:90,  affectsDPS:false },
+  ],
+  // Boomerang: dmg(8,+5%), ls(8,+1.25%), ds(3,+30%), lt(5,+10%), rng(5,+15%)
+  'boomerang': [
+    { key:'dmg', label:'Damage',         max:8,  perSlot:5,    unit:'%', cap:40,  affectsDPS:true  },
+    { key:'ls',  label:'Lifesteal',      max:8,  perSlot:1.25, unit:'%', cap:10,  affectsDPS:false },
+    { key:'ds',  label:'Draw Speed',     max:3,  perSlot:30,   unit:'%', cap:90,  affectsDPS:false },
+    { key:'lt',  label:'Lingering Time', max:5,  perSlot:10,   unit:'%', cap:50,  affectsDPS:false },
+    { key:'rng', label:'Range',          max:5,  perSlot:15,   unit:'%', cap:75,  affectsDPS:false },
+  ],
+  // Sheriff Star: dmg(8,+5%), fr(16,+5%), ls(8,+3%), ds(3,+30%), pr(10,+7%)
+  'sheriff-star': [
+    { key:'dmg', label:'Damage',        max:8,  perSlot:5,   unit:'%', cap:40,  affectsDPS:true  },
+    { key:'fr',  label:'Fire Rate',     max:16, perSlot:5,   unit:'%', cap:80,  affectsDPS:true  },
+    { key:'ls',  label:'Lifesteal',     max:8,  perSlot:3,   unit:'%', cap:24,  affectsDPS:false },
+    { key:'ds',  label:'Draw Speed',    max:3,  perSlot:30,  unit:'%', cap:90,  affectsDPS:false },
+    { key:'pr',  label:'Pickup Range',  max:10, perSlot:7,   unit:'%', cap:70,  affectsDPS:false },
+  ],
 };
 
-// Flat lookup for secondary upgrades (user will expand sidearm stats later)
+// Flat lookup for all possible upgrade keys (used by secondary dynamic renderer)
 const UPGRADE_DEFS = {
-  dmg: { label:'Damage',      max:8,  perSlot:5,   unit:'%', cap:40  },
-  fr:  { label:'Fire Rate',   max:16, perSlot:5,   unit:'%', cap:80  },
-  cs:  { label:'Clip Size',   max:16, perSlot:10,  unit:'%', cap:160 },
-  rs:  { label:'Reload Spd',  max:16, perSlot:7.5, unit:'%', cap:120 },
-  ds:  { label:'Draw Speed',  max:3,  perSlot:30,  unit:'%', cap:90  },
-  acc: { label:'Accuracy',    max:5,  perSlot:5,   unit:'%', cap:25  },
-  ls:  { label:'Lifesteal',   max:8,  perSlot:3,   unit:'%', cap:24  },
-  ab:  { label:'Ammo Bag',    max:16, perSlot:5,   unit:'%', cap:80  },
+  dmg: { label:'Damage',         max:8,  perSlot:5,    unit:'%', cap:40  },
+  fr:  { label:'Fire Rate',      max:16, perSlot:5,    unit:'%', cap:80  },
+  cs:  { label:'Clip Size',      max:16, perSlot:10,   unit:'%', cap:160 },
+  rs:  { label:'Reload Spd',     max:16, perSlot:7.5,  unit:'%', cap:120 },
+  ds:  { label:'Draw Speed',     max:3,  perSlot:30,   unit:'%', cap:90  },
+  acc: { label:'Accuracy',       max:5,  perSlot:5,    unit:'%', cap:25  },
+  ls:  { label:'Lifesteal',      max:8,  perSlot:3,    unit:'%', cap:24  },
+  ab:  { label:'Ammo Bag',       max:16, perSlot:5,    unit:'%', cap:80  },
+  bs:  { label:'Bend Speed',     max:8,  perSlot:10,   unit:'%', cap:80  },
+  lt:  { label:'Lingering Time', max:5,  perSlot:10,   unit:'%', cap:50  },
+  rng: { label:'Range',          max:5,  perSlot:15,   unit:'%', cap:75  },
+  pr:  { label:'Pickup Range',   max:10, perSlot:7,    unit:'%', cap:70  },
 };
 
 const HERO_UPGRADE_DEFS = {
@@ -1208,15 +1180,15 @@ const HERO_UPGRADE_DEFS = {
 // Spell base cooldowns (seconds) — used by CDR calculator
 const SPELL_BASE_CD = {
   // Pyro
-  'fireball':    15, 'firebeam': 20, 'surcharge': 25, 'wisp-pyro': 30, 'finger-guns': 12,
+  'fireball':    20, 'firebeam': 80, 'surcharge': 60, 'wisp-pyro': 100, 'finger-guns': 120,
   // Elec
-  'strikes': 18, 'boing': 14, 'portal': 35, 'swap': 20, 'thunderstrike': 40,
+  'strikes': 20, 'boing': 15, 'portal': 10, 'swap': 25, 'thunderstrike': 100,
   // Acid
-  'thrower': 12, 'geyser': 16, 'bubble': 18, 'contagion': 22, 'rain': 35,
+  'thrower': 30, 'geyser': 45, 'bubble': 40, 'contagion': 70, 'rain': 120,
   // Voodoo
-  'drain': 14, 'rescue': 20, 'corruption': 25, 'ritual': 40, 'doll': 30,
+  'drain': 25, 'rescue': 60, 'corruption': 35, 'ritual': 100, 'doll': 110,
   // Cactus
-  'mino': 45, 'pistolero': 20, 'wallo': 18, 'decoyo': 15, 'bandito': 35,
+  'mino': 10, 'pistolero': 40, 'wallo': 40, 'decoyo': 95, 'bandito': 100,
 };
 
 // Rarity: Normal=1, Fine=2, Prime=3, Mythic=4, Legendary=5, Unique=5
@@ -1351,35 +1323,35 @@ const JOKERS = [
 
 const SPELLS = {
   // Pyro
-  'fireball':    { name:'Fireball',     school:'pyro',   effect:'Lob a fireball that ignites enemies on impact' },
-  'firebeam':    { name:'Firebeam',     school:'pyro',   effect:'Sustained fire beam; ignites Acid surfaces into Tornados' },
-  'surcharge':   { name:'Surcharge',    school:'pyro',   effect:'Explosive Pyro charge detonation' },
-  'wisp-pyro':   { name:'Wisp (Pyro)',  school:'pyro',   effect:'Spawn a floating Pyro wisp companion' },
-  'finger-guns': { name:'Finger Guns',  school:'pyro',   effect:'Rapid-fire Pyro bursts from each finger' },
+  'fireball':    { name:'Fireball',     school:'pyro'   },
+  'firebeam':    { name:'Firebeam',     school:'pyro'   },
+  'surcharge':   { name:'Surcharge',    school:'pyro'   },
+  'wisp-pyro':   { name:'Wisp (Pyro)',  school:'pyro'   },
+  'finger-guns': { name:'Finger Guns',  school:'pyro'   },
   // Elec
-  'strikes':     { name:'Strikes',      school:'elec',   effect:'Lightning strikes in an area; chains through Acid surfaces' },
-  'boing':       { name:'Boing',        school:'elec',   effect:'Bouncing electric orb with chaining damage' },
-  'portal':      { name:'Portal',       school:'elec',   effect:'Place portal pairs; spells fired through are duplicated' },
-  'swap':        { name:'Swap',         school:'elec',   effect:'Teleport to a target location instantly' },
-  'thunderstrike':{ name:'Thunderstrike',school:'elec',  effect:'Call a massive targeted lightning strike' },
+  'strikes':     { name:'Strikes',      school:'elec'   },
+  'boing':       { name:'Boing',        school:'elec'   },
+  'portal':      { name:'Portal',       school:'elec'   },
+  'swap':        { name:'Swap',         school:'elec'   },
+  'thunderstrike':{ name:'Thunderstrike',school:'elec'  },
   // Acid
-  'thrower':     { name:'Thrower',      school:'acid',   effect:'Lob acid that creates a damaging puddle on impact' },
-  'geyser':      { name:'Geyser',       school:'acid',   effect:'Create an erupting acid geyser at target location' },
-  'bubble':      { name:'Bubble',       school:'acid',   effect:'Acid bubble that traps and damages an enemy' },
-  'contagion':   { name:'Contagion',    school:'acid',   effect:'Spread acid status to nearby enemies' },
-  'rain':        { name:'Rain',         school:'acid',   effect:'Call acid rain over a large area' },
+  'thrower':     { name:'Thrower',      school:'acid'   },
+  'geyser':      { name:'Geyser',       school:'acid'   },
+  'bubble':      { name:'Bubble',       school:'acid'   },
+  'contagion':   { name:'Contagion',    school:'acid'   },
+  'rain':        { name:'Rain',         school:'acid'   },
   // Voodoo
-  'drain':       { name:'Drain',        school:'voodoo', effect:'Siphon HP from target enemy to yourself', healBonus:true },
-  'rescue':      { name:'Rescue',       school:'voodoo', effect:'Heal an ally or yourself for a burst of HP', healBonus:true },
-  'corruption':  { name:'Corruption',   school:'voodoo', effect:'Corrupt an enemy to fight for your side' },
-  'ritual':      { name:'Ritual',       school:'voodoo', effect:'Area heal candle that persists and heals nearby allies', healBonus:true },
-  'doll':        { name:'Doll',         school:'voodoo', effect:'Send voodoo doll to drain enemy HP continuously', healBonus:true },
+  'drain':       { name:'Drain',        school:'voodoo', healBonus:true },
+  'rescue':      { name:'Rescue',       school:'voodoo', healBonus:true },
+  'corruption':  { name:'Corruption',   school:'voodoo' },
+  'ritual':      { name:'Ritual',       school:'voodoo', healBonus:true },
+  'doll':        { name:'Doll',         school:'voodoo', healBonus:true },
   // Cactus
-  'mino':        { name:'Mino',         school:'cactus', effect:'Summon a Cactus Minotaur to fight for you' },
-  'pistolero':   { name:'Pistolero',    school:'cactus', effect:'Deploy a cactus turret that shoots enemies' },
-  'wallo':       { name:'Wallo',        school:'cactus', effect:'Create a cactus wall for cover and damage' },
-  'decoyo':      { name:'Decoyo',       school:'cactus', effect:'Place a cactus decoy to draw enemy attention' },
-  'bandito':     { name:'Bandito',      school:'cactus', effect:'Summon an armed cactus bandit companion' },
+  'mino':        { name:'Mino',         school:'cactus' },
+  'pistolero':   { name:'Pistolero',    school:'cactus' },
+  'wallo':       { name:'Wallo',        school:'cactus' },
+  'decoyo':      { name:'Decoyo',       school:'cactus' },
+  'bandito':     { name:'Bandito',      school:'cactus' },
 };
 
 const COMBO_HINTS = [
@@ -1422,7 +1394,7 @@ const WEAPON_MAX_UPGRADE_SLOTS = 26;
 const HERO_MAX_UPGRADE_SLOTS   = 26;
 
 // Secondary upgrade keys (unchanged by user)
-const SECONDARY_UPGRADE_KEYS = ['dmg','fr','cs','rs','ds','ls'];
+const SECONDARY_UPGRADE_KEYS = ['dmg','fr','cs','rs','ds','ls','ab','bs','lt','rng','pr','acc']; // all possible keys
 
 // =============================================================
 //  JOKER SLOT UI
@@ -1606,7 +1578,7 @@ function renderPrimaryUpgrades() {
         <button class="step-btn" onclick="stepPrimary('${def.key}',-1)">−</button>
         <button class="step-btn" onclick="stepPrimary('${def.key}',1)">+</button>
       </div>
-      <div class="upgrade-value" id="primary-val-${def.key}">${val}/${def.max}</div>
+      <div class="upgrade-value" id="primary-val-${def.key}">${val}/${def.max}<span class="upgrade-bonus">${val > 0 ? ` +${Math.round(val * def.perSlot * 10) / 10}%` : ''}</span></div>
     `;
     // Bar click handler
     row.querySelector(`#primary-bar-wrap-${def.key}`).addEventListener('click', e => {
@@ -1665,15 +1637,69 @@ function updatePrimarySlotBudget() {
 }
 
 // =============================================================
-//  SECONDARY UPGRADE ALLOCATION (static rows, unchanged by user)
+//  SECONDARY UPGRADE ALLOCATION (dynamic, mirrors primary)
 // =============================================================
 
-function stepUpgrade(scope, key, delta) {
-  // scope is always 'secondary' now (primary uses stepPrimary)
-  const upgrades = state.secondary.upgrades;
-  const def = UPGRADE_DEFS[key];
-  const current = upgrades[key] || 0;
-  const totalSlots = SECONDARY_UPGRADE_KEYS.reduce((s,k) => s + (upgrades[k]||0), 0);
+function getActiveSecondaryUpgrades(weaponId) {
+  return PER_WEAPON_UPGRADES[weaponId] || [];
+}
+
+function getSecondaryTotalSlots() {
+  const upgDefs = getActiveSecondaryUpgrades(state.secondary.weapon);
+  return upgDefs.reduce((s, d) => s + (state.secondary.upgrades[d.key] || 0), 0);
+}
+
+function renderSecondaryUpgrades() {
+  const container = document.getElementById('secondary-upgrade-rows');
+  if (!container) return;
+  container.innerHTML = '';
+  const weaponId = state.secondary.weapon;
+  const upgDefs  = getActiveSecondaryUpgrades(weaponId);
+
+  if (!weaponId || upgDefs.length === 0) {
+    container.innerHTML = '<div class="dimtext" style="font-size:0.8rem;padding:8px 0">Select a sidearm to see its upgrades.</div>';
+    updateSecondarySlotBudget();
+    return;
+  }
+
+  upgDefs.forEach(def => {
+    const val = state.secondary.upgrades[def.key] || 0;
+    const pct = (val / def.max) * 100;
+    const row = document.createElement('div');
+    row.className = 'upgrade-row';
+    row.innerHTML = `
+      <div class="upgrade-name" data-tip="+${def.perSlot}% ${def.label} per slot, max +${def.cap}%">${def.label}</div>
+      <div class="upgrade-bar" id="secondary-bar-wrap-${def.key}" style="cursor:pointer">
+        <div class="upgrade-bar-fill${val >= def.max ? ' maxed' : ''}" id="secondary-bar-${def.key}" style="width:${pct}%"></div>
+      </div>
+      <div class="stepper">
+        <button class="step-btn" onclick="stepSecondary('${def.key}',-1)">−</button>
+        <button class="step-btn" onclick="stepSecondary('${def.key}',1)">+</button>
+      </div>
+      <div class="upgrade-value" id="secondary-val-${def.key}">${val}/${def.max}<span class="upgrade-bonus">${val > 0 ? ` +${Math.round(val * def.perSlot * 10) / 10}%` : ''}</span></div>
+    `;
+    row.querySelector(`#secondary-bar-wrap-${def.key}`).addEventListener('click', e => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pctClick = (e.clientX - rect.left) / rect.width;
+      state.secondary.upgrades[def.key] = Math.max(0, Math.min(def.max, Math.round(pctClick * def.max)));
+      renderSecondaryUpgrades();
+      updateCalc();
+      markDirty();
+    });
+    container.appendChild(row);
+  });
+
+  updateSecondarySlotBudget();
+}
+
+function stepSecondary(key, delta) {
+  const weaponId = state.secondary.weapon;
+  const upgDefs  = getActiveSecondaryUpgrades(weaponId);
+  const def      = upgDefs.find(d => d.key === key);
+  if (!def) return;
+
+  const current    = state.secondary.upgrades[key] || 0;
+  const totalSlots = getSecondaryTotalSlots();
 
   if (delta > 0) {
     if (current >= def.max) { notify(`Max ${def.max} slots for ${def.label}`); return; }
@@ -1681,42 +1707,18 @@ function stepUpgrade(scope, key, delta) {
   }
   if (delta < 0 && current <= 0) return;
 
-  upgrades[key] = current + delta;
-  updateUpgradeUI('secondary');
+  state.secondary.upgrades[key] = current + delta;
+  renderSecondaryUpgrades();
   updateCalc();
   markDirty();
 }
 
-function barClick(event, scope, key) {
-  // scope is always 'secondary' for static rows
-  const def = UPGRADE_DEFS[key];
-  const bar = event.currentTarget;
-  const rect = bar.getBoundingClientRect();
-  const pct = (event.clientX - rect.left) / rect.width;
-  const upgrades = state.secondary.upgrades;
-  upgrades[key] = Math.max(0, Math.min(def.max, Math.round(pct * def.max)));
-  updateUpgradeUI('secondary');
-  updateCalc();
-  markDirty();
-}
-
-function updateUpgradeUI(scope) {
-  // Only used for secondary now
-  const upgrades = state.secondary.upgrades;
-  SECONDARY_UPGRADE_KEYS.forEach(key => {
-    const def = UPGRADE_DEFS[key];
-    const val = upgrades[key] || 0;
-    const pct = (val / def.max) * 100;
-    const bar   = document.getElementById(`${scope}-bar-${key}`);
-    const label = document.getElementById(`${scope}-val-${key}`);
-    if (bar)   { bar.style.width = pct + '%'; bar.className = 'upgrade-bar-fill' + (val >= def.max ? ' maxed' : ''); }
-    if (label) label.textContent = `${val}/${def.max}`;
-  });
-  const total  = SECONDARY_UPGRADE_KEYS.reduce((s,k) => s + (upgrades[k]||0), 0);
+function updateSecondarySlotBudget() {
+  const total  = getSecondaryTotalSlots();
   const maxS   = WEAPON_MAX_UPGRADE_SLOTS;
-  const usedEl = document.getElementById(`${scope}-slots-used`);
-  const barEl  = document.getElementById(`${scope}-slots-bar`);
-  const warnEl = document.getElementById(`${scope}-slots-warn`);
+  const usedEl = document.getElementById('secondary-slots-used');
+  const barEl  = document.getElementById('secondary-slots-bar');
+  const warnEl = document.getElementById('secondary-slots-warn');
   if (usedEl) usedEl.textContent = total;
   if (barEl) {
     barEl.style.width = Math.min(100,(total/maxS)*100) + '%';
@@ -1724,6 +1726,13 @@ function updateUpgradeUI(scope) {
   }
   if (warnEl) warnEl.style.display = total > maxS ? '' : 'none';
 }
+
+// Legacy stubs kept so old references don't crash
+function stepUpgrade(scope, key, delta) { stepSecondary(key, delta); }
+function barClick(event, scope, key) {}
+function updateUpgradeUI(scope) { renderSecondaryUpgrades(); }
+
+
 
 // =============================================================
 //  HERO UPGRADES
@@ -1767,7 +1776,7 @@ function updateHeroUpgradeUI() {
     const bar   = document.getElementById(`hero-bar-${key}`);
     const label = document.getElementById(`hero-val-${key}`);
     if (bar)   { bar.style.width = pct + '%'; bar.className = 'upgrade-bar-fill' + (val >= def.max ? ' maxed' : ''); }
-    if (label) label.textContent = `${val}/${def.max}`;
+    if (label) label.innerHTML = `${val}/${def.max}<span class="upgrade-bonus">${val > 0 ? ` +${Math.round(val * def.perSlot * 10) / 10}%` : ''}</span>`;
   });
   const total  = HERO_UPGRADE_KEYS.reduce((s,k) => s + (state.hero.upgrades[k]||0), 0);
   const maxS   = HERO_MAX_UPGRADE_SLOTS;
@@ -1799,6 +1808,10 @@ function onPrimaryWeaponChange() {
 
 function onSecondaryWeaponChange() {
   state.secondary.weapon = document.getElementById('secondary-weapon').value;
+  // Reset upgrade values that don't exist on the new weapon
+  const validKeys = new Set((PER_WEAPON_UPGRADES[state.secondary.weapon] || []).map(d => d.key));
+  Object.keys(state.secondary.upgrades).forEach(k => { if (!validKeys.has(k)) state.secondary.upgrades[k] = 0; });
+  renderSecondaryUpgrades();
   renderJokerSlots('secondary');
   updateCalc();
   markDirty();
@@ -1821,7 +1834,7 @@ function populateSpellSelects() {
         const opt = document.createElement('option');
         const cd  = SPELL_BASE_CD[id] ? ` [${SPELL_BASE_CD[id]}s CD]` : '';
         opt.value = id;
-        opt.textContent = s.name + cd + ' — ' + s.effect;
+        opt.textContent = s.name + cd;
         group.appendChild(opt);
       });
       sel.appendChild(group);
@@ -1908,9 +1921,11 @@ function calcSpeedMult() {
   const dwarfCount = heroJokers.filter(id => id === 'dwarf').length;
   speedPct += dwarfCount * 20;
 
-  // Scavenger Star (sidearm unique): +30% speed
-  const scavengerCount = state.secondary.jokers.filter(id => id === 'scavenger-star').length;
-  speedPct += scavengerCount * 30;
+  // Scavenger Star (weapon unique): +30% speed — only take the higher between primary & secondary
+  const scavengerPrimary   = state.primary.jokers.filter(id => id === 'scavenger-star').length;
+  const scavengerSecondary = state.secondary.jokers.filter(id => id === 'scavenger-star').length;
+  const scavengerBonus = Math.max(scavengerPrimary, scavengerSecondary) * 30;
+  speedPct += scavengerBonus;
 
   return speedPct / 100; // return as multiplier (1.0 = 100%)
 }
@@ -1932,7 +1947,8 @@ function calcMovementSpeed() {
   if (heroJokers.includes('run-and-gun') || heroJokers.includes('run-and-reload')) sources.push('+30% Run & Gun/Reload');
   if (heroJokers.includes('rampage'))                                          sources.push('+25% Rampage');
   if (heroJokers.includes('dwarf'))                                            sources.push('+20% Dwarf');
-  if (state.secondary.jokers.includes('scavenger-star'))                       sources.push('+30% Scavenger Star');
+  const scavengerActive = state.primary.jokers.includes('scavenger-star') || state.secondary.jokers.includes('scavenger-star');
+  if (scavengerActive)                                                           sources.push('+30% Scavenger Star');
   if (subEl) subEl.textContent = sources.length ? sources.join(' · ') : 'Base speed only';
 }
 
@@ -1962,10 +1978,11 @@ function calcRatings() {
 
   // ── Spell CDR rating (0-10): approaches 11.6s avg effective cooldown
   // Lower CD = higher rating
-  const COOLDOWN_TARGET = 11.6;
+  const COOLDOWN_TARGET = 2.1;
   let cdRating = 0;
   const equippedSpells = state.spells.filter(id => id && SPELL_BASE_CD[id]);
-  if (equippedSpells.length > 0) {
+  const spellCount = equippedSpells.length;
+  if (spellCount > 0) {
     let cdrPct = (state.hero.upgrades.cdr || 0) * 2;
     if (state.hero.jokers.includes('west-wizard')) cdrPct += 30;
     if (state.hero.jokers.includes('giant')) cdrPct += 10;
@@ -1986,9 +2003,10 @@ function calcRatings() {
     const avgEff = effectiveCDs.reduce((a,b)=>a+b,0) / effectiveCDs.length;
     // Rating: target is 11.6s. Higher CD = lower rating, lower CD = higher rating
     // At avgEff=11.6s → 10/10. At avgEff=30s+ → near 0.
-    // Use inverse scale: rating = 10 * (1 - clamp((avgEff - COOLDOWN_TARGET) / (30 - COOLDOWN_TARGET), 0, 1))
     const COOLDOWN_BASE = 30; // typical unupgraded cooldown
-    cdRating = Math.max(0, Math.min(10, 10 * (1 - (avgEff - COOLDOWN_TARGET) / (COOLDOWN_BASE - COOLDOWN_TARGET))));
+    const rawRating = Math.max(0, Math.min(10, 10 * (1 - (avgEff - COOLDOWN_TARGET) / (COOLDOWN_BASE - COOLDOWN_TARGET))));
+    // Scale rating by how many spells are equipped: 1 spell = 1/3, 2 spells = 2/3, 3 spells = full
+    cdRating = rawRating * (spellCount / 3);
   }
 
   // ── Mobility rating (0-10): approaches 375% bonus from jokers OR 475% base speed
@@ -2000,17 +2018,17 @@ function calcRatings() {
   // Only joker/upgrade bonus, ignore spells
   const mobilityRating = Math.min(10, ((totalSpeed - MOBILITY_BASE_SPEED) / (MOBILITY_TARGET_TOTAL - MOBILITY_BASE_SPEED)) * 10);
 
-  // Render ratings
-  renderRatingBar('rating-sustain',  sustainRating);
-  renderRatingBar('rating-cooldown', cdRating);
-  renderRatingBar('rating-mobility', mobilityRating);
-
+  // Render ratings as X/10
   const sEl = document.getElementById('rating-sustain-val');
   const cEl = document.getElementById('rating-cooldown-val');
   const mEl = document.getElementById('rating-mobility-val');
-  if (sEl) sEl.textContent = sustainRating.toFixed(1);
-  if (cEl) cEl.textContent = cdRating.toFixed(1);
-  if (mEl) mEl.textContent = mobilityRating.toFixed(1);
+  function fmtRating(r) {
+    const n = Math.min(10, r);
+    return `${n % 1 === 0 ? n.toFixed(0) : n.toFixed(1)}<span class="rating-denom">/10</span>`;
+  }
+  if (sEl) sEl.innerHTML = fmtRating(sustainRating);
+  if (cEl) cEl.innerHTML = fmtRating(cdRating);
+  if (mEl) mEl.innerHTML = fmtRating(mobilityRating);
 }
 
 function renderRatingBar(id, rating) {
@@ -2031,7 +2049,6 @@ function renderRatingBar(id, rating) {
 function updateCalc() {
   calcPrimary();
   calcSecondary();
-  calcJokerMult();
   calcSpellCooldown();
   calcHPS();
   calcHeroHP();
@@ -2144,33 +2161,42 @@ function calcSecondary() {
   }
 
   const isBoomerang = state.secondary.weapon === 'boomerang';
+  const upgDefs = getActiveSecondaryUpgrades(state.secondary.weapon);
+  const hasFR   = upgDefs.some(d => d.key === 'fr');
 
   const dmgSlots = state.secondary.upgrades.dmg || 0;
-  const frSlots  = state.secondary.upgrades.fr  || 0;
+  const frSlots  = hasFR ? (state.secondary.upgrades.fr || 0) : 0;
   const dmgMult  = 1 + dmgSlots * 0.05;
   const frMult   = 1 + frSlots  * 0.05;
 
   const effectiveDmg = (w.baseDmg || 0) * dmgMult;
   const effectiveFR  = (w.fireRate || 0.5) / frMult;
 
-  // Jokers applied last
-  const jokerMult    = getJokerDmgMult(state.secondary.jokers);
-  const wsBonus      = getWeakspotBonus(state.secondary.jokers);
+  const jokerMult     = getJokerDmgMult(state.secondary.jokers);
+  const wsBonus       = getWeakspotBonus(state.secondary.jokers);
   const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
-  const wsBonusTotal = wsBonus + (weakLinkCount * 0.35);
+  const wsBonusTotal  = wsBonus + (weakLinkCount * 0.35);
 
   const finalHit   = effectiveDmg * jokerMult;
-  // Boomerang: no 1.5× weakspot multiplier
   const finalWsHit = isBoomerang
     ? finalHit * (1 + wsBonusTotal)
     : finalHit * 1.5 * (1 + wsBonusTotal);
-  // DPS uses weakspot
-  const finalDPS   = finalWsHit / effectiveFR;
+
+  // Boomerang: hits * dmg / base cycle time (1.38s). Lingering time adds more hits proportionally.
+  let finalDPS;
+  if (isBoomerang) {
+    const ltSlots  = state.secondary.upgrades.lt || 0;
+    const ltMult   = 1 + ltSlots * 0.10;
+    const totalHits = (w.hits || 5) * ltMult;
+    finalDPS = (finalHit * totalHits) / 1.38;
+  } else {
+    finalDPS = finalWsHit / effectiveFR;
+  }
 
   if (dpsEl)  dpsEl.innerHTML  = `${finalDPS.toFixed(1)}<span class="calc-metric-unit">dmg/s</span>`;
   if (hitEl)  hitEl.innerHTML  = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
-  if (subDps) subDps.textContent = `${w.name} [${state.secondary.element}] · +${dmgSlots*5}% dmg · ×${jokerMult.toFixed(2)} joker · weakspot DPS`;
+  if (subDps) subDps.textContent = `${w.name} · +${dmgSlots*5}% dmg${hasFR ? ` · +${frSlots*5}% fr` : ''} · weakspot DPS`;
   if (subHit) subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${jokerMult.toFixed(2)} joker`;
   const wsLabel = isBoomerang
     ? (wsBonusTotal > 0 ? `Normal ×${(1+wsBonusTotal).toFixed(2)} ws jokers (no 1.5× for boomerang)` : 'No 1.5× multiplier for Boomerang')
@@ -2178,16 +2204,6 @@ function calcSecondary() {
   if (subWs)  subWs.textContent  = wsLabel;
 }
 
-function calcJokerMult() {
-  const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
-  const mult = getJokerDmgMult(allJokers);
-  const el   = document.getElementById('calc-joker-dmg-mult');
-  const sub  = document.getElementById('calc-joker-dmg-sub');
-  if (el) el.innerHTML = `×${mult.toFixed(2)}`;
-  const names = allJokers.filter(id => { const j = JOKERS.find(x=>x.id===id); return j && (j.dmgMult||j.wsBonus); })
-                          .map(id => JOKERS.find(x=>x.id===id)?.name).filter(Boolean);
-  if (sub) sub.textContent = names.length ? names.join(', ') : 'No damage jokers equipped';
-}
 
 function calcSpellCooldown() {
   const equippedSpells = state.spells.filter(id => id && SPELL_BASE_CD[id]);
