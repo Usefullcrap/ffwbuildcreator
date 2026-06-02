@@ -7,10 +7,10 @@ A single-page interactive configuration planner and calculator for **Far Far Wes
 - **Build Identity** — Name + notes textarea
 - **Primary Weapon Panel** — All 5 primaries (Leveredge, Long Ranger, Minigun, Quad Cylinder, Shotgun) with full upgrade allocation (Damage, Fire Rate, Clip Size, Reload Speed, Draw Speed, Accuracy) up to 26-slot prestige cap
 - **Secondary Weapon Panel** — All 5 sidearms with elemental type selector + Lifesteal upgrade + unique joker filtering
-- **Joker Cards** — Full library of 95 jokers across 6 rarities (Normal/Fine/Prime/Mythic/Legendary/Unique) with per-slot point budget validation (16-point cap)
+- **Joker Cards** — Full library of 95 jokers across 6 rarities (Normal/Fine/Prime/Mythic/Legendary/Unique) with per-slot point budget validation
 - **Hero Profile** — 5 hero upgrade categories (Health, Spell CDR, Speed, Ammo Bag, Jump Height) with 26-slot cap + hero-specific joker slots
 - **Utility Slot** — 4 utility items with Toolbox joker detection
-- **Spell Slots** — All 25 spells across 5 schools (Pyro/Elec/Acid/Voodoo/Cactus) with live elemental combo hint detection
+- **Spell Slots** — All 25 spells across 5 schools (Pyro/Elec/Acid/Voodoo/Cactus)
 - **Real-Time Calculator** — DPS, single-hit damage, joker damage multiplier, HPS (lifesteal + healing jokers), and hero HP pool
 - **Import / Export** — Full state serialized to Base64 JSON for sharing
 
