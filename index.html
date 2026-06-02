@@ -578,7 +578,7 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Build</span> Maker</div>
-    <div class="header-subtitle">Far Far West · pre-release v1.0</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.1</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -1004,7 +1004,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Effective healing.<br>
-            Theoretical Max: <span style="color:var(--copper)">42.46 hp/s</span>
+            Theoretical Max: <span style="color:var(--copper)">67.52 hp/s</span>
           </div>
         </div>
 
@@ -1030,7 +1030,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Jokers &amp; upgrades only. Spells ignored.<br>
-            Theoretical Max: <span style="color:var(--copper)">375% bonus (475% total)</span>
+            Theoretical Max: <span style="color:var(--copper)">399% bonus (499% total)</span>
           </div>
         </div>
 
@@ -1065,7 +1065,7 @@
 <!-- FOOTER -->
 <footer style="max-width:1340px;margin:0 auto;padding:20px 18px 40px;border-top:1px solid var(--border);margin-top:0">
   <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);line-height:1.8;margin-bottom:12px">
-    This is a project created by <span style="color:var(--copper)">phantombutphanthom</span> on discord. If you would like to give feedback or report a bug / issue, @ me in the builds channel of the FFW discord. Additionally, I am more than open to forking of this project. Just please credit me if you do so. Thanks.
+    This is a project created by <span style="color:var(--copper)">phantombutphanthom</span> on discord. Calculations and data collection done by <span style="color:var(--copper)">phantombutphanthom</span>. Coding is done by Claude. This is currently an early release of this build calculator and sharer so expect bugs. If you would like to give feedback or report a bug / issue, @ me in the builds channel of the FFW discord. Additionally, I am more than open to forking of this project. Just please credit me if you do so. Thanks.
   </p>
   <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);line-height:1.8">
     Thank you to the following feedback givers / public testers: <span style="color:var(--sand-dim)">Fnostic, DracZ, Deciduken, and JellyFrog.</span> If your name is not listed here, apologies.
@@ -1226,7 +1226,7 @@ const SPELL_BASE_CD = {
 // Rarity: Normal=1, Fine=2, Prime=3, Mythic=4, Legendary=5, Unique=5
 // FACT-CHECKED corrections:
 //   - Medicard is FINE (2pt), not Mythic (confirmed wiki navbox)
-//   - Speedster is LEGENDARY, hero scope (confirmed wiki)
+//   - Speedster is LEGENDARY, weapon scope (standard firearms), damage scales with bonus speed
 //   - Relentless is NORMAL, hero scope (confirmed wiki)
 //   - Explosive Rounds: three variants (Pyro/Elec/Acid) all Prime weapon jokers
 //   - Unique joker weapon assignments confirmed from wiki unique pairs:
@@ -1244,61 +1244,61 @@ const JOKERS = [
   // ── Normal (1pt) ──
   { id:'chickshot',        name:'Chickshot',           rarity:'normal',    cost:1, scope:'weapon', effect:'+50% chance bullets make chicken sounds' },
   { id:'deadly-strong',    name:'Deadly Strong',       rarity:'normal',    cost:1, scope:'hero',   effect:'Faster & more dmg as a ghost' },
-  { id:'gold-tooth',       name:'Gold Tooth',          rarity:'normal',    cost:1, scope:'hero',   effect:'+10% chance enemies drop gold' },
+  { id:'gold-tooth',       name:'Gold Tooth',          rarity:'normal',    cost:1, scope:'weapon', effect:'+10% chance enemies drop gold' },
   { id:'heavy-drinker',    name:'Heavy Drinker',       rarity:'normal',    cost:1, scope:'hero',   effect:'Healing bottles 25% more effective' },
   { id:'helping-hand',     name:'Helping Hand',        rarity:'normal',    cost:1, scope:'hero',   effect:'Revive allies 2× faster' },
   { id:'last-dance',       name:'Last Dance',          rarity:'normal',    cost:1, scope:'hero',   effect:'+30% move speed under 30% HP' },
-  { id:'party-shot',       name:'Party Shot',          rarity:'normal',    cost:1, scope:'weapon', effect:'+50% chance weakspot hits blow confetti' },
-  { id:'pigshot',          name:'Pigshot',             rarity:'normal',    cost:1, scope:'weapon', effect:'+5% chance to spawn explosive pig on hit' },
-  { id:'relentless',       name:'Relentless',          rarity:'normal',    cost:1, scope:'hero',   effect:'+30% damage under 30% HP', dmgMult:0.15 },
+  { id:'party-shot',       name:'Party Shot',          rarity:'normal',    cost:1, scope:'weapon', excludeWeapons:['boomerang'], effect:'+50% chance weakspot hits blow confetti' },
+  { id:'pigshot',          name:'Pigshot',             rarity:'normal',    cost:1, scope:'weapon', excludeWeapons:['boomerang'], effect:'+5% chance to spawn explosive pig on hit' },
+  { id:'relentless',       name:'Relentless',          rarity:'normal',    cost:1, scope:'weapon', excludeWeapons:['bow'], effect:'+30% damage under 30% HP', dmgMult:0.15 },
   { id:'rubber-duck',      name:'Rubber Duck',         rarity:'normal',    cost:1, scope:'hero',   effect:'Walking makes rubber duck noises' },
   { id:'shine-bright',     name:'Shine Bright',        rarity:'normal',    cost:1, scope:'hero',   effect:'+50% hero glow' },
-  { id:'swift-shot',       name:'Swift Shot',          rarity:'normal',    cost:1, scope:'weapon', effect:'+10% fire rate when aiming' },
+  { id:'swift-shot',       name:'Swift Shot',          rarity:'normal',    cost:1, scope:'weapon', weapons:['quad-cylinder','shotgun','revolver'], effect:'+10% fire rate when aiming' },
   // ── Fine (2pt) ──
-  { id:'anti-gravity-falls', name:'Anti-Gravity Falls', rarity:'fine',    cost:2, scope:'hero',   effect:'+2% chance to spawn anti-grav area on kill' },
-  { id:'bell-shot',        name:'Bell Shot',           rarity:'fine',      cost:2, scope:'weapon', effect:'+5% chance precision hits summon healing bell', hpRegen:true },
+  { id:'anti-gravity-falls', name:'Anti-Gravity Falls', rarity:'fine',    cost:2, scope:'weapon', excludeWeapons:['boomerang'], effect:'+2% chance to spawn anti-grav area on kill' },
+  { id:'bell-shot',        name:'Bell Shot',           rarity:'fine',      cost:2, scope:'weapon', excludeWeapons:['boomerang'], effect:'+5% chance precision hits summon healing bell', hpRegen:true },
   { id:'bouncing-ball',    name:'Bouncing Ball',       rarity:'fine',      cost:2, scope:'hero',   effect:'+15% damage while airborne', dmgMult:0.075 },
-  { id:'cactus-day',       name:'Cactus Day',          rarity:'fine',      cost:2, scope:'hero',   effect:'+3% chance to spawn Cactus Mino on kill' },
+  { id:'cactus-day',       name:'Cactus Day',          rarity:'fine',      cost:2, scope:'weapon', effect:'+3% chance to spawn Cactus Mino on kill' },
   { id:'care-package',     name:'Care Package',        rarity:'fine',      cost:2, scope:'hero',   effect:'+1 Utility charge' },
   { id:'chad',             name:'Chad',                rarity:'fine',      cost:2, scope:'hero',   effect:'Reveals Wandering Trader + 20% discount' },
-  { id:'clutch',           name:'Clutch',              rarity:'fine',      cost:2, scope:'weapon', effect:'Last 2 bullets in magazine are explosive', dmgMult:0.05 },
+  { id:'clutch',           name:'Clutch',              rarity:'fine',      cost:2, scope:'weapon', weapons:['quad-cylinder','long-ranger','leveredge','revolver'], effect:'Last 2 bullets in magazine are explosive', dmgMult:0.05 },
   { id:'fist-fight',       name:'Fist Fight',          rarity:'fine',      cost:2, scope:'hero',   effect:'Melee hits are 2× powerful' },
   { id:'gold-prospector',  name:'Gold Prospector',     rarity:'fine',      cost:2, scope:'hero',   effect:'+20% Gold at end of mission' },
   { id:'medicard',         name:'Medicard',            rarity:'fine',      cost:2, scope:'hero',   effect:'Picking up a Joker heals +50 HP', hpRegen:true },
   { id:'pick-pick',        name:'Pick Pick',           rarity:'fine',      cost:2, scope:'weapon', effect:'+5% chance on hit to spawn damaging pickaxes' },
   { id:'rage',             name:'Rage',                rarity:'fine',      cost:2, scope:'hero',   effect:'At 25% HP: burning wave (60s CD)' },
-  { id:'rampage',          name:'Rampage',             rarity:'fine',      cost:2, scope:'hero',   effect:'+25% move speed for 3s on kill' },
-  { id:'run-and-gun',      name:'Run & Gun',           rarity:'fine',      cost:2, scope:'hero',   effect:'+30% move speed when shooting' },
-  { id:'run-and-reload',   name:'Run & Reload',        rarity:'fine',      cost:2, scope:'hero',   effect:'+30% move speed when reloading' },
-  { id:'shroom-grave',     name:'Shroom Grave',        rarity:'fine',      cost:2, scope:'hero',   effect:'+10% chance to spawn healing shroom on kill', hpRegen:true },
+  { id:'rampage',          name:'Rampage',             rarity:'fine',      cost:2, scope:'weapon', effect:'+25% move speed for 3s on kill' },
+  { id:'run-and-gun',      name:'Run & Gun',           rarity:'fine',      cost:2, scope:'weapon', effect:'+30% move speed when shooting' },
+  { id:'run-and-reload',   name:'Run & Reload',        rarity:'fine',      cost:2, scope:'weapon', weapons:['quad-cylinder','shotgun','long-ranger','leveredge','revolver','dual-revolvers'], effect:'+30% move speed when reloading' },
+  { id:'shroom-grave',     name:'Shroom Grave',        rarity:'fine',      cost:2, scope:'weapon', effect:'+10% chance to spawn healing shroom on kill', hpRegen:true },
   { id:'soul-reaper',      name:'Soul Reaper',         rarity:'fine',      cost:2, scope:'hero',   effect:'+20% Souls at end of mission' },
   { id:'soul-siphon',      name:'Soul Siphon',         rarity:'fine',      cost:2, scope:'hero',   effect:'+Soul pickup range, +2 HP per soul', hpRegen:true },
-  { id:'speedy-gunzales',  name:'Speedy Gunzales',     rarity:'fine',      cost:2, scope:'hero',   effect:'+10% move speed' },
+  { id:'speedy-gonzales',  name:'Speedy Gonzales',     rarity:'fine',      cost:2, scope:'hero',   effect:'+10% move speed' },
   // ── Prime (3pt) ──
-  { id:'ammo-supply',      name:'Ammo Supply',         rarity:'prime',     cost:3, scope:'hero',   effect:'+5% chance enemies drop ammo box' },
+  { id:'ammo-supply',      name:'Ammo Supply',         rarity:'prime',     cost:3, scope:'weapon', effect:'+5% chance enemies drop ammo box' },
   { id:'cheapskate',       name:'Cheapskate',          rarity:'prime',     cost:3, scope:'hero',   effect:'+1 HP per 20 Gold in inventory', hpRegen:true },
   { id:'chonky',           name:'Chonky',              rarity:'prime',     cost:3, scope:'hero',   effect:'+20% damage, +25% gravity', dmgMult:0.20 },
-  { id:'destroyer',        name:'Destroyer',           rarity:'prime',     cost:3, scope:'weapon', effect:'First 25% of clip: +15% damage', dmgMult:0.075 },
+  { id:'destroyer',        name:'Destroyer',           rarity:'prime',     cost:3, scope:'weapon', weapons:['quad-cylinder','shotgun','long-ranger','minigun','leveredge','revolver','dual-revolvers'], effect:'First 25% of clip: +15% damage', dmgMult:0.075 },
   { id:'disgrace',         name:'Disgrace',            rarity:'prime',     cost:3, scope:'hero',   effect:'+30% move speed; horse refuses you' },
-  { id:'explosive-rounds-pyro', name:'Explosive Rounds (Pyro)', rarity:'prime', cost:3, scope:'weapon', effect:'+5% chance to fire Pyro explosive projectiles' },
-  { id:'explosive-rounds-elec', name:'Explosive Rounds (Elec)', rarity:'prime', cost:3, scope:'weapon', effect:'+5% chance to fire Elec explosive projectiles' },
-  { id:'explosive-rounds-acid', name:'Explosive Rounds (Acid)', rarity:'prime', cost:3, scope:'weapon', effect:'+5% chance to fire Acid explosive projectiles' },
+  { id:'explosive-rounds-pyro', name:'Explosive Rounds (Pyro)', rarity:'prime', cost:3, scope:'weapon', excludeWeapons:['shotgun'], effect:'+5% chance to fire Pyro explosive projectiles' },
+  { id:'explosive-rounds-elec', name:'Explosive Rounds (Elec)', rarity:'prime', cost:3, scope:'weapon', excludeWeapons:['shotgun'], effect:'+5% chance to fire Elec explosive projectiles' },
+  { id:'explosive-rounds-acid', name:'Explosive Rounds (Acid)', rarity:'prime', cost:3, scope:'weapon', excludeWeapons:['shotgun'], effect:'+5% chance to fire Acid explosive projectiles' },
   { id:'healthy-boi',      name:'Healthy Boi',         rarity:'prime',     cost:3, scope:'hero',   effect:'+20% speed/reload/fire rate at full HP', dmgMult:0.10 },
   { id:'lucky-strike',     name:'Lucky Strike',        rarity:'prime',     cost:3, scope:'weapon', effect:'+10% chance to deal double damage', dmgMult:0.05 },
   { id:'magic-friendship', name:'Magic Friendship',    rarity:'prime',     cost:3, scope:'hero',   effect:'Passive HP regen near allies', hpRegen:true },
-  { id:'reload-mastery',   name:'Reload Mastery',      rarity:'prime',     cost:3, scope:'weapon', effect:'Empty-clip reloads 50% faster' },
+  { id:'reload-mastery',   name:'Reload Mastery',      rarity:'prime',     cost:3, scope:'weapon', weapons:['quad-cylinder','shotgun','long-ranger','leveredge','revolver','dual-revolvers'], effect:'Empty-clip reloads 50% faster' },
   { id:'soul-eater',       name:'Soul Eater',          rarity:'prime',     cost:3, scope:'hero',   effect:'Soul pickup: +20% damage & reload 5s', dmgMult:0.05 },
   { id:'stonks',           name:'Stonks',              rarity:'prime',     cost:3, scope:'hero',   effect:'+15% chance chests contain a Joker' },
-  { id:'weak-link',        name:'Weak Link',           rarity:'prime',     cost:3, scope:'weapon', effect:'Weakspot +35%, regular hits −35%', dmgMult:0, wsBonus:0.35 },
-  { id:'weakspot-refund',  name:'Weakspot Refund',     rarity:'prime',     cost:3, scope:'weapon', effect:'+20% chance to refund bullet on weakspot' },
+  { id:'weak-link',        name:'Weak Link',           rarity:'prime',     cost:3, scope:'weapon', excludeWeapons:['boomerang'], effect:'Weakspot +35%, regular hits −35%', dmgMult:0, wsBonus:0.35 },
+  { id:'weakspot-refund',  name:'Weakspot Refund',     rarity:'prime',     cost:3, scope:'weapon', weapons:['quad-cylinder','shotgun','long-ranger','minigun','leveredge','revolver','dual-revolvers'], effect:'+20% chance to refund bullet on weakspot' },
   // ── Mythic (4pt) ──
   { id:'acid-mastery',     name:'Acid Mastery',        rarity:'mythic',    cost:4, scope:'hero',   effect:'−10% Acid CDR per equipped Acid spell', cdrSchool:'acid' },
   { id:'battlemage',       name:'Battlemage',          rarity:'mythic',    cost:4, scope:'hero',   effect:'Kills shorten ongoing spell CDR by 1%' },
   { id:'cactus-mastery',   name:'Cactus Mastery',      rarity:'mythic',    cost:4, scope:'hero',   effect:'−10% Cactus CDR per equipped Cactus spell', cdrSchool:'cactus' },
-  { id:'consumer',         name:'Consumer',            rarity:'mythic',    cost:4, scope:'weapon', effect:'+20% weapon damage; reload wastes ammo', dmgMult:0.20 },
+  { id:'consumer',         name:'Consumer',            rarity:'mythic',    cost:4, scope:'weapon', weapons:['quad-cylinder','long-ranger','revolver'], effect:'+20% weapon damage; reload wastes ammo', dmgMult:0.20 },
   { id:'elec-mastery',     name:'Elec Mastery',        rarity:'mythic',    cost:4, scope:'hero',   effect:'−10% Elec CDR per equipped Elec spell', cdrSchool:'elec' },
   { id:'extra-jump',       name:'Extra Jump',          rarity:'mythic',    cost:4, scope:'hero',   effect:'+1 Jump' },
-  { id:'headbang',         name:'Headbang',            rarity:'mythic',    cost:4, scope:'weapon', effect:'+20% damage to weakspots', wsBonus:0.20 },
+  { id:'headbang',         name:'Headbang',            rarity:'mythic',    cost:4, scope:'weapon', excludeWeapons:['boomerang'], effect:'+20% damage to weakspots', wsBonus:0.20 },
   { id:'hit-me',           name:'Hit Me',              rarity:'mythic',    cost:4, scope:'hero',   effect:'Heal 0.5 HP/s for 20s after being hit', hpRegen:true, hpsValue:0.5 },
   { id:'hoarder',          name:'Hoarder',             rarity:'mythic',    cost:4, scope:'hero',   effect:'+15% chance picked-up Jokers spawn another' },
   { id:'joker-dealer',     name:'Joker Dealer',        rarity:'mythic',    cost:4, scope:'hero',   effect:'+1 HP per active Joker', hpRegen:true },
@@ -1310,15 +1310,15 @@ const JOKERS = [
   { id:'voodoo-mastery',   name:'Voodoo Mastery',      rarity:'mythic',    cost:4, scope:'hero',   effect:'−10% Voodoo CDR per equipped Voodoo spell', cdrSchool:'voodoo' },
   { id:'west-wizard',      name:'West Wizard',         rarity:'mythic',    cost:4, scope:'hero',   effect:'−30% spell CDR; −30% HP', globalCDR:0.30 },
   // ── Legendary (5pt) ──
-  { id:'camper',           name:'Camper',              rarity:'legendary', cost:5, scope:'weapon', effect:'50% chance not to consume ammo while still' },
+  { id:'camper',           name:'Camper',              rarity:'legendary', cost:5, scope:'weapon', excludeWeapons:['boomerang'], effect:'50% chance not to consume ammo while still' },
   { id:'cantrip',          name:'Cantrip One-Trick',   rarity:'legendary', cost:5, scope:'hero',   effect:'−20% CDR on spells with base CD ≤35s', cdrShortOnly:true },
   { id:'dwarf',            name:'Dwarf',               rarity:'legendary', cost:5, scope:'hero',   effect:'Smaller hitbox; +move speed, +fire rate, lower grav' },
   { id:'extra-dash',       name:'Extra Dash',          rarity:'legendary', cost:5, scope:'hero',   effect:'+1 Dash charge' },
   { id:'giant',            name:'Giant',               rarity:'legendary', cost:5, scope:'hero',   effect:'+HP, +weapon damage, +Spell CDR', dmgMult:0.20 },
   { id:'glass-cannon',     name:'Glass Cannon',        rarity:'legendary', cost:5, scope:'hero',   effect:'+40% weapon & melee damage; −25% HP', dmgMult:0.40 },
-  { id:'machine-gun',      name:'Machine Gun',         rarity:'legendary', cost:5, scope:'weapon', effect:'+0.3% fire rate per 50 damage dealt (per mission)' },
-  { id:'ricochet',         name:'Ricochet',            rarity:'legendary', cost:5, scope:'weapon', effect:'Bullets ricochet, 30% chain chance', dmgMult:0.075 },
-  { id:'speedster',        name:'Speedster',           rarity:'legendary', cost:5, scope:'hero',   effect:'Damage & fire rate scale with movement speed', dmgMult:0.20 },
+  { id:'machine-gun',      name:'Machine Gun',         rarity:'legendary', cost:5, scope:'weapon', excludeWeapons:['boomerang'], effect:'+0.3% fire rate per 50 damage dealt (per mission)' },
+  { id:'ricochet',         name:'Ricochet',            rarity:'legendary', cost:5, scope:'weapon', weapons:['quad-cylinder','long-ranger','minigun','leveredge','revolver','dual-revolvers','sheriff-star'], effect:'Bullets ricochet, 30% chain chance', dmgMult:0.075 },
+  { id:'speedster',        name:'Speedster',           rarity:'legendary', cost:5, scope:'weapon', weapons:['quad-cylinder','shotgun','long-ranger','minigun','leveredge','revolver','dual-revolvers'], effect:'Damage & fire rate scale with movement speed' },
   { id:'toolbox',          name:'Toolbox',             rarity:'legendary', cost:5, scope:'hero',   effect:'No utility pickups; utility refills every 90s', isToolbox:true },
   // ── Unique (5pt, weapon-specific) ──
   // Shotgun uniques
@@ -1459,16 +1459,26 @@ function buildJokerDropdown(scopeKey, index) {
         : (j.scope === 'weapon');
       if (!scopeOk) return;
 
-      // For weapon panels: if this joker is weapon-specific AND doesn't match
-      // the currently selected weapon, grey it out but still show it
+      // For weapon panels: check weapon compatibility
+      // j.weapon = unique to one weapon (hard disable if wrong)
+      // j.weapons = whitelist of compatible weapons (grey out if not in list)
+      // j.excludeWeapons = blacklist of incompatible weapons (grey out if in list)
       const wrongWeapon = j.weapon && j.weapon !== weaponId;
+      const notInWhitelist = j.weapons && weaponId && !j.weapons.includes(weaponId);
+      const inBlacklist    = j.excludeWeapons && weaponId && j.excludeWeapons.includes(weaponId);
+      const incompatible   = wrongWeapon || notInWhitelist || inBlacklist;
 
       const opt = document.createElement('option');
       opt.value = j.id;
-      if (wrongWeapon) {
-        opt.textContent = `${j.name} [${WEAPONS[j.weapon]?.name || j.weapon} only] — ${j.effect}`;
+      if (incompatible) {
+        const restriction = wrongWeapon
+          ? `[${WEAPONS[j.weapon]?.name || j.weapon} only]`
+          : j.weapons
+            ? `[${j.weapons.map(w => WEAPONS[w]?.name || w).join('/')} only]`
+            : `[not for ${(j.excludeWeapons||[]).map(w => WEAPONS[w]?.name || w).join('/')}]`;
+        opt.textContent = `${j.name} ${restriction} — ${j.effect}`;
         opt.style.color = 'var(--text-muted)';
-        opt.disabled = true; // hard block wrong-weapon uniques
+        opt.disabled = true;
       } else {
         opt.textContent = `${j.name} — ${j.effect}`;
       }
@@ -1925,8 +1935,8 @@ function calcSpeedMult() {
   const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
   const heroJokers = state.hero.jokers;
 
-  // Speedy Gunzales: +10% move speed
-  const speedyCount = heroJokers.filter(id => id === 'speedy-gunzales').length;
+  // Speedy Gonzales: +10% move speed
+  const speedyCount = heroJokers.filter(id => id === 'speedy-gonzales').length;
   speedPct += speedyCount * 10;
 
   // Disgrace: +30% move speed (hero joker)
@@ -1937,16 +1947,16 @@ function calcSpeedMult() {
   const lastDanceCount = heroJokers.filter(id => id === 'last-dance').length;
   speedPct += lastDanceCount * 30;
 
-  // Run & Gun (+30% while shooting) vs Run & Reload (+30% while reloading) — mutually exclusive, take 1
-  const runGunCount    = heroJokers.filter(id => id === 'run-and-gun').length;
-  const runReloadCount = heroJokers.filter(id => id === 'run-and-reload').length;
+  // Run & Gun (+30% while shooting) vs Run & Reload (+30% while reloading) — weapon jokers
+  const runGunCount    = allJokers.filter(id => id === 'run-and-gun').length;
+  const runReloadCount = allJokers.filter(id => id === 'run-and-reload').length;
   // Take the higher of the two (can't stack both at same time)
   if (runGunCount > 0 || runReloadCount > 0) {
     speedPct += 30; // only one applies at a time, +30%
   }
 
-  // Rampage: +25% for 3s on kill — condition-based, include as active
-  const rampageCount = heroJokers.filter(id => id === 'rampage').length;
+  // Rampage: +25% for 3s on kill — weapon joker, condition-based, include as active
+  const rampageCount = allJokers.filter(id => id === 'rampage').length;
   speedPct += rampageCount * 25;
 
   // Dwarf: +move speed (legendary) — estimated +20% (game data)
@@ -1970,17 +1980,18 @@ function calcMovementSpeed() {
   if (el) el.innerHTML = `${speedPct}<span class="calc-metric-unit">%</span>`;
 
   const heroJokers = state.hero.jokers;
+  const allJokersFlat = [...state.primary.jokers, ...state.secondary.jokers, ...heroJokers];
   const speedSlots = state.hero.upgrades.speed || 0;
   const sources = [];
-  if (speedSlots)                                                              sources.push(`+${speedSlots*4}% hero upgrades`);
-  if (heroJokers.includes('speedy-gunzales'))                                  sources.push('+10% Speedy Gunzales');
-  if (heroJokers.includes('disgrace'))                                         sources.push('+30% Disgrace');
-  if (heroJokers.includes('last-dance'))                                       sources.push('+30% Last Dance');
-  if (heroJokers.includes('run-and-gun') || heroJokers.includes('run-and-reload')) sources.push('+30% Run & Gun/Reload');
-  if (heroJokers.includes('rampage'))                                          sources.push('+25% Rampage');
-  if (heroJokers.includes('dwarf'))                                            sources.push('+20% Dwarf');
+  if (speedSlots)                                                                      sources.push(`+${speedSlots*4}% hero upgrades`);
+  if (heroJokers.includes('speedy-gonzales'))                                          sources.push('+10% Speedy Gonzales');
+  if (heroJokers.includes('disgrace'))                                                 sources.push('+30% Disgrace');
+  if (heroJokers.includes('last-dance'))                                               sources.push('+30% Last Dance');
+  if (allJokersFlat.includes('run-and-gun') || allJokersFlat.includes('run-and-reload')) sources.push('+30% Run & Gun/Reload');
+  if (allJokersFlat.includes('rampage'))                                               sources.push('+25% Rampage');
+  if (heroJokers.includes('dwarf'))                                                    sources.push('+20% Dwarf');
   const scavengerActive = state.primary.jokers.includes('scavenger-star') || state.secondary.jokers.includes('scavenger-star');
-  if (scavengerActive)                                                           sources.push('+30% Scavenger Star');
+  if (scavengerActive)                                                                  sources.push('+30% Scavenger Star');
   if (subEl) subEl.textContent = sources.length ? sources.join(' · ') : 'Base speed only';
 }
 
@@ -1989,8 +2000,8 @@ function calcMovementSpeed() {
 // =============================================================
 
 function calcRatings() {
-  // ── Sustain rating (0-10): approaches 42.46 hp/s via lifesteal + drain only
-  const SUSTAIN_MAX = 42.46;
+  // ── Sustain rating (0-10): approaches 67.52 hp/s via lifesteal + drain only
+  const SUSTAIN_MAX = 67.52;
   let sustainHps = 0;
   const lsSlots = state.secondary.upgrades.ls || 0;
   const lsPct   = lsSlots * 3;
@@ -2041,10 +2052,10 @@ function calcRatings() {
     cdRating = rawRating * (spellCount / 3);
   }
 
-  // ── Mobility rating (0-10): approaches 375% bonus from jokers OR 475% base speed
-  // Base speed (no bonuses) = 100%. Target: 375% bonus = 475% total, OR 475% base as ceiling.
+  // ── Mobility rating (0-10): approaches 399% bonus from jokers OR 499% base speed
+  // Base speed (no bonuses) = 100%. Target: 399% bonus = 499% total, OR 499% base as ceiling.
   const MOBILITY_BASE_SPEED = 100;
-  const MOBILITY_TARGET_TOTAL = 475; // 475% total speed
+  const MOBILITY_TARGET_TOTAL = 499; // 499% total speed
   const speedMult  = calcSpeedMult();
   const totalSpeed = speedMult * 100; // in percent
   // Only joker/upgrade bonus, ignore spells
@@ -2146,16 +2157,20 @@ function calcPrimary() {
   const weakLinkCount = state.primary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal = wsMult + (weakLinkCount * 0.35);
 
-  // Apply speedster: caps at 190% base speed, so max 1.9× damage
-  const speedMult = calcSpeedMult();
-  const speedsterCount = [...state.primary.jokers, ...state.hero.jokers].filter(id => id === 'speedster').length;
-  const speedsterMult = speedsterCount > 0 ? Math.min(speedMult, 1.9) : 1.0;
+  // Speedster: +1% damage per 1% bonus speed, capped at +90%
+  // Only applies when equipped on the weapon (primary panel), never from hero panel
+  const speedsterCount = state.primary.jokers.filter(id => id === 'speedster').length;
+  let speedsterBonus = 0;
+  if (speedsterCount > 0) {
+    const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100; // e.g. 24% bonus if at 124% total
+    speedsterBonus = Math.min(bonusSpeedPct, 90) / 100;   // cap at +90%, expressed as multiplier addend
+  }
 
   // Eagle Lever: +50% damage at max stacks (50 stacks × 1%)
   const eagleLeverCount = state.primary.jokers.filter(id => id === 'eagle-lever').length;
   const eagleLeverBonus = eagleLeverCount > 0 ? 0.50 : 0.0;
 
-  const finalJokerMult = jokerMult * speedsterMult * (1 + eagleLeverBonus);
+  const finalJokerMult = jokerMult * (1 + speedsterBonus) * (1 + eagleLeverBonus);
 
   const finalHit     = effectiveDmg * finalJokerMult;
   // Weakspot = 1.5× the normal hit, then apply weakspot joker bonuses on top
@@ -2167,7 +2182,10 @@ function calcPrimary() {
   if (hitEl)  hitEl.innerHTML  = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${(dmgSlots*(dmgDef?.perSlot||5)).toFixed(0)}% dmg · +${(frSlots*(frDef?.perSlot||5)).toFixed(0)}% FR · weakspot DPS`;
-  if (subHit) subHit.textContent = `Base ${baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker`;
+  if (subHit) {
+    const speedsterNote = speedsterCount > 0 ? ` · Speedster +${Math.round(speedsterBonus*100)}% dmg` : '';
+    subHit.textContent = `Base ${baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
+  }
   const wsDesc = wsBonusTotal > 0 ? `1.5× base × ×${(1+wsBonusTotal).toFixed(2)} ws jokers (${(wsBonusTotal*100).toFixed(0)}% bonus)` : '1.5× normal hit';
   if (subWs)  subWs.textContent  = wsDesc;
 }
@@ -2209,7 +2227,16 @@ function calcSecondary() {
   const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal  = wsBonus + (weakLinkCount * 0.35);
 
-  const finalHit   = effectiveDmg * jokerMult;
+  // Speedster: +1% damage per 1% bonus speed, capped at +90%
+  const speedsterCountSec = state.secondary.jokers.filter(id => id === 'speedster').length;
+  let speedsterBonusSec = 0;
+  if (speedsterCountSec > 0) {
+    const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
+    speedsterBonusSec = Math.min(bonusSpeedPct, 90) / 100;
+  }
+
+  const finalJokerMult = jokerMult * (1 + speedsterBonusSec);
+  const finalHit   = effectiveDmg * finalJokerMult;
   const finalWsHit = isBoomerang
     ? finalHit * (1 + wsBonusTotal)
     : finalHit * 1.5 * (1 + wsBonusTotal);
@@ -2229,7 +2256,10 @@ function calcSecondary() {
   if (hitEl)  hitEl.innerHTML  = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${dmgSlots*5}% dmg${hasFR ? ` · +${frSlots*5}% fr` : ''} · weakspot DPS`;
-  if (subHit) subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${jokerMult.toFixed(2)} joker`;
+  if (subHit) {
+    const speedsterNote = speedsterCountSec > 0 ? ` · Speedster +${Math.round(speedsterBonusSec*100)}% dmg` : '';
+    subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
+  }
   const wsLabel = isBoomerang
     ? (wsBonusTotal > 0 ? `Normal ×${(1+wsBonusTotal).toFixed(2)} ws jokers (no 1.5× for boomerang)` : 'No 1.5× multiplier for Boomerang')
     : (wsBonusTotal > 0 ? `1.5× base × ×${(1+wsBonusTotal).toFixed(2)} ws jokers` : '1.5× normal hit');
@@ -2331,7 +2361,7 @@ function calcHPS() {
   const subEl = document.getElementById('calc-hps-sub');
   if (hps === 0) {
     if (el)    el.innerHTML = '—<span class="calc-metric-unit">hp/s</span>';
-    if (subEl) subEl.textContent = 'No lifesteal or drain equipped';
+    if (subEl) subEl.textContent = 'No healing application';
   } else {
     if (el)    el.innerHTML = `${hps.toFixed(2)}<span class="calc-metric-unit">hp/s</span>`;
     const sources = [];
