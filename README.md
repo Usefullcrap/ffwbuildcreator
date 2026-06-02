@@ -18,6 +18,6 @@ A single-page interactive configuration planner and calculator for **Far Far Wes
 
 1. Build your loadout in the planner
 2. Click **Export ⬆** — a Base64 code is generated and copied to clipboard
-3. Share the code with teammates; they paste it into the **Build Code** field and click **Import ⬇**
+3. Share the code with teammates; they paste it into the **Build Code** field and click **Import**
 
 ---
