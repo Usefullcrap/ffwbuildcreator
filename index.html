@@ -578,7 +578,7 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Build</span> Maker</div>
-    <div class="header-subtitle">Far Far West · pre-release v1.1</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.0</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -1947,13 +1947,11 @@ function calcSpeedMult() {
   const lastDanceCount = heroJokers.filter(id => id === 'last-dance').length;
   speedPct += lastDanceCount * 30;
 
-  // Run & Gun (+30% while shooting) vs Run & Reload (+30% while reloading) — weapon jokers
+  // Run & Gun (+30% while shooting) — weapon joker, stacks per copy
   const runGunCount    = allJokers.filter(id => id === 'run-and-gun').length;
   const runReloadCount = allJokers.filter(id => id === 'run-and-reload').length;
-  // Take the higher of the two (can't stack both at same time)
-  if (runGunCount > 0 || runReloadCount > 0) {
-    speedPct += 30; // only one applies at a time, +30%
-  }
+  speedPct += runGunCount * 30;
+  speedPct += runReloadCount * 30;
 
   // Rampage: +25% for 3s on kill — weapon joker, condition-based, include as active
   const rampageCount = allJokers.filter(id => id === 'rampage').length;
@@ -1987,7 +1985,10 @@ function calcMovementSpeed() {
   if (heroJokers.includes('speedy-gonzales'))                                          sources.push('+10% Speedy Gonzales');
   if (heroJokers.includes('disgrace'))                                                 sources.push('+30% Disgrace');
   if (heroJokers.includes('last-dance'))                                               sources.push('+30% Last Dance');
-  if (allJokersFlat.includes('run-and-gun') || allJokersFlat.includes('run-and-reload')) sources.push('+30% Run & Gun/Reload');
+  const runGunCountDisp    = allJokersFlat.filter(id => id === 'run-and-gun').length;
+  const runReloadCountDisp = allJokersFlat.filter(id => id === 'run-and-reload').length;
+  if (runGunCountDisp > 0)    sources.push(`+${runGunCountDisp * 30}% Run & Gun (×${runGunCountDisp})`);
+  if (runReloadCountDisp > 0) sources.push(`+${runReloadCountDisp * 30}% Run & Reload (×${runReloadCountDisp})`);
   if (allJokersFlat.includes('rampage'))                                               sources.push('+25% Rampage');
   if (heroJokers.includes('dwarf'))                                                    sources.push('+20% Dwarf');
   const scavengerActive = state.primary.jokers.includes('scavenger-star') || state.secondary.jokers.includes('scavenger-star');
@@ -2008,11 +2009,31 @@ function calcRatings() {
   if (lsPct > 0) {
     const w = WEAPONS[state.secondary.weapon];
     if (w) {
-      const dmgSlots = state.secondary.upgrades.dmg || 0;
-      const frSlots  = state.secondary.upgrades.fr  || 0;
-      const secDmg = (w.baseDmg||0) * (1 + dmgSlots * 0.05);
-      const secFR  = (w.fireRate||0.5) / (1 + frSlots * 0.05);
-      sustainHps += (secDmg / secFR) * (lsPct / 100);
+      const isBoomerang  = state.secondary.weapon === 'boomerang';
+      const upgDefs      = getActiveSecondaryUpgrades(state.secondary.weapon);
+      const hasFR        = upgDefs.some(d => d.key === 'fr');
+      const dmgSlots     = state.secondary.upgrades.dmg || 0;
+      const frSlots      = hasFR ? (state.secondary.upgrades.fr || 0) : 0;
+      const dmgMult      = 1 + dmgSlots * 0.05;
+      const frMult       = 1 + frSlots  * 0.05;
+      const effectiveDmg = (w.baseDmg || 0) * dmgMult;
+      const effectiveFR  = (w.fireRate || 0.5) / frMult;
+      const jokerMult    = getJokerDmgMult(state.secondary.jokers);
+      const wsBonus      = getWeakspotBonus(state.secondary.jokers);
+      const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
+      const wsBonusTotal = wsBonus + (weakLinkCount * 0.35);
+      const finalHit     = effectiveDmg * jokerMult;
+      let wsDPS;
+      if (isBoomerang) {
+        const ltSlots   = state.secondary.upgrades.lt || 0;
+        const ltMult    = 1 + ltSlots * 0.10;
+        const totalHits = (w.hits || 5) * ltMult;
+        wsDPS = (finalHit * (1 + wsBonusTotal) * totalHits) / 1.38;
+      } else {
+        const finalWsHit = finalHit * 1.5 * (1 + wsBonusTotal);
+        wsDPS = finalWsHit / effectiveFR;
+      }
+      sustainHps += wsDPS * (lsPct / 100);
     }
   }
   const drainCount = state.spells.filter(id => id === 'drain').length;
@@ -2338,18 +2359,49 @@ function calcHPS() {
   const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
   let hps = 0;
 
-  // Lifesteal (secondary upgrade: 3% per slot) — based on weapon damage, not player HP
+  // Lifesteal (secondary upgrade: 3% per slot) — based on weakspot DPS
   const lsSlots = state.secondary.upgrades.ls || 0;
   const lsPct   = lsSlots * 3;
   if (lsPct > 0) {
     const w = WEAPONS[state.secondary.weapon];
     if (w) {
-      const dmgSlots = state.secondary.upgrades.dmg || 0;
-      const frSlots  = state.secondary.upgrades.fr  || 0;
-      const secDmg = (w.baseDmg||0) * (1 + dmgSlots * 0.05);
-      const secFR  = (w.fireRate||0.5) / (1 + frSlots * 0.05);
+      const isBoomerang  = state.secondary.weapon === 'boomerang';
+      const upgDefs      = getActiveSecondaryUpgrades(state.secondary.weapon);
+      const hasFR        = upgDefs.some(d => d.key === 'fr');
+      const dmgSlots     = state.secondary.upgrades.dmg || 0;
+      const frSlots      = hasFR ? (state.secondary.upgrades.fr || 0) : 0;
+      const dmgMult      = 1 + dmgSlots * 0.05;
+      const frMult       = 1 + frSlots  * 0.05;
+      const effectiveDmg = (w.baseDmg || 0) * dmgMult;
+      const effectiveFR  = (w.fireRate || 0.5) / frMult;
+
+      const jokerMult     = getJokerDmgMult(state.secondary.jokers);
+      const wsBonus       = getWeakspotBonus(state.secondary.jokers);
+      const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
+      const wsBonusTotal  = wsBonus + (weakLinkCount * 0.35);
+
+      const speedsterCountSec = state.secondary.jokers.filter(id => id === 'speedster').length;
+      let speedsterBonusSec = 0;
+      if (speedsterCountSec > 0) {
+        const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
+        speedsterBonusSec = Math.min(bonusSpeedPct, 90) / 100;
+      }
+
+      const finalJokerMult = jokerMult * (1 + speedsterBonusSec);
+      const finalHit       = effectiveDmg * finalJokerMult;
+
+      let wsDPS;
+      if (isBoomerang) {
+        const ltSlots  = state.secondary.upgrades.lt || 0;
+        const ltMult   = 1 + ltSlots * 0.10;
+        const totalHits = (w.hits || 5) * ltMult;
+        wsDPS = (finalHit * (1 + wsBonusTotal) * totalHits) / 1.38;
+      } else {
+        const finalWsHit = finalHit * 1.5 * (1 + wsBonusTotal);
+        wsDPS = finalWsHit / effectiveFR;
+      }
       // DPS * lifesteal% = hp/s
-      hps += (secDmg / secFR) * (lsPct / 100);
+      hps += wsDPS * (lsPct / 100);
     }
   }
 
@@ -2365,7 +2417,7 @@ function calcHPS() {
   } else {
     if (el)    el.innerHTML = `${hps.toFixed(2)}<span class="calc-metric-unit">hp/s</span>`;
     const sources = [];
-    if (lsPct > 0)          sources.push(`${lsPct}% lifesteal`);
+    if (lsPct > 0)          sources.push(`${lsPct}% lifesteal (ws DPS)`);
     if (drainSpells.length) sources.push(`Drain (×${drainSpells.length})`);
     if (subEl) subEl.textContent = sources.join(' · ') || 'Estimate from active sources';
   }
@@ -2402,12 +2454,86 @@ function updateUtilityNote() {
 }
 
 // =============================================================
+//  LZ COMPRESSION (simple LZString-style for build codes)
+// =============================================================
+const LZ = (() => {
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  function compress(s) {
+    if (!s) return '';
+    const d = {}, r = [];
+    let w = '', c = 2, n = 2, b = 0, bits = 0;
+    for (let i = 0; i <= s.length; i++) {
+      const ch = i < s.length ? s[i] : '';
+      const wc = w + ch;
+      if (i < s.length && d[wc] != null) { w = wc; continue; }
+      // output w
+      if (d[w] != null) {
+        b |= d[w] << bits; bits += n;
+      } else {
+        b |= 0 << bits; bits++;
+        if (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
+        if (w.charCodeAt(0) < 256) {
+          b |= 0 << bits; bits++;
+          if (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
+          b |= w.charCodeAt(0) << bits; bits += 8;
+        } else {
+          b |= 1 << bits; bits++;
+          if (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
+          b |= w.charCodeAt(0) << bits; bits += 16;
+        }
+        if (c === (1 << n)) n++;
+        d[w] = c++;
+      }
+      while (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
+      if (i < s.length) { d[wc] = c++; if (c === (1 << n)) n++; w = ch; }
+    }
+    b |= 2 << bits; bits += n;
+    while (bits > 0) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
+    return r.join('');
+  }
+  function decompress(s) {
+    if (!s) return '';
+    const rev = {};
+    for (let i = 0; i < CHARS.length; i++) rev[CHARS[i]] = i;
+    let buf = 0, blen = 0, pos = 0;
+    function readBits(n) {
+      while (blen < n) { buf |= rev[s[pos++]] << blen; blen += 6; }
+      const v = buf & ((1 << n) - 1); buf >>= n; blen -= n; return v;
+    }
+    let n = 3, c = 4, result = '', prev = '', entry;
+    const dict = ['', '', ''];
+    // read first symbol
+    const t = readBits(1);
+    const firstCode = t === 0 ? readBits(8) : readBits(16);
+    prev = String.fromCharCode(firstCode);
+    dict.push(prev); result = prev;
+    while (pos <= s.length + 1) {
+      const code = readBits(n);
+      if (code === 2) break;
+      if (code === 0 || code === 1) {
+        entry = String.fromCharCode(code === 0 ? readBits(8) : readBits(16));
+        dict.push(entry); c++;
+      } else {
+        entry = dict[code] != null ? dict[code] : (prev + prev[0]);
+      }
+      result += entry;
+      dict.push(prev + entry[0]); c++;
+      if (c >= (1 << n)) n++;
+      prev = entry;
+    }
+    return result;
+  }
+  return { compress, decompress };
+})();
+
+// =============================================================
 //  IMPORT / EXPORT
 // =============================================================
 
 function serializeState() {
   syncDOMToState();
-  return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  const json = JSON.stringify(state);
+  return btoa(unescape(encodeURIComponent(LZ.compress(json))));
 }
 
 function syncDOMToState() {
@@ -2421,8 +2547,18 @@ function syncDOMToState() {
 }
 
 function deserializeState(code) {
-  const loaded = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
-  Object.assign(state, loaded);
+  const raw = decodeURIComponent(escape(atob(code.trim())));
+  // Support both new compressed codes and legacy plain JSON
+  let parsed;
+  try {
+    // Try decompressing first (new format)
+    const decompressed = LZ.decompress(raw);
+    parsed = JSON.parse(decompressed);
+  } catch(e) {
+    // Fall back to legacy plain JSON
+    parsed = JSON.parse(raw);
+  }
+  Object.assign(state, parsed);
   applyStateToDOM();
 }
 
