@@ -578,7 +578,7 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Build</span> Maker</div>
-    <div class="header-subtitle">Far Far West · pre-release v1.0</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.1</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -1947,25 +1947,24 @@ function calcSpeedMult() {
   const lastDanceCount = heroJokers.filter(id => id === 'last-dance').length;
   speedPct += lastDanceCount * 30;
 
-  // Run & Gun (+30% while shooting) — weapon joker, stacks per copy
+  // Run & Gun (+30% while shooting) — stacks per copy across both weapon slots
   const runGunCount    = allJokers.filter(id => id === 'run-and-gun').length;
   const runReloadCount = allJokers.filter(id => id === 'run-and-reload').length;
   speedPct += runGunCount * 30;
   speedPct += runReloadCount * 30;
 
-  // Rampage: +25% for 3s on kill — weapon joker, condition-based, include as active
+  // Rampage: +25% for 3s on kill — stacks per copy
   const rampageCount = allJokers.filter(id => id === 'rampage').length;
   speedPct += rampageCount * 25;
 
-  // Dwarf: +move speed (legendary) — estimated +20% (game data)
+  // Dwarf: +20% speed estimate — stacks per copy
   const dwarfCount = heroJokers.filter(id => id === 'dwarf').length;
   speedPct += dwarfCount * 20;
 
-  // Scavenger Star (weapon unique): +30% speed — only take the higher between primary & secondary
-  const scavengerPrimary   = state.primary.jokers.filter(id => id === 'scavenger-star').length;
-  const scavengerSecondary = state.secondary.jokers.filter(id => id === 'scavenger-star').length;
-  const scavengerBonus = Math.max(scavengerPrimary, scavengerSecondary) * 30;
-  speedPct += scavengerBonus;
+  // Scavenger Star (+30% speed) — stacks per copy across both weapon slots
+  const scavengerCount = state.primary.jokers.filter(id => id === 'scavenger-star').length
+                       + state.secondary.jokers.filter(id => id === 'scavenger-star').length;
+  speedPct += scavengerCount * 30;
 
   return speedPct / 100; // return as multiplier (1.0 = 100%)
 }
@@ -1981,18 +1980,25 @@ function calcMovementSpeed() {
   const allJokersFlat = [...state.primary.jokers, ...state.secondary.jokers, ...heroJokers];
   const speedSlots = state.hero.upgrades.speed || 0;
   const sources = [];
-  if (speedSlots)                                                                      sources.push(`+${speedSlots*4}% hero upgrades`);
-  if (heroJokers.includes('speedy-gonzales'))                                          sources.push('+10% Speedy Gonzales');
-  if (heroJokers.includes('disgrace'))                                                 sources.push('+30% Disgrace');
-  if (heroJokers.includes('last-dance'))                                               sources.push('+30% Last Dance');
-  const runGunCountDisp    = allJokersFlat.filter(id => id === 'run-and-gun').length;
-  const runReloadCountDisp = allJokersFlat.filter(id => id === 'run-and-reload').length;
-  if (runGunCountDisp > 0)    sources.push(`+${runGunCountDisp * 30}% Run & Gun (×${runGunCountDisp})`);
-  if (runReloadCountDisp > 0) sources.push(`+${runReloadCountDisp * 30}% Run & Reload (×${runReloadCountDisp})`);
-  if (allJokersFlat.includes('rampage'))                                               sources.push('+25% Rampage');
-  if (heroJokers.includes('dwarf'))                                                    sources.push('+20% Dwarf');
-  const scavengerActive = state.primary.jokers.includes('scavenger-star') || state.secondary.jokers.includes('scavenger-star');
-  if (scavengerActive)                                                                  sources.push('+30% Scavenger Star');
+  const speedSlotsD   = state.hero.upgrades.speed || 0;
+  const speedyCountD  = heroJokers.filter(id => id === 'speedy-gonzales').length;
+  const disgraceCountD= heroJokers.filter(id => id === 'disgrace').length;
+  const lastDanceCountD= heroJokers.filter(id => id === 'last-dance').length;
+  const runGunCountD  = allJokersFlat.filter(id => id === 'run-and-gun').length;
+  const runReloadCountD = allJokersFlat.filter(id => id === 'run-and-reload').length;
+  const rampageCountD = allJokersFlat.filter(id => id === 'rampage').length;
+  const dwarfCountD   = heroJokers.filter(id => id === 'dwarf').length;
+  const scavengerCountD = allJokersFlat.filter(id => id === 'scavenger-star').length;
+
+  if (speedSlotsD)      sources.push(`+${speedSlotsD*4}% hero upgrades`);
+  if (speedyCountD)     sources.push(`+${speedyCountD*10}% Speedy Gonzales${speedyCountD > 1 ? ` (×${speedyCountD})` : ''}`);
+  if (disgraceCountD)   sources.push(`+${disgraceCountD*30}% Disgrace${disgraceCountD > 1 ? ` (×${disgraceCountD})` : ''}`);
+  if (lastDanceCountD)  sources.push(`+${lastDanceCountD*30}% Last Dance${lastDanceCountD > 1 ? ` (×${lastDanceCountD})` : ''}`);
+  if (runGunCountD)     sources.push(`+${runGunCountD*30}% Run & Gun${runGunCountD > 1 ? ` (×${runGunCountD})` : ''}`);
+  if (runReloadCountD)  sources.push(`+${runReloadCountD*30}% Run & Reload${runReloadCountD > 1 ? ` (×${runReloadCountD})` : ''}`);
+  if (rampageCountD)    sources.push(`+${rampageCountD*25}% Rampage${rampageCountD > 1 ? ` (×${rampageCountD})` : ''}`);
+  if (dwarfCountD)      sources.push(`+${dwarfCountD*20}% Dwarf${dwarfCountD > 1 ? ` (×${dwarfCountD})` : ''}`);
+  if (scavengerCountD)  sources.push(`+${scavengerCountD*30}% Scavenger Star${scavengerCountD > 1 ? ` (×${scavengerCountD})` : ''}`);
   if (subEl) subEl.textContent = sources.length ? sources.join(' · ') : 'Base speed only';
 }
 
@@ -2009,31 +2015,11 @@ function calcRatings() {
   if (lsPct > 0) {
     const w = WEAPONS[state.secondary.weapon];
     if (w) {
-      const isBoomerang  = state.secondary.weapon === 'boomerang';
-      const upgDefs      = getActiveSecondaryUpgrades(state.secondary.weapon);
-      const hasFR        = upgDefs.some(d => d.key === 'fr');
-      const dmgSlots     = state.secondary.upgrades.dmg || 0;
-      const frSlots      = hasFR ? (state.secondary.upgrades.fr || 0) : 0;
-      const dmgMult      = 1 + dmgSlots * 0.05;
-      const frMult       = 1 + frSlots  * 0.05;
-      const effectiveDmg = (w.baseDmg || 0) * dmgMult;
-      const effectiveFR  = (w.fireRate || 0.5) / frMult;
-      const jokerMult    = getJokerDmgMult(state.secondary.jokers);
-      const wsBonus      = getWeakspotBonus(state.secondary.jokers);
-      const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
-      const wsBonusTotal = wsBonus + (weakLinkCount * 0.35);
-      const finalHit     = effectiveDmg * jokerMult;
-      let wsDPS;
-      if (isBoomerang) {
-        const ltSlots   = state.secondary.upgrades.lt || 0;
-        const ltMult    = 1 + ltSlots * 0.10;
-        const totalHits = (w.hits || 5) * ltMult;
-        wsDPS = (finalHit * (1 + wsBonusTotal) * totalHits) / 1.38;
-      } else {
-        const finalWsHit = finalHit * 1.5 * (1 + wsBonusTotal);
-        wsDPS = finalWsHit / effectiveFR;
-      }
-      sustainHps += wsDPS * (lsPct / 100);
+      const dmgSlots = state.secondary.upgrades.dmg || 0;
+      const frSlots  = state.secondary.upgrades.fr  || 0;
+      const secDmg = (w.baseDmg||0) * (1 + dmgSlots * 0.05);
+      const secFR  = (w.fireRate||0.5) / (1 + frSlots * 0.05);
+      sustainHps += (secDmg / secFR) * (lsPct / 100);
     }
   }
   const drainCount = state.spells.filter(id => id === 'drain').length;
@@ -2048,8 +2034,10 @@ function calcRatings() {
   const spellCount = equippedSpells.length;
   if (spellCount > 0) {
     let cdrPct = (state.hero.upgrades.cdr || 0) * 2;
-    if (state.hero.jokers.includes('west-wizard')) cdrPct += 30;
-    if (state.hero.jokers.includes('giant')) cdrPct += 10;
+    const wwCountR = state.hero.jokers.filter(id => id === 'west-wizard').length;
+    cdrPct += wwCountR * 30;
+    const giantCountR = state.hero.jokers.filter(id => id === 'giant').length;
+    cdrPct += giantCountR * 10;
     const cantripCount = state.hero.jokers.filter(id => id === 'cantrip').length;
     const schoolCDRJokers = { pyro:'pyro-mastery', elec:'elec-mastery', acid:'acid-mastery', voodoo:'voodoo-mastery', cactus:'cactus-mastery' };
     let schoolBonusPct = 0;
@@ -2178,20 +2166,19 @@ function calcPrimary() {
   const weakLinkCount = state.primary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal = wsMult + (weakLinkCount * 0.35);
 
-  // Speedster: +1% damage per 1% bonus speed, capped at +90%
-  // Only applies when equipped on the weapon (primary panel), never from hero panel
+  // Speedster: +1% damage per 1% bonus speed, capped at +90% — each copy adds its own capped bonus
   const speedsterCount = state.primary.jokers.filter(id => id === 'speedster').length;
   let speedsterBonus = 0;
   if (speedsterCount > 0) {
-    const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100; // e.g. 24% bonus if at 124% total
-    speedsterBonus = Math.min(bonusSpeedPct, 90) / 100;   // cap at +90%, expressed as multiplier addend
+    const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
+    speedsterBonus = speedsterCount * (Math.min(bonusSpeedPct, 90) / 100);
   }
 
-  // Eagle Lever: +50% damage at max stacks (50 stacks × 1%)
+  // Eagle Lever: +50% damage at max stacks per copy (additive)
   const eagleLeverCount = state.primary.jokers.filter(id => id === 'eagle-lever').length;
-  const eagleLeverBonus = eagleLeverCount > 0 ? 0.50 : 0.0;
+  const eagleLeverBonus = eagleLeverCount * 0.50;
 
-  const finalJokerMult = jokerMult * (1 + speedsterBonus) * (1 + eagleLeverBonus);
+  const finalJokerMult = jokerMult + speedsterBonus + eagleLeverBonus;
 
   const finalHit     = effectiveDmg * finalJokerMult;
   // Weakspot = 1.5× the normal hit, then apply weakspot joker bonuses on top
@@ -2204,8 +2191,11 @@ function calcPrimary() {
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${(dmgSlots*(dmgDef?.perSlot||5)).toFixed(0)}% dmg · +${(frSlots*(frDef?.perSlot||5)).toFixed(0)}% FR · weakspot DPS`;
   if (subHit) {
-    const speedsterNote = speedsterCount > 0 ? ` · Speedster +${Math.round(speedsterBonus*100)}% dmg` : '';
-    subHit.textContent = `Base ${baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
+    const parts = [`×${dmgMult.toFixed(2)} upgrade`];
+    if (jokerMult !== 1.0) parts.push(`×${jokerMult.toFixed(2)} jokers`);
+    if (speedsterBonus > 0) parts.push(`Speedster +${Math.round(speedsterBonus*100)}%`);
+    if (eagleLeverBonus > 0) parts.push(`Eagle Lever +${Math.round(eagleLeverBonus*100)}%`);
+    subHit.textContent = `Base ${baseDmg} × ${parts.join(' × ')} → ×${finalJokerMult.toFixed(2)} total`;
   }
   const wsDesc = wsBonusTotal > 0 ? `1.5× base × ×${(1+wsBonusTotal).toFixed(2)} ws jokers (${(wsBonusTotal*100).toFixed(0)}% bonus)` : '1.5× normal hit';
   if (subWs)  subWs.textContent  = wsDesc;
@@ -2248,15 +2238,15 @@ function calcSecondary() {
   const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal  = wsBonus + (weakLinkCount * 0.35);
 
-  // Speedster: +1% damage per 1% bonus speed, capped at +90%
+  // Speedster: each copy adds its own capped bonus additively
   const speedsterCountSec = state.secondary.jokers.filter(id => id === 'speedster').length;
   let speedsterBonusSec = 0;
   if (speedsterCountSec > 0) {
     const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
-    speedsterBonusSec = Math.min(bonusSpeedPct, 90) / 100;
+    speedsterBonusSec = speedsterCountSec * (Math.min(bonusSpeedPct, 90) / 100);
   }
 
-  const finalJokerMult = jokerMult * (1 + speedsterBonusSec);
+  const finalJokerMult = jokerMult + speedsterBonusSec;
   const finalHit   = effectiveDmg * finalJokerMult;
   const finalWsHit = isBoomerang
     ? finalHit * (1 + wsBonusTotal)
@@ -2278,8 +2268,10 @@ function calcSecondary() {
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${dmgSlots*5}% dmg${hasFR ? ` · +${frSlots*5}% fr` : ''} · weakspot DPS`;
   if (subHit) {
-    const speedsterNote = speedsterCountSec > 0 ? ` · Speedster +${Math.round(speedsterBonusSec*100)}% dmg` : '';
-    subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
+    const parts = [`×${dmgMult.toFixed(2)} upgrade`];
+    if (jokerMult !== 1.0) parts.push(`×${jokerMult.toFixed(2)} jokers`);
+    if (speedsterBonusSec > 0) parts.push(`Speedster +${Math.round(speedsterBonusSec*100)}%`);
+    subHit.textContent = `Base ${w.baseDmg} × ${parts.join(' × ')} → ×${finalJokerMult.toFixed(2)} total`;
   }
   const wsLabel = isBoomerang
     ? (wsBonusTotal > 0 ? `Normal ×${(1+wsBonusTotal).toFixed(2)} ws jokers (no 1.5× for boomerang)` : 'No 1.5× multiplier for Boomerang')
@@ -2308,13 +2300,13 @@ function calcSpellCooldown() {
   const cdrSlots = state.hero.upgrades.cdr || 0;
   cdrPct += cdrSlots * 2;
 
-  // West Wizard: -30% CDR (applied as a flat reduction)
+  // West Wizard: −30% CDR per copy
   const wwCount = state.hero.jokers.filter(id => id === 'west-wizard').length;
-  if (wwCount > 0) cdrPct += 30;
+  cdrPct += wwCount * 30;
 
-  // Giant: +Spell CDR — treat as +10% estimate
+  // Giant: +10% CDR estimate per copy
   const giantCount = state.hero.jokers.filter(id => id === 'giant').length;
-  if (giantCount > 0) cdrPct += 10;
+  cdrPct += giantCount * 10;
 
   // Cantrip One-Trick: −20% CDR on spells with base CD ≤35s
   const cantripCount = state.hero.jokers.filter(id => id === 'cantrip').length;
@@ -2348,10 +2340,10 @@ function calcSpellCooldown() {
   if (cdEffEl)  cdEffEl.innerHTML  = `${avgEff.toFixed(1)}<span class="calc-metric-unit">s</span>`;
   const cdrSources = [];
   if (cdrSlots)      cdrSources.push(`+${cdrSlots*2}% hero upgrades`);
-  if (wwCount)       cdrSources.push(`+30% West Wizard`);
-  if (giantCount)    cdrSources.push(`+10% Giant`);
+  if (wwCount)       cdrSources.push(`+${wwCount*30}% West Wizard${wwCount > 1 ? ` (×${wwCount})` : ''}`);
+  if (giantCount)    cdrSources.push(`+${giantCount*10}% Giant${giantCount > 1 ? ` (×${giantCount})` : ''}`);
   if (schoolBonusPct) cdrSources.push(`+${schoolBonusPct}% school mastery`);
-  if (cantripCount)  cdrSources.push(`Cantrip on ≤35s spells`);
+  if (cantripCount)  cdrSources.push(`${cantripCount > 1 ? `Cantrip ×${cantripCount}` : 'Cantrip'} on ≤35s spells`);
   if (subEff)  subEff.textContent  = cdrSources.length ? cdrSources.join(' · ') : 'No CDR sources active';
 }
 
@@ -2359,49 +2351,18 @@ function calcHPS() {
   const allJokers = [...state.primary.jokers, ...state.secondary.jokers, ...state.hero.jokers];
   let hps = 0;
 
-  // Lifesteal (secondary upgrade: 3% per slot) — based on weakspot DPS
+  // Lifesteal (secondary upgrade: 3% per slot) — based on weapon damage, not player HP
   const lsSlots = state.secondary.upgrades.ls || 0;
   const lsPct   = lsSlots * 3;
   if (lsPct > 0) {
     const w = WEAPONS[state.secondary.weapon];
     if (w) {
-      const isBoomerang  = state.secondary.weapon === 'boomerang';
-      const upgDefs      = getActiveSecondaryUpgrades(state.secondary.weapon);
-      const hasFR        = upgDefs.some(d => d.key === 'fr');
-      const dmgSlots     = state.secondary.upgrades.dmg || 0;
-      const frSlots      = hasFR ? (state.secondary.upgrades.fr || 0) : 0;
-      const dmgMult      = 1 + dmgSlots * 0.05;
-      const frMult       = 1 + frSlots  * 0.05;
-      const effectiveDmg = (w.baseDmg || 0) * dmgMult;
-      const effectiveFR  = (w.fireRate || 0.5) / frMult;
-
-      const jokerMult     = getJokerDmgMult(state.secondary.jokers);
-      const wsBonus       = getWeakspotBonus(state.secondary.jokers);
-      const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
-      const wsBonusTotal  = wsBonus + (weakLinkCount * 0.35);
-
-      const speedsterCountSec = state.secondary.jokers.filter(id => id === 'speedster').length;
-      let speedsterBonusSec = 0;
-      if (speedsterCountSec > 0) {
-        const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
-        speedsterBonusSec = Math.min(bonusSpeedPct, 90) / 100;
-      }
-
-      const finalJokerMult = jokerMult * (1 + speedsterBonusSec);
-      const finalHit       = effectiveDmg * finalJokerMult;
-
-      let wsDPS;
-      if (isBoomerang) {
-        const ltSlots  = state.secondary.upgrades.lt || 0;
-        const ltMult   = 1 + ltSlots * 0.10;
-        const totalHits = (w.hits || 5) * ltMult;
-        wsDPS = (finalHit * (1 + wsBonusTotal) * totalHits) / 1.38;
-      } else {
-        const finalWsHit = finalHit * 1.5 * (1 + wsBonusTotal);
-        wsDPS = finalWsHit / effectiveFR;
-      }
+      const dmgSlots = state.secondary.upgrades.dmg || 0;
+      const frSlots  = state.secondary.upgrades.fr  || 0;
+      const secDmg = (w.baseDmg||0) * (1 + dmgSlots * 0.05);
+      const secFR  = (w.fireRate||0.5) / (1 + frSlots * 0.05);
       // DPS * lifesteal% = hp/s
-      hps += wsDPS * (lsPct / 100);
+      hps += (secDmg / secFR) * (lsPct / 100);
     }
   }
 
@@ -2417,7 +2378,7 @@ function calcHPS() {
   } else {
     if (el)    el.innerHTML = `${hps.toFixed(2)}<span class="calc-metric-unit">hp/s</span>`;
     const sources = [];
-    if (lsPct > 0)          sources.push(`${lsPct}% lifesteal (ws DPS)`);
+    if (lsPct > 0)          sources.push(`${lsPct}% lifesteal`);
     if (drainSpells.length) sources.push(`Drain (×${drainSpells.length})`);
     if (subEl) subEl.textContent = sources.join(' · ') || 'Estimate from active sources';
   }
@@ -2426,18 +2387,18 @@ function calcHPS() {
 function calcHeroHP() {
   const healthSlots = state.hero.upgrades.health || 0;
   const baseHP      = 100;
-  // Updated: 5% per slot, max 30% (6 slots per user spec)
+  // 5% per slot, max 30% (6 slots)
   const bonusPct    = healthSlots * 5;
-  let hp = Math.round(baseHP * (1 + bonusPct / 100));
+  let hp = baseHP * (1 + bonusPct / 100);
 
+  // HP penalties stack additively: each copy adds another flat penalty
   const lifePactCount = state.hero.jokers.filter(id => id === 'life-pact').length;
-  if (lifePactCount > 0) hp = Math.round(hp * 0.70);
+  const glassCount    = state.hero.jokers.filter(id => id === 'glass-cannon').length;
+  const wwCount       = state.hero.jokers.filter(id => id === 'west-wizard').length;
 
-  const glassCount = state.hero.jokers.filter(id => id === 'glass-cannon').length;
-  if (glassCount > 0) hp = Math.round(hp * 0.75);
-
-  const wwCount = state.hero.jokers.filter(id => id === 'west-wizard').length;
-  if (wwCount > 0) hp = Math.round(hp * 0.70);
+  // Additive penalty: e.g. 2× Life Pact = −60%, 2× Glass Cannon = −50%, 2× West Wizard = −60%
+  const totalPenaltyPct = (lifePactCount * 30) + (glassCount * 25) + (wwCount * 30);
+  hp = Math.round(hp * Math.max(0, 1 - totalPenaltyPct / 100));
 
   const el = document.getElementById('calc-hero-hp');
   if (el) el.innerHTML = `${hp}<span class="calc-metric-unit">hp</span>`;
@@ -2454,86 +2415,12 @@ function updateUtilityNote() {
 }
 
 // =============================================================
-//  LZ COMPRESSION (simple LZString-style for build codes)
-// =============================================================
-const LZ = (() => {
-  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-  function compress(s) {
-    if (!s) return '';
-    const d = {}, r = [];
-    let w = '', c = 2, n = 2, b = 0, bits = 0;
-    for (let i = 0; i <= s.length; i++) {
-      const ch = i < s.length ? s[i] : '';
-      const wc = w + ch;
-      if (i < s.length && d[wc] != null) { w = wc; continue; }
-      // output w
-      if (d[w] != null) {
-        b |= d[w] << bits; bits += n;
-      } else {
-        b |= 0 << bits; bits++;
-        if (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
-        if (w.charCodeAt(0) < 256) {
-          b |= 0 << bits; bits++;
-          if (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
-          b |= w.charCodeAt(0) << bits; bits += 8;
-        } else {
-          b |= 1 << bits; bits++;
-          if (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
-          b |= w.charCodeAt(0) << bits; bits += 16;
-        }
-        if (c === (1 << n)) n++;
-        d[w] = c++;
-      }
-      while (bits >= 6) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
-      if (i < s.length) { d[wc] = c++; if (c === (1 << n)) n++; w = ch; }
-    }
-    b |= 2 << bits; bits += n;
-    while (bits > 0) { r.push(CHARS[b & 63]); b >>= 6; bits -= 6; }
-    return r.join('');
-  }
-  function decompress(s) {
-    if (!s) return '';
-    const rev = {};
-    for (let i = 0; i < CHARS.length; i++) rev[CHARS[i]] = i;
-    let buf = 0, blen = 0, pos = 0;
-    function readBits(n) {
-      while (blen < n) { buf |= rev[s[pos++]] << blen; blen += 6; }
-      const v = buf & ((1 << n) - 1); buf >>= n; blen -= n; return v;
-    }
-    let n = 3, c = 4, result = '', prev = '', entry;
-    const dict = ['', '', ''];
-    // read first symbol
-    const t = readBits(1);
-    const firstCode = t === 0 ? readBits(8) : readBits(16);
-    prev = String.fromCharCode(firstCode);
-    dict.push(prev); result = prev;
-    while (pos <= s.length + 1) {
-      const code = readBits(n);
-      if (code === 2) break;
-      if (code === 0 || code === 1) {
-        entry = String.fromCharCode(code === 0 ? readBits(8) : readBits(16));
-        dict.push(entry); c++;
-      } else {
-        entry = dict[code] != null ? dict[code] : (prev + prev[0]);
-      }
-      result += entry;
-      dict.push(prev + entry[0]); c++;
-      if (c >= (1 << n)) n++;
-      prev = entry;
-    }
-    return result;
-  }
-  return { compress, decompress };
-})();
-
-// =============================================================
 //  IMPORT / EXPORT
 // =============================================================
 
 function serializeState() {
   syncDOMToState();
-  const json = JSON.stringify(state);
-  return btoa(unescape(encodeURIComponent(LZ.compress(json))));
+  return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
 }
 
 function syncDOMToState() {
@@ -2547,18 +2434,8 @@ function syncDOMToState() {
 }
 
 function deserializeState(code) {
-  const raw = decodeURIComponent(escape(atob(code.trim())));
-  // Support both new compressed codes and legacy plain JSON
-  let parsed;
-  try {
-    // Try decompressing first (new format)
-    const decompressed = LZ.decompress(raw);
-    parsed = JSON.parse(decompressed);
-  } catch(e) {
-    // Fall back to legacy plain JSON
-    parsed = JSON.parse(raw);
-  }
-  Object.assign(state, parsed);
+  const loaded = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+  Object.assign(state, loaded);
   applyStateToDOM();
 }
 
