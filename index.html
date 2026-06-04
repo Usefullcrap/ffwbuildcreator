@@ -578,7 +578,7 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Build</span> Maker</div>
-    <div class="header-subtitle">Far Far West · pre-release v1.1</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.0</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -1403,6 +1403,8 @@ const COMBO_HINTS = [
 const state = {
   buildName: '',
   buildNotes: '',
+  utilityNotes: '',
+  spellsNotes: '',
   primary: {
     weapon: '',
     upgrades: { dmg:0, fr:0, cs:0, rs:0, ds:0, acc:0, ab:0 },
@@ -1947,24 +1949,27 @@ function calcSpeedMult() {
   const lastDanceCount = heroJokers.filter(id => id === 'last-dance').length;
   speedPct += lastDanceCount * 30;
 
-  // Run & Gun (+30% while shooting) — stacks per copy across both weapon slots
+  // Run & Gun (+30% while shooting) vs Run & Reload (+30% while reloading) — weapon jokers
   const runGunCount    = allJokers.filter(id => id === 'run-and-gun').length;
   const runReloadCount = allJokers.filter(id => id === 'run-and-reload').length;
-  speedPct += runGunCount * 30;
-  speedPct += runReloadCount * 30;
+  // Take the higher of the two (can't stack both at same time)
+  if (runGunCount > 0 || runReloadCount > 0) {
+    speedPct += 30; // only one applies at a time, +30%
+  }
 
-  // Rampage: +25% for 3s on kill — stacks per copy
+  // Rampage: +25% for 3s on kill — weapon joker, condition-based, include as active
   const rampageCount = allJokers.filter(id => id === 'rampage').length;
   speedPct += rampageCount * 25;
 
-  // Dwarf: +20% speed estimate — stacks per copy
+  // Dwarf: +move speed (legendary) — estimated +20% (game data)
   const dwarfCount = heroJokers.filter(id => id === 'dwarf').length;
   speedPct += dwarfCount * 20;
 
-  // Scavenger Star (+30% speed) — stacks per copy across both weapon slots
-  const scavengerCount = state.primary.jokers.filter(id => id === 'scavenger-star').length
-                       + state.secondary.jokers.filter(id => id === 'scavenger-star').length;
-  speedPct += scavengerCount * 30;
+  // Scavenger Star (weapon unique): +30% speed — only take the higher between primary & secondary
+  const scavengerPrimary   = state.primary.jokers.filter(id => id === 'scavenger-star').length;
+  const scavengerSecondary = state.secondary.jokers.filter(id => id === 'scavenger-star').length;
+  const scavengerBonus = Math.max(scavengerPrimary, scavengerSecondary) * 30;
+  speedPct += scavengerBonus;
 
   return speedPct / 100; // return as multiplier (1.0 = 100%)
 }
@@ -1980,25 +1985,15 @@ function calcMovementSpeed() {
   const allJokersFlat = [...state.primary.jokers, ...state.secondary.jokers, ...heroJokers];
   const speedSlots = state.hero.upgrades.speed || 0;
   const sources = [];
-  const speedSlotsD   = state.hero.upgrades.speed || 0;
-  const speedyCountD  = heroJokers.filter(id => id === 'speedy-gonzales').length;
-  const disgraceCountD= heroJokers.filter(id => id === 'disgrace').length;
-  const lastDanceCountD= heroJokers.filter(id => id === 'last-dance').length;
-  const runGunCountD  = allJokersFlat.filter(id => id === 'run-and-gun').length;
-  const runReloadCountD = allJokersFlat.filter(id => id === 'run-and-reload').length;
-  const rampageCountD = allJokersFlat.filter(id => id === 'rampage').length;
-  const dwarfCountD   = heroJokers.filter(id => id === 'dwarf').length;
-  const scavengerCountD = allJokersFlat.filter(id => id === 'scavenger-star').length;
-
-  if (speedSlotsD)      sources.push(`+${speedSlotsD*4}% hero upgrades`);
-  if (speedyCountD)     sources.push(`+${speedyCountD*10}% Speedy Gonzales${speedyCountD > 1 ? ` (×${speedyCountD})` : ''}`);
-  if (disgraceCountD)   sources.push(`+${disgraceCountD*30}% Disgrace${disgraceCountD > 1 ? ` (×${disgraceCountD})` : ''}`);
-  if (lastDanceCountD)  sources.push(`+${lastDanceCountD*30}% Last Dance${lastDanceCountD > 1 ? ` (×${lastDanceCountD})` : ''}`);
-  if (runGunCountD)     sources.push(`+${runGunCountD*30}% Run & Gun${runGunCountD > 1 ? ` (×${runGunCountD})` : ''}`);
-  if (runReloadCountD)  sources.push(`+${runReloadCountD*30}% Run & Reload${runReloadCountD > 1 ? ` (×${runReloadCountD})` : ''}`);
-  if (rampageCountD)    sources.push(`+${rampageCountD*25}% Rampage${rampageCountD > 1 ? ` (×${rampageCountD})` : ''}`);
-  if (dwarfCountD)      sources.push(`+${dwarfCountD*20}% Dwarf${dwarfCountD > 1 ? ` (×${dwarfCountD})` : ''}`);
-  if (scavengerCountD)  sources.push(`+${scavengerCountD*30}% Scavenger Star${scavengerCountD > 1 ? ` (×${scavengerCountD})` : ''}`);
+  if (speedSlots)                                                                      sources.push(`+${speedSlots*4}% hero upgrades`);
+  if (heroJokers.includes('speedy-gonzales'))                                          sources.push('+10% Speedy Gonzales');
+  if (heroJokers.includes('disgrace'))                                                 sources.push('+30% Disgrace');
+  if (heroJokers.includes('last-dance'))                                               sources.push('+30% Last Dance');
+  if (allJokersFlat.includes('run-and-gun') || allJokersFlat.includes('run-and-reload')) sources.push('+30% Run & Gun/Reload');
+  if (allJokersFlat.includes('rampage'))                                               sources.push('+25% Rampage');
+  if (heroJokers.includes('dwarf'))                                                    sources.push('+20% Dwarf');
+  const scavengerActive = state.primary.jokers.includes('scavenger-star') || state.secondary.jokers.includes('scavenger-star');
+  if (scavengerActive)                                                                  sources.push('+30% Scavenger Star');
   if (subEl) subEl.textContent = sources.length ? sources.join(' · ') : 'Base speed only';
 }
 
@@ -2034,10 +2029,8 @@ function calcRatings() {
   const spellCount = equippedSpells.length;
   if (spellCount > 0) {
     let cdrPct = (state.hero.upgrades.cdr || 0) * 2;
-    const wwCountR = state.hero.jokers.filter(id => id === 'west-wizard').length;
-    cdrPct += wwCountR * 30;
-    const giantCountR = state.hero.jokers.filter(id => id === 'giant').length;
-    cdrPct += giantCountR * 10;
+    if (state.hero.jokers.includes('west-wizard')) cdrPct += 30;
+    if (state.hero.jokers.includes('giant')) cdrPct += 10;
     const cantripCount = state.hero.jokers.filter(id => id === 'cantrip').length;
     const schoolCDRJokers = { pyro:'pyro-mastery', elec:'elec-mastery', acid:'acid-mastery', voodoo:'voodoo-mastery', cactus:'cactus-mastery' };
     let schoolBonusPct = 0;
@@ -2166,19 +2159,20 @@ function calcPrimary() {
   const weakLinkCount = state.primary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal = wsMult + (weakLinkCount * 0.35);
 
-  // Speedster: +1% damage per 1% bonus speed, capped at +90% — each copy adds its own capped bonus
+  // Speedster: +1% damage per 1% bonus speed, capped at +90%
+  // Only applies when equipped on the weapon (primary panel), never from hero panel
   const speedsterCount = state.primary.jokers.filter(id => id === 'speedster').length;
   let speedsterBonus = 0;
   if (speedsterCount > 0) {
-    const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
-    speedsterBonus = speedsterCount * (Math.min(bonusSpeedPct, 90) / 100);
+    const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100; // e.g. 24% bonus if at 124% total
+    speedsterBonus = Math.min(bonusSpeedPct, 90) / 100;   // cap at +90%, expressed as multiplier addend
   }
 
-  // Eagle Lever: +50% damage at max stacks per copy (additive)
+  // Eagle Lever: +50% damage at max stacks (50 stacks × 1%)
   const eagleLeverCount = state.primary.jokers.filter(id => id === 'eagle-lever').length;
-  const eagleLeverBonus = eagleLeverCount * 0.50;
+  const eagleLeverBonus = eagleLeverCount > 0 ? 0.50 : 0.0;
 
-  const finalJokerMult = jokerMult + speedsterBonus + eagleLeverBonus;
+  const finalJokerMult = jokerMult * (1 + speedsterBonus) * (1 + eagleLeverBonus);
 
   const finalHit     = effectiveDmg * finalJokerMult;
   // Weakspot = 1.5× the normal hit, then apply weakspot joker bonuses on top
@@ -2191,11 +2185,8 @@ function calcPrimary() {
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${(dmgSlots*(dmgDef?.perSlot||5)).toFixed(0)}% dmg · +${(frSlots*(frDef?.perSlot||5)).toFixed(0)}% FR · weakspot DPS`;
   if (subHit) {
-    const parts = [`×${dmgMult.toFixed(2)} upgrade`];
-    if (jokerMult !== 1.0) parts.push(`×${jokerMult.toFixed(2)} jokers`);
-    if (speedsterBonus > 0) parts.push(`Speedster +${Math.round(speedsterBonus*100)}%`);
-    if (eagleLeverBonus > 0) parts.push(`Eagle Lever +${Math.round(eagleLeverBonus*100)}%`);
-    subHit.textContent = `Base ${baseDmg} × ${parts.join(' × ')} → ×${finalJokerMult.toFixed(2)} total`;
+    const speedsterNote = speedsterCount > 0 ? ` · Speedster +${Math.round(speedsterBonus*100)}% dmg` : '';
+    subHit.textContent = `Base ${baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
   }
   const wsDesc = wsBonusTotal > 0 ? `1.5× base × ×${(1+wsBonusTotal).toFixed(2)} ws jokers (${(wsBonusTotal*100).toFixed(0)}% bonus)` : '1.5× normal hit';
   if (subWs)  subWs.textContent  = wsDesc;
@@ -2238,15 +2229,15 @@ function calcSecondary() {
   const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal  = wsBonus + (weakLinkCount * 0.35);
 
-  // Speedster: each copy adds its own capped bonus additively
+  // Speedster: +1% damage per 1% bonus speed, capped at +90%
   const speedsterCountSec = state.secondary.jokers.filter(id => id === 'speedster').length;
   let speedsterBonusSec = 0;
   if (speedsterCountSec > 0) {
     const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
-    speedsterBonusSec = speedsterCountSec * (Math.min(bonusSpeedPct, 90) / 100);
+    speedsterBonusSec = Math.min(bonusSpeedPct, 90) / 100;
   }
 
-  const finalJokerMult = jokerMult + speedsterBonusSec;
+  const finalJokerMult = jokerMult * (1 + speedsterBonusSec);
   const finalHit   = effectiveDmg * finalJokerMult;
   const finalWsHit = isBoomerang
     ? finalHit * (1 + wsBonusTotal)
@@ -2268,10 +2259,8 @@ function calcSecondary() {
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${dmgSlots*5}% dmg${hasFR ? ` · +${frSlots*5}% fr` : ''} · weakspot DPS`;
   if (subHit) {
-    const parts = [`×${dmgMult.toFixed(2)} upgrade`];
-    if (jokerMult !== 1.0) parts.push(`×${jokerMult.toFixed(2)} jokers`);
-    if (speedsterBonusSec > 0) parts.push(`Speedster +${Math.round(speedsterBonusSec*100)}%`);
-    subHit.textContent = `Base ${w.baseDmg} × ${parts.join(' × ')} → ×${finalJokerMult.toFixed(2)} total`;
+    const speedsterNote = speedsterCountSec > 0 ? ` · Speedster +${Math.round(speedsterBonusSec*100)}% dmg` : '';
+    subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
   }
   const wsLabel = isBoomerang
     ? (wsBonusTotal > 0 ? `Normal ×${(1+wsBonusTotal).toFixed(2)} ws jokers (no 1.5× for boomerang)` : 'No 1.5× multiplier for Boomerang')
@@ -2300,13 +2289,13 @@ function calcSpellCooldown() {
   const cdrSlots = state.hero.upgrades.cdr || 0;
   cdrPct += cdrSlots * 2;
 
-  // West Wizard: −30% CDR per copy
+  // West Wizard: -30% CDR (applied as a flat reduction)
   const wwCount = state.hero.jokers.filter(id => id === 'west-wizard').length;
-  cdrPct += wwCount * 30;
+  if (wwCount > 0) cdrPct += 30;
 
-  // Giant: +10% CDR estimate per copy
+  // Giant: +Spell CDR — treat as +10% estimate
   const giantCount = state.hero.jokers.filter(id => id === 'giant').length;
-  cdrPct += giantCount * 10;
+  if (giantCount > 0) cdrPct += 10;
 
   // Cantrip One-Trick: −20% CDR on spells with base CD ≤35s
   const cantripCount = state.hero.jokers.filter(id => id === 'cantrip').length;
@@ -2340,10 +2329,10 @@ function calcSpellCooldown() {
   if (cdEffEl)  cdEffEl.innerHTML  = `${avgEff.toFixed(1)}<span class="calc-metric-unit">s</span>`;
   const cdrSources = [];
   if (cdrSlots)      cdrSources.push(`+${cdrSlots*2}% hero upgrades`);
-  if (wwCount)       cdrSources.push(`+${wwCount*30}% West Wizard${wwCount > 1 ? ` (×${wwCount})` : ''}`);
-  if (giantCount)    cdrSources.push(`+${giantCount*10}% Giant${giantCount > 1 ? ` (×${giantCount})` : ''}`);
+  if (wwCount)       cdrSources.push(`+30% West Wizard`);
+  if (giantCount)    cdrSources.push(`+10% Giant`);
   if (schoolBonusPct) cdrSources.push(`+${schoolBonusPct}% school mastery`);
-  if (cantripCount)  cdrSources.push(`${cantripCount > 1 ? `Cantrip ×${cantripCount}` : 'Cantrip'} on ≤35s spells`);
+  if (cantripCount)  cdrSources.push(`Cantrip on ≤35s spells`);
   if (subEff)  subEff.textContent  = cdrSources.length ? cdrSources.join(' · ') : 'No CDR sources active';
 }
 
@@ -2387,18 +2376,18 @@ function calcHPS() {
 function calcHeroHP() {
   const healthSlots = state.hero.upgrades.health || 0;
   const baseHP      = 100;
-  // 5% per slot, max 30% (6 slots)
+  // Updated: 5% per slot, max 30% (6 slots per user spec)
   const bonusPct    = healthSlots * 5;
-  let hp = baseHP * (1 + bonusPct / 100);
+  let hp = Math.round(baseHP * (1 + bonusPct / 100));
 
-  // HP penalties stack additively: each copy adds another flat penalty
   const lifePactCount = state.hero.jokers.filter(id => id === 'life-pact').length;
-  const glassCount    = state.hero.jokers.filter(id => id === 'glass-cannon').length;
-  const wwCount       = state.hero.jokers.filter(id => id === 'west-wizard').length;
+  if (lifePactCount > 0) hp = Math.round(hp * 0.70);
 
-  // Additive penalty: e.g. 2× Life Pact = −60%, 2× Glass Cannon = −50%, 2× West Wizard = −60%
-  const totalPenaltyPct = (lifePactCount * 30) + (glassCount * 25) + (wwCount * 30);
-  hp = Math.round(hp * Math.max(0, 1 - totalPenaltyPct / 100));
+  const glassCount = state.hero.jokers.filter(id => id === 'glass-cannon').length;
+  if (glassCount > 0) hp = Math.round(hp * 0.75);
+
+  const wwCount = state.hero.jokers.filter(id => id === 'west-wizard').length;
+  if (wwCount > 0) hp = Math.round(hp * 0.70);
 
   const el = document.getElementById('calc-hero-hp');
   if (el) el.innerHTML = `${hp}<span class="calc-metric-unit">hp</span>`;
@@ -2418,44 +2407,141 @@ function updateUtilityNote() {
 //  IMPORT / EXPORT
 // =============================================================
 
-function serializeState() {
-  syncDOMToState();
-  return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+// Fixed vocabularies — ORDER MUST NEVER CHANGE (append-only)
+const _WPN_PRIMARY   = ['','leveredge','long-ranger','minigun','quad-cylinder','shotgun'];
+const _WPN_SECONDARY = ['','boomerang','bow','dual-revolvers','revolver','sheriff-star'];
+const _ELEMENTS      = ['pyro','elec','acid','voodoo','cactus'];
+const _UTILITIES     = ['','ammo-pack','bottle-crate','healing-area','impulse-grenade'];
+const _SPELL_IDS     = ['','fireball','firebeam','surcharge','wisp-pyro','finger-guns',
+                        'strikes','boing','portal','swap','thunderstrike',
+                        'thrower','geyser','bubble','contagion','rain',
+                        'drain','rescue','corruption','ritual','doll',
+                        'mino','pistolero','wallo','decoyo','bandito'];
+const _JOKER_IDS     = [''].concat(JOKERS.map(j => j.id));
+
+const _PRI_UPG_KEYS  = ['dmg','fr','cs','rs','ds','acc','ab'];
+const _SEC_UPG_KEYS  = ['dmg','fr','cs','rs','ds','ls','ab','bs','lt','rng','pr','acc'];
+const _HERO_UPG_KEYS = ['health','cdr','speed','ammo','jump'];
+
+function _bw(max) { return max <= 1 ? 1 : Math.ceil(Math.log2(max + 1)); }
+const _W = {
+  priWeapon:  _bw(_WPN_PRIMARY.length   - 1),  // 3
+  secWeapon:  _bw(_WPN_SECONDARY.length - 1),  // 3
+  element:    _bw(_ELEMENTS.length      - 1),  // 3
+  utility:    _bw(_UTILITIES.length     - 1),  // 3
+  spell:      _bw(_SPELL_IDS.length     - 1),  // 5
+  joker:      _bw(_JOKER_IDS.length     - 1),  // 6
+  jokerCount: 5,
+  upgSlot:    5,
+};
+
+class _BitWriter {
+  constructor() { this._b = []; this._cur = 0; this._n = 0; }
+  write(val, w) {
+    let v = val >>> 0;
+    while (w > 0) {
+      const take = Math.min(8 - this._n, w);
+      this._cur |= (v & ((1 << take) - 1)) << this._n;
+      this._n += take; v >>>= take; w -= take;
+      if (this._n === 8) { this._b.push(this._cur); this._cur = 0; this._n = 0; }
+    }
+  }
+  toB64url() {
+    if (this._n > 0) { this._b.push(this._cur); this._cur = 0; this._n = 0; }
+    return btoa(String.fromCharCode(...this._b))
+      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+}
+
+class _BitReader {
+  constructor(s) {
+    const b64 = s.replace(/-/g,'+').replace(/_/g,'/');
+    const bin = atob(b64 + '='.repeat((4 - b64.length % 4) % 4));
+    this._b = Array.from(bin, c => c.charCodeAt(0));
+    this._p = 0; this._cur = 0; this._n = 0;
+  }
+  read(w) {
+    let v = 0, shift = 0;
+    while (w > 0) {
+      if (this._n === 0) { this._cur = this._p < this._b.length ? this._b[this._p++] : 0; this._n = 8; }
+      const take = Math.min(this._n, w);
+      v |= (this._cur & ((1 << take) - 1)) << shift;
+      this._cur >>>= take; this._n -= take; shift += take; w -= take;
+    }
+    return v;
+  }
+}
+
+function _writeStr(bw, s) {
+  const bytes = Array.from(new TextEncoder().encode(s || ''));
+  bw.write(bytes.length, 10);
+  bytes.forEach(b => bw.write(b, 8));
+}
+
+function _readStr(br) {
+  const len = br.read(10);
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) bytes[i] = br.read(8);
+  return new TextDecoder().decode(bytes);
+}
+
+function _writeJokers(bw, jokers) {
+  const ids = (jokers || []).map(id => Math.max(0, _JOKER_IDS.indexOf(id))).filter(i => i > 0);
+  bw.write(ids.length, _W.jokerCount);
+  ids.forEach(i => bw.write(i, _W.joker));
+}
+
+function _readJokers(br) {
+  const n = br.read(_W.jokerCount);
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const idx = br.read(_W.joker);
+    if (idx > 0 && idx < _JOKER_IDS.length) out.push(_JOKER_IDS[idx]);
+  }
+  return out;
+}
+
+function _writeUpgrades(bw, upg, keys) {
+  keys.forEach(k => bw.write((upg && upg[k]) || 0, _W.upgSlot));
+}
+
+function _readUpgrades(br, keys) {
+  const out = {};
+  keys.forEach(k => { out[k] = br.read(_W.upgSlot); });
+  return out;
 }
 
 function syncDOMToState() {
-  state.buildName           = document.getElementById('build-name').value;
-  state.buildNotes          = document.getElementById('build-notes').value;
-  state.primary.weapon      = document.getElementById('primary-weapon').value;
-  state.secondary.weapon    = document.getElementById('secondary-weapon').value;
-  state.secondary.element   = document.getElementById('secondary-element').value;
-  state.utility             = document.getElementById('utility-select').value;
+  state.buildName    = document.getElementById('build-name').value;
+  state.buildNotes   = document.getElementById('build-notes').value;
+  state.utilityNotes = document.getElementById('utility-notes').value;
+  state.spellsNotes  = document.getElementById('spells-notes').value;
+  state.primary.weapon    = document.getElementById('primary-weapon').value;
+  state.secondary.weapon  = document.getElementById('secondary-weapon').value;
+  state.secondary.element = document.getElementById('secondary-element').value;
+  state.utility           = document.getElementById('utility-select').value;
   [1,2,3].forEach(i => { state.spells[i-1] = document.getElementById(`spell-${i}`).value; });
 }
 
-function deserializeState(code) {
-  const loaded = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
-  Object.assign(state, loaded);
-  applyStateToDOM();
-}
-
 function applyStateToDOM() {
-  document.getElementById('build-name').value             = state.buildName  || '';
-  document.getElementById('build-notes').value            = state.buildNotes || '';
-  document.getElementById('primary-weapon').value         = state.primary.weapon   || '';
-  document.getElementById('secondary-weapon').value       = state.secondary.weapon || '';
-  document.getElementById('secondary-element').value      = state.secondary.element || 'pyro';
-  document.getElementById('utility-select').value         = state.utility || '';
+  document.getElementById('build-name').value        = state.buildName    || '';
+  document.getElementById('build-notes').value       = state.buildNotes   || '';
+  document.getElementById('utility-notes').value     = state.utilityNotes || '';
+  document.getElementById('spells-notes').value      = state.spellsNotes  || '';
+  document.getElementById('primary-weapon').value    = state.primary.weapon    || '';
+  document.getElementById('secondary-weapon').value  = state.secondary.weapon  || '';
+  document.getElementById('secondary-element').value = state.secondary.element || 'pyro';
+  document.getElementById('utility-select').value    = state.utility || '';
   [1,2,3].forEach(i => {
     const el = document.getElementById(`spell-${i}`);
     if (el) el.value = state.spells[i-1] || '';
   });
 
-  if (!state.primary.jokers)    state.primary.jokers   = [];
-  if (!state.secondary.jokers)  state.secondary.jokers = [];
-  if (!state.hero.jokers)       state.hero.jokers      = [];
-  if (!state.primary.upgrades)  state.primary.upgrades  = {};
-  if (!state.hero.upgrades)     state.hero.upgrades     = { health:0, cdr:0, speed:0, ammo:0, jump:0 };
+  if (!state.primary.jokers)   state.primary.jokers   = [];
+  if (!state.secondary.jokers) state.secondary.jokers = [];
+  if (!state.hero.jokers)      state.hero.jokers      = [];
+  if (!state.primary.upgrades) state.primary.upgrades = {};
+  if (!state.hero.upgrades)    state.hero.upgrades    = { health:0, cdr:0, speed:0, ammo:0, jump:0 };
 
   renderPrimaryUpgrades();
   renderJokerSlots('primary');
@@ -2467,6 +2553,76 @@ function applyStateToDOM() {
   updateComboHint();
   updateCalc();
   updateUtilityNote();
+}
+
+function serializeState() {
+  syncDOMToState();
+  const bw = new _BitWriter();
+  bw.write(2, 8); // version
+
+  bw.write(Math.max(0, _WPN_PRIMARY.indexOf(state.primary.weapon || '')),   _W.priWeapon);
+  _writeUpgrades(bw, state.primary.upgrades,   _PRI_UPG_KEYS);
+  _writeJokers(bw, state.primary.jokers);
+
+  bw.write(Math.max(0, _WPN_SECONDARY.indexOf(state.secondary.weapon || '')), _W.secWeapon);
+  bw.write(Math.max(0, _ELEMENTS.indexOf(state.secondary.element || 'pyro')), _W.element);
+  _writeUpgrades(bw, state.secondary.upgrades, _SEC_UPG_KEYS);
+  _writeJokers(bw, state.secondary.jokers);
+
+  _writeUpgrades(bw, state.hero.upgrades, _HERO_UPG_KEYS);
+  _writeJokers(bw, state.hero.jokers);
+
+  bw.write(Math.max(0, _UTILITIES.indexOf(state.utility || '')), _W.utility);
+  state.spells.forEach(s => bw.write(Math.max(0, _SPELL_IDS.indexOf(s || '')), _W.spell));
+
+  _writeStr(bw, state.buildName);
+  _writeStr(bw, state.buildNotes);
+  _writeStr(bw, state.utilityNotes);
+  _writeStr(bw, state.spellsNotes);
+
+  return bw.toB64url();
+}
+
+function deserializeState(code) {
+  code = code.trim();
+
+  // Detect legacy plain-JSON codes
+  try {
+    const raw = decodeURIComponent(escape(atob(
+      code.replace(/-/g,'+').replace(/_/g,'/') + '='.repeat((4 - code.length % 4) % 4)
+    )));
+    if (raw.trimStart().startsWith('{')) {
+      Object.assign(state, JSON.parse(raw));
+      applyStateToDOM();
+      return;
+    }
+  } catch(e) { /* not legacy */ }
+
+  const br = new _BitReader(code);
+  const ver = br.read(8);
+  if (ver !== 2) throw new Error('Unknown build code version ' + ver);
+
+  state.primary.weapon   = _WPN_PRIMARY[br.read(_W.priWeapon)]   || '';
+  state.primary.upgrades = _readUpgrades(br, _PRI_UPG_KEYS);
+  state.primary.jokers   = _readJokers(br);
+
+  state.secondary.weapon   = _WPN_SECONDARY[br.read(_W.secWeapon)] || '';
+  state.secondary.element  = _ELEMENTS[br.read(_W.element)]        || 'pyro';
+  state.secondary.upgrades = _readUpgrades(br, _SEC_UPG_KEYS);
+  state.secondary.jokers   = _readJokers(br);
+
+  state.hero.upgrades = _readUpgrades(br, _HERO_UPG_KEYS);
+  state.hero.jokers   = _readJokers(br);
+
+  state.utility = _UTILITIES[br.read(_W.utility)] || '';
+  state.spells  = [0,1,2].map(() => _SPELL_IDS[br.read(_W.spell)] || '');
+
+  state.buildName    = _readStr(br);
+  state.buildNotes   = _readStr(br);
+  state.utilityNotes = _readStr(br);
+  state.spellsNotes  = _readStr(br);
+
+  applyStateToDOM();
 }
 
 function doExport() {
@@ -2494,13 +2650,15 @@ function markDirty() {}
 
 function clearAll() {
   if (!confirm('Clear all fields and start a new build?')) return;
-  state.buildName  = '';
-  state.buildNotes = '';
-  state.primary    = { weapon:'', upgrades:{}, jokers:[] };
-  state.secondary  = { weapon:'', element:'pyro', upgrades:{dmg:0,fr:0,cs:0,rs:0,ds:0,ls:0}, jokers:[] };
-  state.hero       = { upgrades:{health:0,cdr:0,speed:0,ammo:0,jump:0}, jokers:[] };
-  state.utility    = '';
-  state.spells     = ['','',''];
+  state.buildName    = '';
+  state.buildNotes   = '';
+  state.utilityNotes = '';
+  state.spellsNotes  = '';
+  state.primary   = { weapon:'', upgrades:{}, jokers:[] };
+  state.secondary = { weapon:'', element:'pyro', upgrades:{dmg:0,fr:0,cs:0,rs:0,ds:0,ls:0}, jokers:[] };
+  state.hero      = { upgrades:{health:0,cdr:0,speed:0,ammo:0,jump:0}, jokers:[] };
+  state.utility   = '';
+  state.spells    = ['','',''];
   applyStateToDOM();
   document.getElementById('share-code').value = '';
   notify('Build cleared');
