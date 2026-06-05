@@ -1360,7 +1360,7 @@ const SPELL_BASE_CD = {
 // Rarity: Normal=1, Fine=2, Prime=3, Mythic=4, Legendary=5, Unique=5
 // FACT-CHECKED corrections:
 //   - Medicard is FINE (2pt), not Mythic (confirmed wiki navbox)
-//   - Speedster is LEGENDARY, weapon scope (standard firearms), damage scales with bonus speed
+//   - Speedster is LEGENDARY, weapon scope (standard firearms), damage & fire rate scale with bonus speed (+1% per 2% bonus speed, cap +44.5%)
 //   - Relentless is NORMAL, hero scope (confirmed wiki)
 //   - Explosive Rounds: three variants (Pyro/Elec/Acid) all Prime weapon jokers
 //   - Unique joker weapon assignments confirmed from wiki unique pairs:
@@ -1452,7 +1452,7 @@ const JOKERS = [
   { id:'glass-cannon',     name:'Glass Cannon',        rarity:'legendary', cost:5, scope:'hero',   effect:'+40% weapon & melee damage; −25% HP', dmgMult:0.40 },
   { id:'machine-gun',      name:'Machine Gun',         rarity:'legendary', cost:5, scope:'weapon', excludeWeapons:['boomerang'], effect:'+0.3% fire rate per 50 damage dealt (per mission)' },
   { id:'ricochet',         name:'Ricochet',            rarity:'legendary', cost:5, scope:'weapon', weapons:['quad-cylinder','long-ranger','minigun','leveredge','revolver','dual-revolvers','sheriff-star'], effect:'Bullets ricochet, 30% chain chance', dmgMult:0.075 },
-  { id:'speedster',        name:'Speedster',           rarity:'legendary', cost:5, scope:'weapon', weapons:['quad-cylinder','shotgun','long-ranger','minigun','leveredge','revolver','dual-revolvers'], effect:'Damage & fire rate scale with movement speed' },
+  { id:'speedster',        name:'Speedster',           rarity:'legendary', cost:5, scope:'weapon', weapons:['quad-cylinder','shotgun','long-ranger','minigun','leveredge','revolver','dual-revolvers'], effect:'Damage & fire rate scale with movement speed (+1% per 2% bonus speed, cap +44.5%)' },
   { id:'toolbox',          name:'Toolbox',             rarity:'legendary', cost:5, scope:'hero',   effect:'No utility pickups; utility refills every 90s', isToolbox:true },
   // ── Unique (5pt, weapon-specific) ──
   // Shotgun uniques
@@ -2293,13 +2293,13 @@ function calcPrimary() {
   const weakLinkCount = state.primary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal = wsMult + (weakLinkCount * 0.35);
 
-  // Speedster: +1% damage per 1% bonus speed, capped at +90%
+  // Speedster: +1% damage & fire rate per 2% bonus speed, capped at +44.5%
   // Only applies when equipped on the weapon (primary panel), never from hero panel
   const speedsterCount = state.primary.jokers.filter(id => id === 'speedster').length;
   let speedsterBonus = 0;
   if (speedsterCount > 0) {
     const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100; // e.g. 24% bonus if at 124% total
-    speedsterBonus = Math.min(bonusSpeedPct, 90) / 100;   // cap at +90%, expressed as multiplier addend
+    speedsterBonus = Math.min(bonusSpeedPct / 2, 44.5) / 100; // +1% per 2% speed, cap at +44.5%
   }
 
   // Eagle Lever: +50% damage at max stacks (50 stacks × 1%)
@@ -2307,19 +2307,21 @@ function calcPrimary() {
   const eagleLeverBonus = eagleLeverCount > 0 ? 0.50 : 0.0;
 
   const finalJokerMult = jokerMult * (1 + speedsterBonus) * (1 + eagleLeverBonus);
+  // Speedster also boosts fire rate by the same amount
+  const effectiveFRWithSpeedster = effectiveFR / (1 + speedsterBonus);
 
   const finalHit     = effectiveDmg * finalJokerMult;
   // Weakspot = 1.5× the normal hit, then apply weakspot joker bonuses on top
   const finalWsHit   = finalHit * 1.5 * (1 + wsBonusTotal);
   // DPS uses weakspot
-  const finalDPS     = (finalWsHit) / effectiveFR;
+  const finalDPS     = (finalWsHit) / effectiveFRWithSpeedster;
 
   if (dpsEl)  dpsEl.innerHTML  = `${finalDPS.toFixed(1)}<span class="calc-metric-unit">dmg/s</span>`;
   if (hitEl)  hitEl.innerHTML  = `${finalHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${(dmgSlots*(dmgDef?.perSlot||5)).toFixed(0)}% dmg · +${(frSlots*(frDef?.perSlot||5)).toFixed(0)}% FR · weakspot DPS`;
   if (subHit) {
-    const speedsterNote = speedsterCount > 0 ? ` · Speedster +${Math.round(speedsterBonus*100)}% dmg` : '';
+    const speedsterNote = speedsterCount > 0 ? ` · Speedster +${Math.round(speedsterBonus*100)}% dmg & FR` : '';
     subHit.textContent = `Base ${baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
   }
   const wsDesc = wsBonusTotal > 0 ? `1.5× base × ×${(1+wsBonusTotal).toFixed(2)} ws jokers (${(wsBonusTotal*100).toFixed(0)}% bonus)` : '1.5× normal hit';
@@ -2363,15 +2365,17 @@ function calcSecondary() {
   const weakLinkCount = state.secondary.jokers.filter(id => id === 'weak-link').length;
   const wsBonusTotal  = wsBonus + (weakLinkCount * 0.35);
 
-  // Speedster: +1% damage per 1% bonus speed, capped at +90%
+  // Speedster: +1% damage & fire rate per 2% bonus speed, capped at +44.5%
   const speedsterCountSec = state.secondary.jokers.filter(id => id === 'speedster').length;
   let speedsterBonusSec = 0;
   if (speedsterCountSec > 0) {
     const bonusSpeedPct = (calcSpeedMult() - 1.0) * 100;
-    speedsterBonusSec = Math.min(bonusSpeedPct, 90) / 100;
+    speedsterBonusSec = Math.min(bonusSpeedPct / 2, 44.5) / 100; // +1% per 2% speed, cap at +44.5%
   }
 
   const finalJokerMult = jokerMult * (1 + speedsterBonusSec);
+  // Speedster also boosts fire rate by the same amount
+  const effectiveFRWithSpeedster = effectiveFR / (1 + speedsterBonusSec);
   const finalHit   = effectiveDmg * finalJokerMult;
   const finalWsHit = isBoomerang
     ? finalHit * (1 + wsBonusTotal)
@@ -2385,7 +2389,7 @@ function calcSecondary() {
     const totalHits = (w.hits || 5) * ltMult;
     finalDPS = (finalHit * totalHits) / 1.38;
   } else {
-    finalDPS = finalWsHit / effectiveFR;
+    finalDPS = finalWsHit / effectiveFRWithSpeedster;
   }
 
   if (dpsEl)  dpsEl.innerHTML  = `${finalDPS.toFixed(1)}<span class="calc-metric-unit">dmg/s</span>`;
@@ -2393,7 +2397,7 @@ function calcSecondary() {
   if (wsEl)   wsEl.innerHTML   = `${finalWsHit.toFixed(1)}<span class="calc-metric-unit">dmg</span>`;
   if (subDps) subDps.textContent = `${w.name} · +${dmgSlots*5}% dmg${hasFR ? ` · +${frSlots*5}% fr` : ''} · weakspot DPS`;
   if (subHit) {
-    const speedsterNote = speedsterCountSec > 0 ? ` · Speedster +${Math.round(speedsterBonusSec*100)}% dmg` : '';
+    const speedsterNote = speedsterCountSec > 0 ? ` · Speedster +${Math.round(speedsterBonusSec*100)}% dmg & FR` : '';
     subHit.textContent = `Base ${w.baseDmg} × ×${dmgMult.toFixed(2)} upgrade × ×${finalJokerMult.toFixed(2)} joker${speedsterNote}`;
   }
   const wsLabel = isBoomerang
