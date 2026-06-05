@@ -534,6 +534,119 @@
     transition: opacity 0.2s, transform 0.2s;
     pointer-events: none;
   }
+  .notify.show { opacity: 1; transform: translateY(0); }
+
+  /* ── Export modal ── */
+  .export-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s;
+  }
+  .export-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .export-modal {
+    background: var(--panel);
+    border: 1px solid var(--border-hi);
+    border-radius: 4px;
+    padding: 24px 28px 20px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    transform: translateY(-12px) scale(0.97);
+    transition: transform 0.18s;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.55);
+  }
+  .export-backdrop.open .export-modal {
+    transform: translateY(0) scale(1);
+  }
+  .export-modal-title {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 6px;
+  }
+  .export-modal-sub {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+  .export-modal-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .export-choice-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: var(--font-mono);
+  }
+  .export-choice-btn:hover {
+    border-color: var(--copper);
+    background: var(--panel-hi);
+  }
+  .export-choice-btn:active {
+    background: var(--copper);
+    border-color: var(--copper);
+  }
+  .export-choice-btn:active .export-choice-icon,
+  .export-choice-btn:active .export-choice-label,
+  .export-choice-btn:active .export-choice-desc {
+    color: var(--bg);
+  }
+  .export-choice-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+  .export-choice-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .export-choice-desc {
+    font-size: 0.64rem;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+  }
+  .export-modal-cancel {
+    width: 100%;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.15s;
+  }
+  .export-modal-cancel:hover { color: var(--text-dim); }
   /* ── Rating panel ── */
   .rating-row {
     display: grid;
@@ -578,7 +691,7 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Build</span> Maker</div>
-    <div class="header-subtitle">Far Far West · pre-release v1.21</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.22</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -1071,6 +1184,27 @@
     Thank you to the following feedback givers / public testers: <span style="color:var(--sand-dim)">Fnostic, DracZ, Deciduken, and JellyFrog.</span> If your name is not listed here, apologies.
   </p>
 </footer>
+
+<!-- EXPORT MODAL -->
+<div class="export-backdrop" id="export-backdrop" onclick="closeExportModal(event)">
+  <div class="export-modal" role="dialog" aria-modal="true" aria-label="Export build">
+    <div class="export-modal-title"> Export Build</div>
+    <div class="export-modal-sub">How would you like to export your build?</div>
+    <div class="export-modal-btns">
+      <button class="export-choice-btn" onclick="doExportURL()">
+        <span class="export-choice-icon">🔗</span>
+        <span class="export-choice-label">Share URL</span>
+        <span class="export-choice-desc">Full URL with build<br>code in the hash.<br>Ready to paste &amp; open.</span>
+      </button>
+      <button class="export-choice-btn" onclick="doExportCode()">
+        <span class="export-choice-icon">📋</span>
+        <span class="export-choice-label">Base64 Code</span>
+        <span class="export-choice-desc">Compact build code<br>only. Paste into the<br>Import field to load.</span>
+      </button>
+    </div>
+    <button class="export-modal-cancel" onclick="closeExportModal()">Cancel</button>
+  </div>
+</div>
 
 <!-- NOTIFY TOAST -->
 <div class="notify" id="notify-toast"></div>
@@ -2626,13 +2760,32 @@ function deserializeState(code) {
 }
 
 function doExport() {
+  document.getElementById('export-backdrop').classList.add('open');
+}
+
+function closeExportModal(e) {
+  // Close when clicking the backdrop directly (not the modal itself)
+  if (e && e.target !== document.getElementById('export-backdrop')) return;
+  document.getElementById('export-backdrop').classList.remove('open');
+}
+
+function doExportURL() {
+  document.getElementById('export-backdrop').classList.remove('open');
   const code = serializeState();
   const codeEl = document.getElementById('share-code');
   if (codeEl) codeEl.value = code;
-  // Update URL hash so the current URL is a shareable build link
   history.replaceState(null, '', '#' + code);
   navigator.clipboard?.writeText(window.location.href).catch(() => navigator.clipboard?.writeText(code).catch(()=>{}));
   notify('Share URL copied to clipboard ✓');
+}
+
+function doExportCode() {
+  document.getElementById('export-backdrop').classList.remove('open');
+  const code = serializeState();
+  const codeEl = document.getElementById('share-code');
+  if (codeEl) codeEl.value = code;
+  navigator.clipboard?.writeText(code).catch(()=>{});
+  notify('Build code copied to clipboard ✓');
 }
 
 function doImport() {
@@ -2694,6 +2847,11 @@ function notify(msg) {
   });
   document.getElementById('utility-select').addEventListener('change', function() {
     state.utility = this.value; updateUtilityNote(); markDirty();
+  });
+
+  // Close export modal on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') document.getElementById('export-backdrop').classList.remove('open');
   });
 
   // URL share link — supports ?b=<code> query param OR #<code> hash
