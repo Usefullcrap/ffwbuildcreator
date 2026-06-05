@@ -578,7 +578,7 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Build</span> Maker</div>
-    <div class="header-subtitle">Far Far West · pre-release v1.2</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.21</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -1054,8 +1054,8 @@
         <button class="btn btn-amber" style="align-self:end" onclick="importFromCode()">Import </button>
       </div>
       <div class="dimtext mt8" style="font-size:0.76rem">
-        Export generates a compact code encoding your full build state. Paste the code and click Import to restore any saved build.
-        <span style="color:var(--copper)"> Tip: bookmark or share the URL after pasting the code in #build-name.</span>
+        Export generates a compact code encoding your full build state. Click Export to generate a code and copy the shareable URL to your clipboard — paste it anywhere to share. Others open the URL directly to load the build instantly.
+        <span style="color:var(--copper)"> Tip: the build code can also be appended as a URL hash (e.g. <code style="font-size:0.7rem;color:var(--amber)">page.html#&lt;code&gt;</code>) to auto-load a build on open.</span>
       </div>
     </div>
   </section>
@@ -1068,7 +1068,7 @@
     This is a project created by <span style="color:var(--copper)">phantombutphanthom</span> on discord. Calculations and data collection done by <span style="color:var(--copper)">phantombutphanthom</span>. Coding is done by Claude. This is currently an early release of this build calculator and sharer so expect bugs. If you would like to give feedback or report a bug / issue, @ me in the builds channel of the FFW discord. Additionally, I am more than open to forking of this project. Just please credit me if you do so. Thanks.
   </p>
   <p style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);line-height:1.8">
-    Thank you to the following feedback givers / public testers: <span style="color:var(--sand-dim)">DracZ (especially), Fnostic, Deciduken, and JellyFrog.</span> If your name is not listed here, apologies.
+    Thank you to the following feedback givers / public testers: <span style="color:var(--sand-dim)">Fnostic, DracZ, Deciduken, and JellyFrog.</span> If your name is not listed here, apologies.
   </p>
 </footer>
 
@@ -2054,10 +2054,10 @@ function calcRatings() {
     cdRating = rawRating * (spellCount / 3);
   }
 
-  // ── Mobility rating (0-10): approaches 399% bonus from jokers OR 499% base speed
-  // Base speed (no bonuses) = 100%. Target: 399% bonus = 499% total, OR 499% base as ceiling.
+  // ── Mobility rating (0-10): approaches 383% bonus = 483% total speed
+  // Base speed (no bonuses) = 100%. Target: 383% bonus = 483% total.
   const MOBILITY_BASE_SPEED = 100;
-  const MOBILITY_TARGET_TOTAL = 499; // 499% total speed
+  const MOBILITY_TARGET_TOTAL = 483; // 483% total speed (383% bonus)
   const speedMult  = calcSpeedMult();
   const totalSpeed = speedMult * 100; // in percent
   // Only joker/upgrade bonus, ignore spells
@@ -2629,8 +2629,10 @@ function doExport() {
   const code = serializeState();
   const codeEl = document.getElementById('share-code');
   if (codeEl) codeEl.value = code;
-  navigator.clipboard?.writeText(code).catch(()=>{});
-  notify('Build code copied to clipboard ✓');
+  // Update URL hash so the current URL is a shareable build link
+  history.replaceState(null, '', '#' + code);
+  navigator.clipboard?.writeText(window.location.href).catch(() => navigator.clipboard?.writeText(code).catch(()=>{}));
+  notify('Share URL copied to clipboard ✓');
 }
 
 function doImport() {
@@ -2694,9 +2696,14 @@ function notify(msg) {
     state.utility = this.value; updateUtilityNote(); markDirty();
   });
 
-  // URL share link
+  // URL share link — supports ?b=<code> query param OR #<code> hash
   const params = new URLSearchParams(window.location.search);
-  if (params.has('b')) { try { deserializeState(params.get('b')); } catch(e) {} }
+  const hashCode = window.location.hash ? window.location.hash.slice(1) : '';
+  if (hashCode) {
+    try { deserializeState(hashCode); } catch(e) {}
+  } else if (params.has('b')) {
+    try { deserializeState(params.get('b')); } catch(e) {}
+  }
 })();
 </script>
 </body>
