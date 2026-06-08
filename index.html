@@ -181,7 +181,7 @@
   select:focus {
     border-color: var(--copper);
   }
-  textarea { resize: vertical; min-height: 68px; }
+  textarea { resize: none; min-height: 68px; overflow-y: hidden; }
   select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238c806a'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
   /* ── Buttons ── */
@@ -1143,7 +1143,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Jokers &amp; upgrades only. Spells ignored.<br>
-            Theoretical Max: <span style="color:var(--copper)">399% bonus (499% total)</span>
+            Theoretical Max: <span style="color:var(--copper)">383% bonus (483% total)</span>
           </div>
         </div>
 
@@ -2699,6 +2699,7 @@ function applyStateToDOM() {
   updateComboHint();
   updateCalc();
   updateUtilityNote();
+  autoExpandAll();
 }
 
 function serializeState() {
@@ -2879,6 +2880,19 @@ function notify(msg) {
 }
 
 // =============================================================
+//  AUTO-EXPANDING TEXTAREAS
+// =============================================================
+
+function autoExpand(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function autoExpandAll() {
+  document.querySelectorAll('textarea').forEach(autoExpand);
+}
+
+// =============================================================
 //  INIT
 // =============================================================
 
@@ -2891,6 +2905,12 @@ function notify(msg) {
   updateUpgradeUI('secondary');
   updateHeroUpgradeUI();
   updateCalc();
+
+  // Auto-expanding textareas
+  document.querySelectorAll('textarea').forEach(function(ta) {
+    ta.addEventListener('input', function() { autoExpand(this); });
+    autoExpand(ta);
+  });
 
   document.getElementById('secondary-element').addEventListener('change', function() {
     state.secondary.element = this.value; updateCalc(); markDirty();
