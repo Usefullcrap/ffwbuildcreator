@@ -691,7 +691,7 @@
 <header id="app-header">
   <div>
     <div class="header-title">FFW <span>Build</span> Maker</div>
-    <div class="header-subtitle">Far Far West · pre-release v1.22</div>
+    <div class="header-subtitle">Far Far West · pre-release v1.23</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="clearAll()">New Build</button>
@@ -1143,7 +1143,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-muted);margin-top:6px;line-height:1.6">
             Jokers &amp; upgrades only. Spells ignored.<br>
-            Theoretical Max: <span style="color:var(--copper)">383% bonus (483% total)</span>
+            Theoretical Max: <span style="color:var(--copper)">399% bonus (499% total)</span>
           </div>
         </div>
 
@@ -1209,6 +1209,7 @@
 <!-- NOTIFY TOAST -->
 <div class="notify" id="notify-toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fflate/0.8.2/fflate.min.js" integrity="sha512-dr/QLGDyV0OgrWqWtcLMvGPwMoNeOG4a/EpFtI+3VgYoFqFmQlDMBnhJOEgCqzNbEMJNKRuJxOVZB9RXCm4w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 // =============================================================
 //  DATA DEFINITIONS
@@ -2584,10 +2585,17 @@ class _BitWriter {
       if (this._n === 8) { this._b.push(this._cur); this._cur = 0; this._n = 0; }
     }
   }
+  toBytes() {
+    if (this._n > 0) { this._b.push(this._cur); this._cur = 0; this._n = 0; }
+    return new Uint8Array(this._b);
+  }
   toB64url() {
     if (this._n > 0) { this._b.push(this._cur); this._cur = 0; this._n = 0; }
-    return btoa(String.fromCharCode(...this._b))
-      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    let bin = '';
+    const chunk = 8192;
+    for (let i = 0; i < this._b.length; i += chunk)
+      bin += String.fromCharCode(...this._b.slice(i, i + chunk));
+    return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   }
 }
 
@@ -2612,12 +2620,12 @@ class _BitReader {
 
 function _writeStr(bw, s) {
   const bytes = Array.from(new TextEncoder().encode(s || ''));
-  bw.write(bytes.length, 10);
+  bw.write(bytes.length, 16);
   bytes.forEach(b => bw.write(b, 8));
 }
 
 function _readStr(br) {
-  const len = br.read(10);
+  const len = br.read(16);
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) bytes[i] = br.read(8);
   return new TextDecoder().decode(bytes);
@@ -2696,7 +2704,7 @@ function applyStateToDOM() {
 function serializeState() {
   syncDOMToState();
   const bw = new _BitWriter();
-  bw.write(2, 8); // version
+  bw.write(3, 8); // inner payload version (v3 layout)
 
   bw.write(Math.max(0, _WPN_PRIMARY.indexOf(state.primary.weapon || '')),   _W.priWeapon);
   _writeUpgrades(bw, state.primary.upgrades,   _PRI_UPG_KEYS);
@@ -2718,6 +2726,20 @@ function serializeState() {
   _writeStr(bw, state.utilityNotes);
   _writeStr(bw, state.spellsNotes);
 
+  const raw = bw.toBytes();
+
+  // Compress with deflate-raw if fflate is available
+  if (typeof fflate !== 'undefined') {
+    const compressed = fflate.deflateRawSync(raw, { level: 9 });
+    let bin = '';
+    const chunk = 8192;
+    for (let i = 0; i < compressed.length; i += chunk)
+      bin += String.fromCharCode(...compressed.slice(i, i + chunk));
+    // 'D' prefix = deflate-compressed v3 payload
+    return 'D' + btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+
+  // Fallback: plain base64url (no fflate)
   return bw.toB64url();
 }
 
@@ -2736,9 +2758,33 @@ function deserializeState(code) {
     }
   } catch(e) { /* not legacy */ }
 
+  // 'D' prefix = deflate-raw compressed payload
+  if (code.startsWith('D')) {
+    const b64 = code.slice(1).replace(/-/g,'+').replace(/_/g,'/');
+    const bin = atob(b64 + '='.repeat((4 - b64.length % 4) % 4));
+    const compressed = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) compressed[i] = bin.charCodeAt(i);
+    const inflated = fflate.inflateRawSync(compressed);
+    // Feed the inflated bytes into a _BitReader via a synthetic b64url string
+    let infBin = '';
+    const chunk = 8192;
+    for (let i = 0; i < inflated.length; i += chunk)
+      infBin += String.fromCharCode(...inflated.slice(i, i + chunk));
+    code = btoa(infBin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+
   const br = new _BitReader(code);
   const ver = br.read(8);
-  if (ver !== 2) throw new Error('Unknown build code version ' + ver);
+  if (ver !== 2 && ver !== 3) throw new Error('Unknown build code version ' + ver);
+
+  // Version 2 used 10-bit string length; version 3 uses 16-bit
+  const strBits = ver >= 3 ? 16 : 10;
+  function _readStrV(br) {
+    const len = br.read(strBits);
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = br.read(8);
+    return new TextDecoder().decode(bytes);
+  }
 
   state.primary.weapon   = _WPN_PRIMARY[br.read(_W.priWeapon)]   || '';
   state.primary.upgrades = _readUpgrades(br, _PRI_UPG_KEYS);
@@ -2755,10 +2801,10 @@ function deserializeState(code) {
   state.utility = _UTILITIES[br.read(_W.utility)] || '';
   state.spells  = [0,1,2].map(() => _SPELL_IDS[br.read(_W.spell)] || '');
 
-  state.buildName    = _readStr(br);
-  state.buildNotes   = _readStr(br);
-  state.utilityNotes = _readStr(br);
-  state.spellsNotes  = _readStr(br);
+  state.buildName    = _readStrV(br);
+  state.buildNotes   = _readStrV(br);
+  state.utilityNotes = _readStrV(br);
+  state.spellsNotes  = _readStrV(br);
 
   applyStateToDOM();
 }
